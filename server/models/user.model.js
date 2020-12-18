@@ -28,6 +28,14 @@ module.exports = (sequelize) =>
       imagePath: {
         type: DataTypes.STRING,
       },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       createdAt: {
         type: DataTypes.DATE,
       },

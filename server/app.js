@@ -1,14 +1,17 @@
-var createError = require("http-errors");
-var express = require("express");
-var logger = require("morgan");
-var sequelize = require("./sequelize");
-var router = require("./routes/routes");
+require("dotenv").config();
+const createError = require("http-errors");
+const express = require("express");
+const logger = require("morgan");
+const sequelize = require("./sequelize");
+const router = require("./routes/api/routes");
+const cors = require("cors");
 
-var app = express();
+const app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 router(app);
 
