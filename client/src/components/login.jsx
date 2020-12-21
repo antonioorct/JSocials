@@ -40,7 +40,7 @@ class Login extends Component {
             onChange={this.handleChange}
           ></input>
         </label>
-        <input type="submit" value="Login"></input>
+        <input className="btn btn-primary" type="submit" value="Login"></input>
       </form>
     );
   }

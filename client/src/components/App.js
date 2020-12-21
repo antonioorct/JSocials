@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { Route, Switch } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import Register from "./register";
 import Login from "./login";

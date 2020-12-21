@@ -17,7 +17,10 @@ router.post("/", async function (req, res, next) {
   if (!passCompare)
     return res.status(400).send("Invalid email and/or password");
 
-  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET);
+  const token = jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET
+  );
 
   res.send(token);
 });

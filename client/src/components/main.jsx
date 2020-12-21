@@ -1,21 +1,40 @@
 import React, { Component } from "react";
+import { getAllPosts, getPostsFromUserId } from "../services/postService";
 
 import jwtDecode from "jwt-decode";
+import http from "../services/httpService";
 
 class Main extends Component {
-  state = {};
+  state = { user: {}, posts: [], post: {} };
 
-  getUser() {
-    const token = localStorage.getItem("token");
-    if (!token) return "Nobody";
+  async componentDidMount() {
+    const loggedUser = await this.getUser();
 
-    const { email } = jwtDecode(token);
+    this.setState({ user: loggedUser });
 
-    return email;
+    getPostsFromUserId(this.state.user.id).then((data) => {
+      console.log(data);
+      this.setState({ posts: data });
+    });
   }
 
+  async getUser() {
+    const token = localStorage.getItem("token");
+    if (!token) return "Nobody";
+    else return jwtDecode(token);
+  }
+
+  getPostsFromCurrentUser = async () => {};
+
   render() {
-    return <h1>Welcome {this.getUser()}</h1>;
+    return (
+      <div>
+        <h1>Welcome {this.state.user.email}</h1>
+        {this.state.posts.map((value) => {
+          return <p key={value.id}>{value.content}</p>;
+        })}
+      </div>
+    );
   }
 }
 

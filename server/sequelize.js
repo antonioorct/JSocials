@@ -15,7 +15,7 @@ const sequelize = new Sequelize(
 
 console.log("Connected to database");
 
-const models = [require("./models/user.model")];
+const models = [require("./models/user.model"), require("./models/post.model")];
 
 models.forEach((model) => {
   model(sequelize);
