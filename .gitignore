@@ -28,7 +28,6 @@ Start server.bat
 server/.bash_profile
 
 .vscode
-.env
 client/debug.log
 client/.eslintcache
 client/.eslintcache
