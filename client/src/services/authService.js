@@ -1,5 +1,6 @@
 import http from "./httpService";
 import jwtDecode from "jwt-decode";
+import { initialState } from "../contexts/UserContext";
 
 const apiEndPoint = "http://localhost:3001/api/";
 
@@ -16,12 +17,16 @@ export async function sendLoginInfo(email, password) {
   return jwt;
 }
 
+export async function login(jwt) {
+  localStorage.setItem("token", jwt);
+}
+
 export async function logout() {
   localStorage.removeItem("token");
 }
 
 export async function getLoggedInUser() {
   const token = localStorage.getItem("token");
-  if (!token) return null;
-  else return jwtDecode(token);
+  if (!token) return initialState;
+  else return { ...jwtDecode(token), isAuthenticated: true };
 }
