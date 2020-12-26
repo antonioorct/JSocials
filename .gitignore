@@ -31,3 +31,4 @@ server/.bash_profile
 client/debug.log
 client/.eslintcache
 client/.eslintcache
+server/.env
