@@ -1,13 +1,16 @@
-import React, { Component } from "react";
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
+import React, { useContext } from "react";
+import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import InputGroup from "react-bootstrap/InputGroup";
-import Button from "react-bootstrap/Button";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
 import { LinkContainer } from "react-router-bootstrap";
+import { UserContext } from "../contexts/UserContext";
 
-export function HeaderBar() {
+export default function HeaderBar() {
+  const userContext = useContext(UserContext);
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Navbar.Brand href="/">TVZSocials</Navbar.Brand>
@@ -27,10 +30,10 @@ export function HeaderBar() {
             </InputGroup.Append>
           </InputGroup>
         </Form>
-        {this.props.user && (
+        {userContext && (
           <>
-            <LinkContainer to={`/${this.props.user.email}`}>
-              <Nav.Link>{this.props.user.email}</Nav.Link>
+            <LinkContainer to={`/${userContext}`}>
+              <Nav.Link>{userContext.email}</Nav.Link>
             </LinkContainer>
             <Button
               onClick={() => {
@@ -41,7 +44,7 @@ export function HeaderBar() {
             </Button>
           </>
         )}
-        {!this.props.user && <Button href="/login">Login</Button>}
+        {!userContext && <Button href="/login">Login</Button>}
       </Nav>
     </Navbar>
   );
