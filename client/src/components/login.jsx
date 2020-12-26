@@ -1,9 +1,13 @@
 import React, { Component, useContext, useState } from "react";
-import { sendLoginInfo } from "../services/authService";
+import { sendLoginInfo, login, getLoggedInUser } from "../services/authService";
+
+import Form from "react-bootstrap/Form";
+import FormControl from "react-bootstrap/FormControl";
+import { InputGroup } from "react-bootstrap/InputGroup";
 
 import { UserContext } from "../contexts/UserContext";
 
-function Login() {
+function Login({ history }) {
   const [userForm, setUserForm] = useState({ email: "", password: "" });
   const [user, setUser] = useContext(UserContext);
 
@@ -15,38 +19,39 @@ function Login() {
     e.preventDefault();
 
     try {
-      const jwt = await sendLoginInfo(this.state.email, this.state.password);
-      localStorage.setItem("token", jwt);
+      const jwt = await sendLoginInfo(userForm.email, userForm.password);
+      await login(jwt);
+      const loggedInUser = await getLoggedInUser();
+      setUser(loggedInUser);
 
-      this.props.history.push("/");
-      this.props.user = { email: "test" };
+      history.push("/");
     } catch (e) {
       console.log(e);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <Form onSubmit={handleSubmit}>
       <label>
         E-Mail
-        <input
+        <FormControl
           type="text"
           id="email"
           value={userForm.email}
           onChange={handleChange}
-        ></input>
+        />
       </label>
       <label>
         Password
-        <input
+        <FormControl
           type="password"
           id="password"
           value={userForm.password}
           onChange={handleChange}
-        ></input>
+        />
       </label>
       <input className="btn btn-primary" type="submit" value="Login"></input>
-    </form>
+    </Form>
   );
 }
 

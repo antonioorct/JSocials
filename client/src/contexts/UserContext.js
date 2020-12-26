@@ -1,7 +1,7 @@
 import { createContext } from "react";
 
 export const initialState = {
-  email: "email@mail.com",
+  email: null,
   id: null,
   token: null,
   isAuthenticated: false,
