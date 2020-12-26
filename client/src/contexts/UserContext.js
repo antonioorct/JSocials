@@ -1,6 +1,10 @@
-import React, { createContext } from "react";
+import { createContext } from "react";
 
-export const UserContext = createContext({
-  email: "email@com.hr",
-  id: 1,
-});
+export const initialState = {
+  email: "email@mail.com",
+  id: null,
+  token: null,
+  isAuthenticated: false,
+};
+
+export const UserContext = createContext(initialState);
