@@ -9,7 +9,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import { UserContext } from "../contexts/UserContext";
 
 export default function HeaderBar() {
-  const userContext = useContext(UserContext);
+  const user = useContext(UserContext)[0];
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
@@ -30,10 +30,10 @@ export default function HeaderBar() {
             </InputGroup.Append>
           </InputGroup>
         </Form>
-        {userContext && (
+        {user && (
           <>
-            <LinkContainer to={`/${userContext}`}>
-              <Nav.Link>{userContext.email}</Nav.Link>
+            <LinkContainer to={`/${user}`}>
+              <Nav.Link>{user.email}</Nav.Link>
             </LinkContainer>
             <Button
               onClick={() => {
@@ -44,7 +44,7 @@ export default function HeaderBar() {
             </Button>
           </>
         )}
-        {!userContext && <Button href="/login">Login</Button>}
+        {!user && <Button href="/login">Login</Button>}
       </Nav>
     </Navbar>
   );
