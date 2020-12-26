@@ -5,7 +5,7 @@ import Container from "react-bootstrap/Container";
 
 import { getLoggedInUser } from "../services/authService";
 
-import HeaderBar from "./navbar";
+import HeaderBar from "./headerBar";
 import Register from "./register";
 import Login from "./login";
 import Main from "./main";
