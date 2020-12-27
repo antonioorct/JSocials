@@ -23,13 +23,7 @@ export default function HeaderBar() {
       <Navbar.Brand href="/">TVZSocials</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Nav className="ml-auto">
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log(e.target);
-          }}
-          className="mr-4"
-        >
+        <Form className="mr-4">
           <InputGroup>
             <FormControl placeholder="Search"></FormControl>
             <InputGroup.Append>
