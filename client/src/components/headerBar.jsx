@@ -6,10 +6,17 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { LinkContainer } from "react-router-bootstrap";
-import { UserContext } from "../contexts/UserContext";
+import { initialState, UserContext } from "../contexts/UserContext";
+import { logout } from "../services/authService";
 
 export default function HeaderBar() {
   const [user, setUser] = useContext(UserContext);
+
+  const handleLogout = () => {
+    logout();
+
+    setUser(initialState);
+  };
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
@@ -30,19 +37,12 @@ export default function HeaderBar() {
             </InputGroup.Append>
           </InputGroup>
         </Form>
-        {console.log(user)}
         {user.isAuthenticated ? (
           <>
             <LinkContainer to={`/${user.email}`}>
               <Nav.Link>{user.email}</Nav.Link>
             </LinkContainer>
-            <Button
-              onClick={() => {
-                localStorage.removeItem("token");
-              }}
-            >
-              Logout
-            </Button>
+            <Button onClick={handleLogout}>Logout</Button>
           </>
         ) : (
           <Button href="/login">Login</Button>
