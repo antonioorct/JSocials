@@ -27,9 +27,12 @@ export default function App() {
       <HeaderBar />
       <Container>
         <Switch>
-          <Route path="/register" component={Register}></Route>
-          <Route path="/login" component={Login}></Route>
-          <Route path="/" component={Main}></Route>
+          <Route path="/register" component={Register} exact></Route>
+          <Route path="/login" component={Login} exact></Route>
+          <Route path="/" component={Main} exact></Route>
+          <Route path="*">
+            <div>404 Not Found</div>
+          </Route>
         </Switch>
       </Container>
     </UserContext.Provider>
