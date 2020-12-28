@@ -8,6 +8,7 @@ import { getLoggedInUser } from "../services/authService";
 import HeaderBar from "./headerBar";
 import Login from "./login";
 import Main from "./main";
+import Messenger from "./messenger";
 import Register from "./register";
 
 export default function App() {
@@ -32,6 +33,11 @@ export default function App() {
           <Route path="/register" component={Register} exact></Route>
 
           <ProtectedRoute path="/" component={Main} exact></ProtectedRoute>
+          <ProtectedRoute
+            path="/messenger"
+            component={Messenger}
+            exact
+          ></ProtectedRoute>
 
           <Route path="*">
             <div>404 Not Found</div>
