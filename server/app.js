@@ -5,6 +5,8 @@ const logger = require("morgan");
 const sequelize = require("./sequelize");
 const router = require("./routes/api/routes");
 const cors = require("cors");
+const { models } = require("./sequelize");
+const io = require("socket.io")();
 
 const app = express();
 
@@ -25,5 +27,21 @@ app.use(function (err, req, res, next) {
 
   res.status(err.status || 500);
 });
+
+sequelize.models.user.belongsToMany(sequelize.models.chat, {
+  through: {
+    model: sequelize.models.chatUser,
+  },
+});
+
+sequelize.models.chat.belongsToMany(sequelize.models.user, {
+  through: {
+    model: sequelize.models.chatUser,
+  },
+});
+
+sequelize.models.chat.hasMany(sequelize.models.message);
+sequelize.models.chat.hasMany(sequelize.models.chatUser);
+sequelize.models.message.belongsTo(sequelize.models.chat);
 
 module.exports = app;

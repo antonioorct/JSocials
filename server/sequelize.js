@@ -15,7 +15,13 @@ const sequelize = new Sequelize(
 
 console.log("Connected to database");
 
-const models = [require("./models/user.model"), require("./models/post.model")];
+const models = [
+  require("./models/user.model"),
+  require("./models/post.model"),
+  require("./models/message.model"),
+  require("./models/chat.model"),
+  require("./models/chatUser.model"),
+];
 
 models.forEach((model) => {
   model(sequelize);
