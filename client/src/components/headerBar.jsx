@@ -22,6 +22,9 @@ export default function HeaderBar() {
     <Navbar bg="dark" variant="dark" expand="lg">
       <Navbar.Brand href="/">TVZSocials</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Nav>
+        <Nav.Link href="/messenger">Messenger</Nav.Link>
+      </Nav>
       <Nav className="ml-auto">
         <Form className="mr-4">
           <InputGroup>
