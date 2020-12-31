@@ -27,7 +27,7 @@ export default function App() {
   return user ? (
     <UserContext.Provider value={[user, setUser]}>
       <HeaderBar />
-      <Container>
+      <Container fluid="true">
         <Switch>
           <Route path="/login" component={Login} exact></Route>
           <Route path="/register" component={Register} exact></Route>
