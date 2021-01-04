@@ -32,3 +32,4 @@ client/debug.log
 client/.eslintcache
 client/.eslintcache
 server/.env
+client/public/img
