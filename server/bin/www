@@ -1,11 +1,31 @@
 var app = require("../app");
 var debug = require("debug")("server:server");
 var http = require("http");
+var socketIo = require("socket.io");
 
 var port = normalizePort(process.env.PORT || "3001");
 app.set("port", port);
 
 var server = http.createServer(app);
+
+const io = socketIo(server, {
+  cors: { origin: "http://localhost:3000", credentials: true },
+});
+
+io.on("connection", (client) => {
+  client.once("Subscribe", (chatIds) => {
+    console.log("Subcribing to: " + JSON.stringify(chatIds));
+    chatIds.forEach((chatId) => client.join("chat" + chatId));
+
+    client.on("TYPING", (data) => {
+      client.to("chat" + data.chatId).emit("TYPING_SENT", data);
+    });
+
+    client.on("MESSAGE", (data) => {
+      client.to("chat" + data.chatId).emit("MESSAGE_SENT", data);
+    });
+  });
+});
 
 server.listen(port);
 server.on("error", onError);

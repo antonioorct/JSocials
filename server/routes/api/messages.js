@@ -1,13 +1,31 @@
 const express = require("express");
+const { QueryTypes } = require("sequelize");
+const sequelize = require("../../sequelize");
 const router = express.Router();
 const { models } = require("../../sequelize");
 
 router.get("/:id", async function (req, res, next) {
-  const messages = await models.message.findAll({
+  const messages = await sequelize.query(
+    ` SELECT *
+      FROM (SELECT *
+        FROM messages
+        WHERE chat_id = ? 
+        AND unix_timestamp(created_at) < unix_timestamp(?)
+        ORDER BY id DESC
+        LIMIT 25) AS t
+      ORDER BY id asc;`,
+    {
+      type: QueryTypes.SELECT,
+      model: models.message,
+      mapToModel: true,
+      replacements: [req.params.id, req.header("createdAt")],
+    }
+  );
+  const count = await models.message.count({
     include: { model: models.chat, where: { id: req.params.id } },
-    order: [["created_at", "asc"]],
   });
 
+  res.setHeader("count", count);
   res.status(200).send(messages);
 });
 
