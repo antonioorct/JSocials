@@ -10,6 +10,7 @@ import Login from "./login";
 import Main from "./main";
 import Messenger from "./messenger";
 import Register from "./register";
+import Profile from "./profile";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -39,9 +40,7 @@ export default function App() {
             exact
           ></ProtectedRoute>
 
-          <Route path="*">
-            <div>404 Not Found</div>
-          </Route>
+          <Route path="*" component={Profile} />
         </Switch>
       </Container>
     </UserContext.Provider>
