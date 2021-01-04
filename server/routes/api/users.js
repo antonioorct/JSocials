@@ -8,10 +8,12 @@ router.get("/", async function (req, res, next) {
   res.send(users);
 });
 
-router.get("/:id", async function (req, res, next) {
-  const user = await models.user.findByPk(req.params.id);
+router.get("/:username", async function (req, res, next) {
+  const user = await models.user.findOne({
+    where: { username: req.params.username },
+  });
 
-  if (!user) res.sendStatus(404);
+  if (user.length === 0) res.status(404).send();
   else res.send(user);
 });
 
