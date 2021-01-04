@@ -36,8 +36,8 @@ export default function HeaderBar() {
         </Form>
         {user.isAuthenticated ? (
           <>
-            <LinkContainer to={`/${user.email}`}>
-              <Nav.Link>{user.email}</Nav.Link>
+            <LinkContainer to={`/${user.username}`}>
+              <Nav.Link>{`${user.firstName} ${user.lastName}`}</Nav.Link>
             </LinkContainer>
             <Button onClick={handleLogout}>Logout</Button>
           </>
