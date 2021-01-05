@@ -12,7 +12,10 @@ router.get("/", async function (req, res, next) {
 
 router.get("/:userId", async function (req, res, next) {
   const posts = await models.post.findAll({
-    include: models.comment,
+    include: [
+      { model: models.comment, include: [{ model: models.user }] },
+      { model: models.user },
+    ],
     where: { userId: req.params.userId },
   });
 
