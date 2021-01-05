@@ -40,7 +40,7 @@ export default function App() {
             exact
           ></ProtectedRoute>
 
-          <Route path="*" component={Profile} />
+          <Route path="/:username" component={Profile} />
         </Switch>
       </Container>
     </UserContext.Provider>

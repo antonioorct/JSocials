@@ -13,7 +13,7 @@ router.get("/:username", async function (req, res, next) {
     where: { username: req.params.username },
   });
 
-  if (user.length === 0) res.status(404).send();
+  if (!user || user.length === 0) res.status(404).send();
   else res.send(user);
 });
 
