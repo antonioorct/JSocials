@@ -23,8 +23,8 @@ export default function Main() {
           return (
             <div className="border border-dark rounded p-2 my-2" key={post.id}>
               <h5>{user.email}</h5>
-              {post.content}
-              <div className="">comment</div>
+              {post.body}
+              {post.comment.body}
             </div>
           );
         })}

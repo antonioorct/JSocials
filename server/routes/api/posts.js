@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { models } = require("../../sequelize");
 const bcrypt = require("bcrypt");
+const sequelize = require("../../sequelize");
+const { QueryTypes } = require("sequelize");
 
 router.get("/", async function (req, res, next) {
   const posts = await models.post.findAll();
@@ -11,9 +13,31 @@ router.get("/", async function (req, res, next) {
 });
 
 router.get("/:userId", async function (req, res, next) {
-  const posts = await models.post.findAll({
-    where: { userId: req.params.userId },
-  });
+  const posts = await sequelize.query(
+    // ` ( SELECT *
+    //     FROM posts
+    //     WHERE posts.user_id = ?
+    //     AND Isnull(posts.post_id))
+    //   UNION
+    //   ( SELECT comments.*
+    //     FROM   posts AS posts
+    //       INNER JOIN posts AS comments
+    //         ON posts.id = comments.post_id
+    //     WHERE  posts.user_id = ?
+    //     AND Isnull(posts.post_id));
+    // `,
+    `
+    SELECT posts.*, comments.* FROM posts as posts 
+	inner join posts as comments on posts.id = comments.post_id 
+where posts.user_id = 1;
+    `,
+    {
+      type: QueryTypes.SELECT,
+      replacements: [req.params.userId, req.params.userId],
+      nest: true,
+      raw: true,
+    }
+  );
 
   console.log("returning ", posts);
   if (!posts) res.sendStatus(404);
