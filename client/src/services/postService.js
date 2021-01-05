@@ -13,3 +13,9 @@ export async function getPostsFromUserId(userId) {
 
   return data;
 }
+
+export async function addPost(post) {
+  const { data: newPost } = await http.post(apiEndPoint, post);
+
+  return newPost;
+}

@@ -24,16 +24,14 @@ router.get("/:userId", async function (req, res, next) {
   else res.send(posts);
 });
 
-/*
 router.post("/", async function (req, res, next) {
   try {
-    req.body["password"] = await bcrypt.hash(req.body["password"], 10);
-    const newUser = await models.user.create(req.body);
+    const newPost = await models.post.create(req.body);
 
-    res.status(201).send(newUser);
+    res.status(201).send(newPost);
   } catch (e) {
     res.status(400).send("Error creating user:\n" + e.message);
   }
-}); */
+});
 
 module.exports = router;

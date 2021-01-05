@@ -1,19 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
-import { getPostsFromUserId } from "../services/postService";
+import { getPostsFromUserId, addPost } from "../services/postService";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
+import InputGroup from "react-bootstrap/InputGroup";
 
 export default function Main() {
   const user = useContext(UserContext)[0];
   const [posts, setPosts] = useState(null);
+  const [postForm, setPostForm] = useState("");
+  const [replying, setReplying] = useState(-1);
 
   useEffect(() => {
     const fetchAndSetPosts = async () => {
       const data = await getPostsFromUserId(user.id);
 
-      console.log(data);
       setPosts(data);
     };
 
@@ -22,18 +24,25 @@ export default function Main() {
 
   return (
     <div>
-      <Form>
-        <FormControl placeholder="Write something here..."></FormControl>
-        <Button>Post</Button>
+      <Form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const result = await addPost({ userId: user.id, body: postForm });
+          setPosts([...posts, result]);
+        }}
+      >
+        <FormControl
+          value={postForm}
+          onChange={({ target }) => setPostForm(target.value)}
+          placeholder="Write something here..."
+        ></FormControl>
+        <Button type="submit">Post</Button>
       </Form>
       <div>
         {posts &&
-          posts.map((post) => {
+          posts.map((post, index) => {
             return (
-              <div
-                className="border border-dark rounded p-2 my-2"
-                key={post.id}
-              >
+              <div className="border border-dark rounded p-2 my-2" key={index}>
                 <h5 className="ml-2">
                   {user.firstName} {user.lastName}
                 </h5>
@@ -43,6 +52,25 @@ export default function Main() {
                     {post.numLikes} Likes
                     <br />
                     {post.comments.length} Comments
+                    <br />
+                    {replying === index ? (
+                      <InputGroup>
+                        <FormControl placeholder="Enter reply..."></FormControl>
+                        <InputGroup.Append>
+                          <Button variant="outline-success">Send</Button>
+                          <Button
+                            onClick={() => setReplying(-1)}
+                            variant="outline-danger"
+                          >
+                            Cancel
+                          </Button>
+                        </InputGroup.Append>
+                      </InputGroup>
+                    ) : (
+                      <a href="#" onClick={() => setReplying(index)}>
+                        Reply
+                      </a>
+                    )}
                   </p>
                   <div className="ml-3">
                     {post.comments.map((comment) => (
