@@ -8,17 +8,20 @@ import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 
 export default function Messenger() {
-  const [chats, setChats] = useState(null);
-  const [messageForm, setMessageForm] = useState("");
-  const [currentChatId, setCurrentChatId] = useState(null);
   const user = useContext(UserContext)[0];
-  const [socket, setSocket] = useState(null);
+
+  const [chats, setChats] = useState(null);
+  const [hashTable, setHashTable] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState(null);
+
   const messageContainer = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [hashTable, setHashTable] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+
+  const [socket, setSocket] = useState(null);
   let sendTypingTimeout = useRef(0);
   let typingTimeout = useRef(0);
+
+  const [messageForm, setMessageForm] = useState("");
 
   useEffect(() => {
     setSocket(socketIo("http://localhost:3001"));
