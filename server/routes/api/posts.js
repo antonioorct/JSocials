@@ -34,4 +34,19 @@ router.post("/", async function (req, res, next) {
   }
 });
 
+router.post("/:id/comments", async function (req, res, next) {
+  try {
+    const newComment = await models.comment.create(req.body);
+    // .then(
+    //   async (comment) =>
+    //     await models.comment.findByPk(comment.id, { include: models.user })
+    // );
+
+    console.log(newComment);
+    res.status(201).send(newComment);
+  } catch (e) {
+    res.status(400).send("Error creating user:\n" + e.message);
+  }
+});
+
 module.exports = router;

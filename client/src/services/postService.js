@@ -19,3 +19,12 @@ export async function addPost(post) {
 
   return newPost;
 }
+
+export async function addCommentToPost(comment) {
+  const { data: newComment } = await http.post(
+    apiEndPoint + `/${comment.postId}/comments`,
+    comment
+  );
+
+  return newComment;
+}

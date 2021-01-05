@@ -28,6 +28,7 @@ module.exports = (sequelize) =>
       numLikes: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 0,
         unsigned: true,
       },
       createdAt: {

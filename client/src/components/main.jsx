@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
-import { getPostsFromUserId, addPost } from "../services/postService";
+import {
+  getPostsFromUserId,
+  addPost,
+  addCommentToPost,
+} from "../services/postService";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
@@ -11,6 +15,7 @@ export default function Main() {
   const [posts, setPosts] = useState(null);
   const [postForm, setPostForm] = useState("");
   const [replying, setReplying] = useState(-1);
+  const [replyForm, setReplyForm] = useState("");
 
   useEffect(() => {
     const fetchAndSetPosts = async () => {
@@ -54,18 +59,43 @@ export default function Main() {
                     {post.comments.length} Comments
                     <br />
                     {replying === index ? (
-                      <InputGroup>
-                        <FormControl placeholder="Enter reply..."></FormControl>
-                        <InputGroup.Append>
-                          <Button variant="outline-success">Send</Button>
-                          <Button
-                            onClick={() => setReplying(-1)}
-                            variant="outline-danger"
-                          >
-                            Cancel
-                          </Button>
-                        </InputGroup.Append>
-                      </InputGroup>
+                      <Form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const newComment = addCommentToPost({
+                            userId: user.id,
+                            postId: post.id,
+                            body: replyForm,
+                          });
+                          const tempPosts = [...posts];
+                          tempPosts[index].comments = [
+                            ...tempPosts[index].comments,
+                            newComment,
+                          ];
+                          setPosts(tempPosts);
+                        }}
+                      >
+                        <InputGroup>
+                          <FormControl
+                            value={replyForm}
+                            onChange={({ target }) =>
+                              setReplyForm(target.value)
+                            }
+                            placeholder="Enter reply..."
+                          ></FormControl>
+                          <InputGroup.Append>
+                            <Button type="submit" variant="outline-success">
+                              Send
+                            </Button>
+                            <Button
+                              onClick={() => setReplying(-1)}
+                              variant="outline-danger"
+                            >
+                              Cancel
+                            </Button>
+                          </InputGroup.Append>
+                        </InputGroup>
+                      </Form>
                     ) : (
                       <a href="#" onClick={() => setReplying(index)}>
                         Reply
