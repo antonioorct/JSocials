@@ -9,17 +9,30 @@ module.exports = (sequelize) =>
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
+        unsigned: true,
       },
       userId: {
         type: DataTypes.INTEGER,
-        references: "users",
-        referencesKey: "id",
+        allowNull: false,
+        unsigned: true,
       },
-      content: {
-        type: DataTypes.STRING,
+      postId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        unsigned: true,
+      },
+      body: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      numLikes: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unsigned: true,
       },
       createdAt: {
         type: DataTypes.DATE,
+        allowNull: false,
       },
     },
     {
