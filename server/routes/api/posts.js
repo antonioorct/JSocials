@@ -1,7 +1,7 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const router = express.Router();
-const { models } = require("../../sequelize");
+const { models, model } = require("../../sequelize");
 
 router.get("/", async function (req, res, next) {
   const posts = await models.post.findAll();
@@ -13,15 +13,34 @@ router.get("/", async function (req, res, next) {
 router.get("/:userId", async function (req, res, next) {
   const posts = await models.post.findAll({
     include: [
-      { model: models.post, as: "comments", include: { model: models.user } },
-      { model: models.user },
+      {
+        model: models.post,
+        as: "comments",
+        include: [
+          { model: models.user, attributes: ["firstName", "lastName"] },
+          {
+            model: models.userPostLike,
+            include: {
+              model: models.user,
+              attributes: ["firstName", "lastName"],
+            },
+          },
+        ],
+        attributes: { exclude: ["userId", "postId"] },
+      },
+      { model: models.user, attributes: ["firstName", "lastName"] },
+      {
+        model: models.userPostLike,
+        include: { model: models.user, attributes: ["firstName", "lastName"] },
+      },
     ],
     where: { userId: req.params.userId, postId: { [Op.eq]: null } },
+    attributes: { exclude: ["postId"] },
   });
 
   console.log("returning ", posts);
   if (!posts) res.sendStatus(404);
-  else res.send(posts);
+  else res.status(200).send(posts);
 });
 
 router.post("/", async function (req, res, next) {
