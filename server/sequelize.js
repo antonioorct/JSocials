@@ -19,7 +19,6 @@ const models = [
   require("./models/message.model"),
   require("./models/chat.model"),
   require("./models/chatUser.model"),
-  require("./models/comment.model"),
 ];
 
 models.forEach((model) => {

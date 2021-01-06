@@ -16,6 +16,11 @@ module.exports = (sequelize) =>
         allowNull: false,
         unsigned: true,
       },
+      postId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        unsigned: true,
+      },
       body: {
         type: DataTypes.TEXT,
         allowNull: false,

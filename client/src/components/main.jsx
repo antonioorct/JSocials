@@ -43,7 +43,7 @@ export default function Main() {
         ></FormControl>
         <Button type="submit">Post</Button>
       </Form>
-      <div>
+      <div className="overflow-auto" style={{ height: "calc(100vh - 104px)" }}>
         {posts &&
           posts.map((post, index) => {
             return (
@@ -60,19 +60,18 @@ export default function Main() {
                     <br />
                     {replying === index ? (
                       <Form
-                        onSubmit={(e) => {
+                        onSubmit={async (e) => {
                           e.preventDefault();
-                          const newComment = addCommentToPost({
+                          const newComment = await addCommentToPost({
                             userId: user.id,
                             postId: post.id,
                             body: replyForm,
                           });
                           const tempPosts = [...posts];
-                          tempPosts[index].comments = [
-                            ...tempPosts[index].comments,
-                            newComment,
-                          ];
+                          tempPosts[index].comments.push(newComment);
                           setPosts(tempPosts);
+                          setReplying(-1);
+                          setReplyForm("");
                         }}
                       >
                         <InputGroup>
@@ -87,12 +86,7 @@ export default function Main() {
                             <Button type="submit" variant="outline-success">
                               Send
                             </Button>
-                            <Button
-                              onClick={() => setReplying(-1)}
-                              variant="outline-danger"
-                            >
-                              Cancel
-                            </Button>
+                            <Button variant="outline-danger">Cancel</Button>
                           </InputGroup.Append>
                         </InputGroup>
                       </Form>
@@ -101,6 +95,7 @@ export default function Main() {
                         Reply
                       </a>
                     )}
+                    <a href="#"> Like</a>
                   </p>
                   <div className="ml-3">
                     {post.comments.map((comment) => (

@@ -1,7 +1,7 @@
 const express = require("express");
+const { Op } = require("sequelize");
 const router = express.Router();
 const { models } = require("../../sequelize");
-const sequelize = require("../../sequelize");
 
 router.get("/", async function (req, res, next) {
   const posts = await models.post.findAll();
@@ -13,10 +13,10 @@ router.get("/", async function (req, res, next) {
 router.get("/:userId", async function (req, res, next) {
   const posts = await models.post.findAll({
     include: [
-      { model: models.comment, include: [{ model: models.user }] },
+      { model: models.post, as: "comments", include: { model: models.user } },
       { model: models.user },
     ],
-    where: { userId: req.params.userId },
+    where: { userId: req.params.userId, postId: { [Op.eq]: null } },
   });
 
   console.log("returning ", posts);
@@ -36,14 +36,12 @@ router.post("/", async function (req, res, next) {
 
 router.post("/:id/comments", async function (req, res, next) {
   try {
-    const newComment = await models.comment.create(req.body);
-    // .then(
-    //   async (comment) =>
-    //     await models.comment.findByPk(comment.id, { include: models.user })
-    // );
+    const newComment = await models.post.create(req.body);
+    const returnComment = await models.post.findByPk(newComment.id, {
+      include: { model: models.user },
+    });
 
-    console.log(newComment);
-    res.status(201).send(newComment);
+    res.status(201).send(returnComment);
   } catch (e) {
     res.status(400).send("Error creating user:\n" + e.message);
   }

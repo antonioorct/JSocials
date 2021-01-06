@@ -50,10 +50,7 @@ sequelize.models.chat.hasMany(sequelize.models.message);
 sequelize.models.chat.hasMany(sequelize.models.chatUser);
 sequelize.models.message.belongsTo(sequelize.models.chat);
 
-sequelize.models.post.hasMany(sequelize.models.comment);
+sequelize.models.post.hasMany(sequelize.models.post, { as: "comments" });
 sequelize.models.post.belongsTo(sequelize.models.user);
-sequelize.models.comment.belongsTo(sequelize.models.user);
-// sequelize.models.user.belongsTo(sequelize.models.post);
-// sequelize.models.post.belongsTo(sequelize.models.post);
 
 module.exports = app;
