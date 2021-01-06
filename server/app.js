@@ -53,4 +53,10 @@ sequelize.models.message.belongsTo(sequelize.models.chat);
 sequelize.models.post.hasMany(sequelize.models.post, { as: "comments" });
 sequelize.models.post.belongsTo(sequelize.models.user);
 
+sequelize.models.post.belongsToMany(sequelize.models.user, {
+  through: { model: models.userPostLike },
+});
+sequelize.models.post.hasMany(sequelize.models.userPostLike);
+sequelize.models.userPostLike.belongsTo(sequelize.models.user);
+
 module.exports = app;
