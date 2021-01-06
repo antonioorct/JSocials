@@ -26,7 +26,7 @@ router.get("/:userId", async function (req, res, next) {
             },
           },
         ],
-        attributes: { exclude: ["userId", "postId"] },
+        attributes: { exclude: ["userId"] },
       },
       { model: models.user, attributes: ["firstName", "lastName"] },
       {
@@ -39,8 +39,8 @@ router.get("/:userId", async function (req, res, next) {
   });
 
   console.log("returning ", posts);
-  if (!posts) res.sendStatus(404);
-  else res.status(200).send(posts);
+  if (!posts) return res.sendStatus(404);
+  else return res.status(200).send(posts);
 });
 
 router.post("/", async function (req, res, next) {
@@ -53,17 +53,47 @@ router.post("/", async function (req, res, next) {
   }
 });
 
-router.post("/:id/comments", async function (req, res, next) {
+router.post("/:postId", async function (req, res) {
   try {
     const newComment = await models.post.create(req.body);
-    const returnComment = await models.post.findByPk(newComment.id, {
-      include: { model: models.user },
-    });
+    const newFullComment = await models.post.findByPk(
+      newComment.getDataValue("id"),
+      {
+        include: [
+          {
+            model: models.userPostLike,
+            include: {
+              model: models.user,
+              attributes: ["firstName", "lastName"],
+            },
+          },
+          { model: models.user },
+        ],
+      }
+    );
 
-    res.status(201).send(returnComment);
+    res.status(201).send(newFullComment);
   } catch (e) {
+    console.log(e);
     res.status(400).send("Error creating user:\n" + e.message);
   }
+});
+
+router.post("/:postId/:userId", async function (req, res, next) {
+  const newLike = await models.userPostLike.create({
+    postId: req.params.postId,
+    userId: req.params.userId,
+  });
+
+  return res.status(200).send();
+});
+
+router.delete("/:postId/:userId", async function (req, res, next) {
+  const newLike = await models.userPostLike.destroy({
+    where: { postId: req.params.postId, userId: req.params.userId },
+  });
+
+  return res.status(200).send();
 });
 
 module.exports = router;

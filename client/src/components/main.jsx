@@ -1,14 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { forwardRef, useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
 import {
   getPostsFromUserId,
   addPost,
   addCommentToPost,
+  likePost,
+  unlikePost,
 } from "../services/postService";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
+import Tooltip from "react-bootstrap/Tooltip";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 
 export default function Main() {
   const user = useContext(UserContext)[0];
@@ -26,6 +30,55 @@ export default function Main() {
 
     fetchAndSetPosts();
   }, [user.id]);
+
+  const changePostLike = async (post, index, isLike) => {
+    const tempPosts = [...posts];
+
+    if (isLike) {
+      const newLike = await likePost(post.id, user.id);
+      if (!post.postId) {
+        tempPosts[index].numLikes++;
+        tempPosts[index].userPostLikes.push({
+          userId: user.id,
+          postId: post.id,
+          user: {
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+        });
+      } else {
+        const postIndex = tempPosts.findIndex(
+          (tempPost) => tempPost.id === post.postId
+        );
+        tempPosts[postIndex].comments[index].numLikes++;
+        tempPosts[postIndex].comments[index].userPostLikes.push({
+          userId: user.id,
+          postId: post.id,
+          user: { firstName: user.firstName, lastName: user.lastName },
+        });
+      }
+    } else {
+      const newLike = await unlikePost(post.id, user.id);
+      if (!post.postId) {
+        tempPosts[index].numLikes--;
+        tempPosts[index].userPostLikes = tempPosts[index].userPostLikes.filter(
+          (like) => like.userId !== user.id
+        );
+      } else {
+        const postIndex = tempPosts.findIndex(
+          (tempPost) => tempPost.id === post.postId
+        );
+        tempPosts[postIndex].comments[index].numLikes--;
+        tempPosts[postIndex].comments[index].userPostLikes = tempPosts[
+          postIndex
+        ].comments[index].userPostLikes.filter(
+          (like) => like.userId !== user.id
+        );
+      }
+    }
+
+    setPosts(tempPosts);
+  };
 
   return (
     <div>
@@ -45,20 +98,52 @@ export default function Main() {
       </Form>
       <div className="overflow-auto" style={{ height: "calc(100vh - 104px)" }}>
         {posts &&
-          posts.map((post, index) => {
+          posts.map((post, postIndex) => {
             return (
-              <div className="border border-dark rounded p-2 my-2" key={index}>
+              <div
+                className="border border-dark rounded p-2 my-2"
+                key={postIndex}
+              >
                 <h5 className="ml-2">
                   {user.firstName} {user.lastName}
                 </h5>
                 <div className="ml-3">
                   <p>{post.body}</p>
                   <p>
-                    {post.numLikes} Likes
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={
+                        <Tooltip>
+                          {post.userPostLikes.length === 0 ? (
+                            <div />
+                          ) : (
+                            post.userPostLikes
+                              .map((like, index) => {
+                                if (index < 5)
+                                  return (
+                                    like.user.firstName +
+                                    " " +
+                                    like.user.lastName
+                                  );
+                                else return null;
+                              })
+                              .join(", ") +
+                            (post.userPostLikes.length === 1
+                              ? " has"
+                              : post.userPostLikes.length > 5
+                              ? ",... have"
+                              : " have") +
+                            " liked this post."
+                          )}
+                        </Tooltip>
+                      }
+                    >
+                      <span>{post.numLikes} Likes</span>
+                    </OverlayTrigger>
                     <br />
                     {post.comments.length} Comments
                     <br />
-                    {replying === index ? (
+                    {replying === postIndex ? (
                       <Form
                         onSubmit={async (e) => {
                           e.preventDefault();
@@ -67,8 +152,10 @@ export default function Main() {
                             postId: post.id,
                             body: replyForm,
                           });
+
                           const tempPosts = [...posts];
-                          tempPosts[index].comments.push(newComment);
+                          tempPosts[postIndex].comments.push(newComment);
+
                           setPosts(tempPosts);
                           setReplying(-1);
                           setReplyForm("");
@@ -81,6 +168,7 @@ export default function Main() {
                               setReplyForm(target.value)
                             }
                             placeholder="Enter reply..."
+                            autoFocus
                           ></FormControl>
                           <InputGroup.Append>
                             <Button type="submit" variant="outline-success">
@@ -96,20 +184,91 @@ export default function Main() {
                         </InputGroup>
                       </Form>
                     ) : (
-                      <a href="#" onClick={() => setReplying(index)}>
+                      <a href="#" onClick={() => setReplying(postIndex)}>
                         Reply
                       </a>
                     )}
-                    <a href="#"> Like</a>
+                    {!post.userPostLikes.find(
+                      (like) => like.userId === user.id
+                    ) ? (
+                      <a
+                        onClick={async () =>
+                          changePostLike(post, postIndex, true)
+                        }
+                        href="#"
+                      >
+                        {" "}
+                        Like
+                      </a>
+                    ) : (
+                      <a
+                        onClick={async () =>
+                          changePostLike(post, postIndex, false)
+                        }
+                        href="#"
+                      >
+                        {" "}
+                        Unlike
+                      </a>
+                    )}
                   </p>
                   <div className="ml-3">
-                    {post.comments.map((comment) => (
+                    {post.comments.map((comment, commentIndex) => (
                       <div className="mb-3" key={comment.id}>
                         <div className="font-weight-bold">
                           {comment.user.firstName} {comment.user.lastName}
                         </div>
                         <div>{comment.body}</div>
-                        <a href="#">Like</a>
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={
+                            comment.userPostLikes.length === 0 ? (
+                              <div />
+                            ) : (
+                              <Tooltip>
+                                {comment.userPostLikes
+                                  .map(
+                                    (like) =>
+                                      like.user.firstName +
+                                      " " +
+                                      like.user.lastName
+                                  )
+                                  .join(", ") +
+                                  (post.userPostLikes.length === 1
+                                    ? " has"
+                                    : post.userPostLikes.length > 5
+                                    ? ",... have"
+                                    : " have") +
+                                  " liked this post."}
+                              </Tooltip>
+                            )
+                          }
+                        >
+                          <span>{comment.numLikes} Likes</span>
+                        </OverlayTrigger>
+                        {!comment.userPostLikes.find(
+                          (like) => like.userId === user.id
+                        ) ? (
+                          <a
+                            onClick={async () =>
+                              changePostLike(comment, commentIndex, true)
+                            }
+                            href="#"
+                          >
+                            {" "}
+                            Like
+                          </a>
+                        ) : (
+                          <a
+                            onClick={async () =>
+                              changePostLike(comment, commentIndex, false)
+                            }
+                            href="#"
+                          >
+                            {" "}
+                            Unlike
+                          </a>
+                        )}
                       </div>
                     ))}
                   </div>
