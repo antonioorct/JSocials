@@ -86,7 +86,12 @@ export default function Main() {
                             <Button type="submit" variant="outline-success">
                               Send
                             </Button>
-                            <Button variant="outline-danger">Cancel</Button>
+                            <Button
+                              onClick={() => setReplying(-1)}
+                              variant="outline-danger"
+                            >
+                              Cancel
+                            </Button>
                           </InputGroup.Append>
                         </InputGroup>
                       </Form>
