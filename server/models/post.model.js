@@ -31,6 +31,12 @@ module.exports = (sequelize) =>
         defaultValue: 0,
         unsigned: true,
       },
+      numComments: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        unsigned: true,
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
 import {
   getPostsFromUserId,
@@ -7,6 +7,8 @@ import {
   likePost,
   unlikePost,
 } from "../services/postService";
+import http from "../services/httpService";
+
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
@@ -80,6 +82,26 @@ export default function Main() {
     setPosts(tempPosts);
   };
 
+  const fetchAndSetComments = async (postId, createdAt) => {
+    const { data, headers } = await http.get(
+      "http://localhost:3001/api/posts/" + postId + "?createdAt=" + createdAt
+    );
+
+    return data;
+  };
+
+  const deletePost = async (postId) => {
+    const { data } = await http.delete(
+      "http://localhost:3001/api/posts/" + postId
+    );
+
+    return data;
+  };
+
+  const submitPost = async (e) => {
+    e.preventDefault();
+  };
+
   return (
     <div>
       <Form
@@ -96,7 +118,7 @@ export default function Main() {
         ></FormControl>
         <Button type="submit">Post</Button>
       </Form>
-      <div className="overflow-auto" style={{ height: "calc(100vh - 104px)" }}>
+      <div className="overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         {posts &&
           posts.map((post, postIndex) => {
             return (
@@ -113,11 +135,11 @@ export default function Main() {
                     <OverlayTrigger
                       placement="top"
                       overlay={
-                        <Tooltip>
-                          {post.userPostLikes.length === 0 ? (
-                            <div />
-                          ) : (
-                            post.userPostLikes
+                        post.userPostLikes.length === 0 ? (
+                          <div />
+                        ) : (
+                          <Tooltip>
+                            {post.userPostLikes
                               .map((like, index) => {
                                 if (index < 5)
                                   return (
@@ -128,20 +150,20 @@ export default function Main() {
                                 else return null;
                               })
                               .join(", ") +
-                            (post.userPostLikes.length === 1
-                              ? " has"
-                              : post.userPostLikes.length > 5
-                              ? ",... have"
-                              : " have") +
-                            " liked this post."
-                          )}
-                        </Tooltip>
+                              (post.userPostLikes.length === 1
+                                ? " has"
+                                : post.userPostLikes.length > 5
+                                ? ",... have"
+                                : " have") +
+                              " liked this post."}
+                          </Tooltip>
+                        )
                       }
                     >
                       <span>{post.numLikes} Likes</span>
                     </OverlayTrigger>
                     <br />
-                    {post.comments.length} Comments
+                    {post.numComments} Comments
                     <br />
                     {replying === postIndex ? (
                       <Form
@@ -154,7 +176,8 @@ export default function Main() {
                           });
 
                           const tempPosts = [...posts];
-                          tempPosts[postIndex].comments.push(newComment);
+                          tempPosts[postIndex].comments.unshift(newComment);
+                          tempPosts[postIndex].numComments++;
 
                           setPosts(tempPosts);
                           setReplying(-1);
@@ -211,6 +234,21 @@ export default function Main() {
                         Unlike
                       </a>
                     )}
+                    {post.userId === user.id && (
+                      <a
+                        href="#"
+                        onClick={() => {
+                          deletePost(post.id);
+                          let tempPosts = [...posts];
+                          tempPosts = tempPosts.filter((x) => post.id !== x.id);
+
+                          setPosts(tempPosts);
+                        }}
+                      >
+                        {" "}
+                        Delete
+                      </a>
+                    )}
                   </p>
                   <div className="ml-3">
                     {post.comments.map((comment, commentIndex) => (
@@ -234,9 +272,9 @@ export default function Main() {
                                       like.user.lastName
                                   )
                                   .join(", ") +
-                                  (post.userPostLikes.length === 1
+                                  (comment.userPostLikes.length === 1
                                     ? " has"
-                                    : post.userPostLikes.length > 5
+                                    : comment.userPostLikes.length > 5
                                     ? ",... have"
                                     : " have") +
                                   " liked this post."}
@@ -269,8 +307,51 @@ export default function Main() {
                             Unlike
                           </a>
                         )}
+                        {comment.user.id === user.id && (
+                          <a
+                            href="#"
+                            onClick={async () => {
+                              await deletePost(comment.id);
+                              const tempPosts = [...posts];
+                              tempPosts[postIndex].comments = tempPosts[
+                                postIndex
+                              ].comments.filter((x) => comment.id !== x.id);
+                              tempPosts[postIndex].numComments--;
+
+                              if (tempPosts[postIndex].comments.length === 0)
+                                tempPosts[
+                                  postIndex
+                                ].comments = await fetchAndSetComments(
+                                  post.id,
+                                  new Date(Date.now()).toISOString()
+                                );
+
+                              setPosts(tempPosts);
+                            }}
+                          >
+                            {" "}
+                            Delete
+                          </a>
+                        )}
                       </div>
                     ))}
+                    {parseInt(post.numComments) > post.comments.length && (
+                      <a
+                        href="#"
+                        onClick={async () => {
+                          const data = await fetchAndSetComments(
+                            post.id,
+                            post.comments[post.comments.length - 1].createdAt
+                          );
+                          const tempPosts = [...posts];
+                          tempPosts[postIndex].comments.push(...data);
+
+                          setPosts(tempPosts);
+                        }}
+                      >
+                        Show more...
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

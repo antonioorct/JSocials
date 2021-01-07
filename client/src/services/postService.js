@@ -9,7 +9,7 @@ async function getAllPosts() {
 }
 
 async function getPostsFromUserId(userId) {
-  const { data } = await http.get(apiEndPoint + `/${userId}`);
+  const { data } = await http.get(apiEndPoint + `?userId=${userId}`);
 
   return data;
 }
