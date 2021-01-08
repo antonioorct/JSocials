@@ -6,7 +6,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { LinkContainer } from "react-router-bootstrap";
-import { Redirect, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { initialState, UserContext } from "../contexts/UserContext";
 import { logout } from "../services/authService";
 
@@ -27,6 +27,8 @@ export default function HeaderBar(props) {
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Nav>
         <Nav.Link href="/messenger">Messenger</Nav.Link>
+        <Nav.Link href="/friends">Friends</Nav.Link>
+        <Nav.Link href="/friendrequests">Friend requests</Nav.Link>
       </Nav>
       <Nav className="ml-auto">
         <Form
