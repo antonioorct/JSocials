@@ -21,6 +21,7 @@ const models = [
   require("./models/chatUser.model"),
   require("./models/userPostLike.model"),
   require("./models/friend.model"),
+  require("./models/pendingFriend.model"),
 ];
 
 models.forEach((model) => {

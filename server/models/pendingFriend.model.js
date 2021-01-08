@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) =>
   sequelize.define(
-    "friend",
+    "pendingFriend",
     {
       user1Id: {
         type: DataTypes.INTEGER,
@@ -22,6 +22,6 @@ module.exports = (sequelize) =>
     {
       updatedAt: false,
       underscored: true,
-      tableName: "friends",
+      tableName: "pending_friends",
     }
   );
