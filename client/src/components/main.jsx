@@ -25,7 +25,7 @@ export default function Main() {
 
   useEffect(() => {
     const fetchAndSetPosts = async () => {
-      const data = await getPostsFromUserId(user.id);
+      const data = await getPostsFromUserId();
 
       setPosts(data);
     };
@@ -109,6 +109,7 @@ export default function Main() {
           e.preventDefault();
           const result = await addPost({ userId: user.id, body: postForm });
           setPosts([...posts, result]);
+          setPostForm("");
         }}
       >
         <FormControl
@@ -127,7 +128,7 @@ export default function Main() {
                 key={postIndex}
               >
                 <h5 className="ml-2">
-                  {user.firstName} {user.lastName}
+                  {post.user.firstName} {post.user.lastName}
                 </h5>
                 <div className="ml-3">
                   <p>{post.body}</p>

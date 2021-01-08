@@ -5,8 +5,6 @@ const { models, model } = require("../../sequelize");
 
 router.get("", async function (req, res) {
   const userId = req.query.userId;
-  const postId = req.query.postId;
-  console.log(req.params.userId === 1);
 
   const posts = await models.post.findAll({
     include: [
@@ -36,11 +34,13 @@ router.get("", async function (req, res) {
         include: { model: models.user, attributes: ["firstName", "lastName"] },
       },
     ],
-    where: { userId: userId.toString(), postId: { [Op.eq]: null } },
+    where: Object.assign(
+      { postId: { [Op.eq]: null } },
+      userId ? { userId } : null
+    ),
     attributes: { exclude: ["postId"] },
   });
 
-  // console.log("returning ", posts);
   if (!posts) return res.sendStatus(404);
   else return res.status(200).send(posts);
 });
@@ -75,10 +75,14 @@ router.get("/:postId", async function (req, res) {
 router.post("/", async function (req, res) {
   try {
     const newPost = await models.post.create(req.body);
-    newPost.setDataValue("userPostLikes", []);
-    newPost.setDataValue("comments", []);
+    const newFullPost = await models.post.findByPk(newPost.getDataValue("id"), {
+      include: [{ model: models.user, attributes: ["firstName", "lastName"] }],
+      attributes: { exclude: ["postId"] },
+    });
+    newFullPost.setDataValue("comments", []);
+    newFullPost.setDataValue("userPostLikes", []);
 
-    res.status(201).send(newPost);
+    res.status(201).send(newFullPost);
   } catch (e) {
     res.status(400).send("Error creating user:\n" + e.message);
   }
