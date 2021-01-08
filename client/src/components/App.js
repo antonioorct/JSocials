@@ -11,6 +11,7 @@ import Main from "./main";
 import Messenger from "./messenger";
 import Register from "./register";
 import Profile from "./profile";
+import Search from "./search";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -40,6 +41,7 @@ export default function App() {
             exact
           ></ProtectedRoute>
 
+          <Route path="/search" component={Search} />
           <Route path="/:username" component={Profile} />
         </Switch>
       </Container>

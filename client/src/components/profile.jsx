@@ -30,7 +30,9 @@ export default function Profile() {
   const getProfile = async (username) => {
     loaded.current = true;
     try {
-      const res = await http.get("http://localhost:3001/api/users/" + username);
+      const res = await http.get(
+        "http://localhost:3001/api/users" + "?username=" + username
+      );
       setUserProfile(res.data);
     } catch (e) {
       setUserProfile({ id: 0 });

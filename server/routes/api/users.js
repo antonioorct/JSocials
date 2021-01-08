@@ -2,19 +2,30 @@ const express = require("express");
 const router = express.Router();
 const { models } = require("../../sequelize");
 const bcrypt = require("bcrypt");
+const { Op } = require("sequelize");
+
+router.get("", async function (req, res, next) {
+  let user = [];
+  if (req.query.firstName)
+    user = await models.user.findAll({
+      where: {
+        firstName: { [Op.like]: "%" + req.query.firstName + "%" },
+      },
+    });
+  else if (req.query.username)
+    user = await models.user.findOne({
+      where: {
+        username: { [Op.like]: "%" + req.query.username + "%" },
+      },
+    });
+
+  if (!user || user.length === 0) res.status(404).send();
+  else res.send(user);
+});
 
 router.get("/", async function (req, res, next) {
   const users = await models.user.findAll();
   res.send(users);
-});
-
-router.get("/:username", async function (req, res, next) {
-  const user = await models.user.findOne({
-    where: { username: req.params.username },
-  });
-
-  if (!user || user.length === 0) res.status(404).send();
-  else res.send(user);
 });
 
 router.post("/", async function (req, res, next) {
