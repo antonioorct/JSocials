@@ -1,8 +1,8 @@
 const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize(
-  `mysql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:3306/${process.env.DB_DB}`,
-  { logging: false }
+  `mysql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:3306/${process.env.DB_DB}`
+  // { logging: false }
 );
 
 try {
@@ -19,6 +19,7 @@ const models = [
   require("./models/message.model"),
   require("./models/chat.model"),
   require("./models/chatUser.model"),
+  require("./models/userPostLike.model"),
 ];
 
 models.forEach((model) => {

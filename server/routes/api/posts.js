@@ -1,59 +1,150 @@
 const express = require("express");
+const { Op } = require("sequelize");
 const router = express.Router();
-const { models } = require("../../sequelize");
-const bcrypt = require("bcrypt");
-const sequelize = require("../../sequelize");
-const { QueryTypes } = require("sequelize");
+const { models, model } = require("../../sequelize");
 
-router.get("/", async function (req, res, next) {
-  const posts = await models.post.findAll();
+router.get("", async function (req, res) {
+  const userId = req.query.userId;
 
-  console.log("returning ", posts);
-  res.send(posts);
+  const posts = await models.post.findAll({
+    include: [
+      {
+        model: models.post,
+        as: "comments",
+        include: [
+          {
+            model: models.user,
+            attributes: ["firstName", "lastName", "id"],
+          },
+          {
+            model: models.userPostLike,
+            include: {
+              model: models.user,
+              attributes: ["firstName", "lastName"],
+            },
+          },
+        ],
+        limit: 3,
+        attributes: { exclude: ["user_id"] },
+        order: [["createdAt", "DESC"]],
+      },
+      { model: models.user, attributes: ["firstName", "lastName"] },
+      {
+        model: models.userPostLike,
+        include: { model: models.user, attributes: ["firstName", "lastName"] },
+      },
+    ],
+    where: Object.assign(
+      { postId: { [Op.eq]: null } },
+      userId ? { userId } : null
+    ),
+    attributes: { exclude: ["postId"] },
+  });
+
+  if (!posts) return res.sendStatus(404);
+  else return res.status(200).send(posts);
 });
 
-router.get("/:userId", async function (req, res, next) {
-  const posts = await sequelize.query(
-    // ` ( SELECT *
-    //     FROM posts
-    //     WHERE posts.user_id = ?
-    //     AND Isnull(posts.post_id))
-    //   UNION
-    //   ( SELECT comments.*
-    //     FROM   posts AS posts
-    //       INNER JOIN posts AS comments
-    //         ON posts.id = comments.post_id
-    //     WHERE  posts.user_id = ?
-    //     AND Isnull(posts.post_id));
-    // `,
-    `
-    SELECT posts.*, comments.* FROM posts as posts 
-	inner join posts as comments on posts.id = comments.post_id 
-where posts.user_id = 1;
-    `,
-    {
-      type: QueryTypes.SELECT,
-      replacements: [req.params.userId, req.params.userId],
-      nest: true,
-      raw: true,
-    }
-  );
+router.get("/:postId", async function (req, res) {
+  const createdAt = req.query.createdAt;
 
-  console.log("returning ", posts);
-  if (!posts) res.sendStatus(404);
-  else res.send(posts);
+  const comments = await models.post.findAll({
+    include: [
+      {
+        model: models.userPostLike,
+        include: {
+          model: models.user,
+          attributes: ["firstName", "lastName"],
+        },
+      },
+      { model: models.user, attributes: ["firstName", "lastName", "id"] },
+    ],
+    where: {
+      createdAt: { [Op.lt]: createdAt },
+      postId: req.params.postId,
+      postId: { [Op.ne]: null },
+    },
+    order: [["createdAt", "DESC"]],
+    limit: 5,
+  });
+
+  if (!comments) return res.sendStatus(404);
+  else return res.status(200).send(comments);
 });
 
-/*
-router.post("/", async function (req, res, next) {
+router.post("/", async function (req, res) {
   try {
-    req.body["password"] = await bcrypt.hash(req.body["password"], 10);
-    const newUser = await models.user.create(req.body);
+    const newPost = await models.post.create(req.body);
+    const newFullPost = await models.post.findByPk(newPost.getDataValue("id"), {
+      include: [{ model: models.user, attributes: ["firstName", "lastName"] }],
+      attributes: { exclude: ["postId"] },
+    });
+    newFullPost.setDataValue("comments", []);
+    newFullPost.setDataValue("userPostLikes", []);
 
-    res.status(201).send(newUser);
+    res.status(201).send(newFullPost);
   } catch (e) {
     res.status(400).send("Error creating user:\n" + e.message);
   }
-}); */
+});
+
+router.post("/:postId", async function (req, res) {
+  try {
+    const newComment = await models.post.create(req.body);
+    await models.post.increment("numComments", {
+      where: { id: newComment.getDataValue("postId") },
+    });
+    const newFullComment = await models.post.findByPk(
+      newComment.getDataValue("id"),
+      {
+        include: [
+          {
+            model: models.userPostLike,
+            include: {
+              model: models.user,
+              attributes: ["firstName", "lastName"],
+            },
+          },
+          { model: models.user },
+        ],
+      }
+    );
+
+    res.status(201).send(newFullComment);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("Error creating user:\n" + e.message);
+  }
+});
+
+router.delete("/:postId", async function (req, res) {
+  const deletedPost = await models.post.findByPk(req.params.postId);
+  await models.post.destroy({
+    where: { id: req.params.postId },
+  });
+  if (deletedPost.getDataValue("postId"))
+    await models.post.decrement("numComments", {
+      where: { id: deletedPost.getDataValue("postId") },
+    });
+
+  return res.status(200).send();
+});
+
+router.post("/:postId/:userId", async function (req, res) {
+  const newLike = await models.userPostLike.create({
+    postId: req.params.postId,
+    userId: req.params.userId,
+  });
+
+  return res.status(200).send();
+});
+
+router.delete("/:postId/:userId", async function (req, res) {
+  const newLike = await models.userPostLike.destroy({
+    where: { postId: req.params.postId, userId: req.params.userId },
+  });
+
+  return res.status(200).send();
+});
 
 module.exports = router;

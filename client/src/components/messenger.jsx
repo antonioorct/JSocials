@@ -208,12 +208,12 @@ export default function Messenger() {
     <div className="row m-0">
       <div className="col-2">
         {chats &&
-          chats.map((chat) => {
+          chats.map((chat, index) => {
             return (
               <div
                 style={{ cursor: "pointer" }}
                 className="border border-dark"
-                key={chat.chatId}
+                key={index}
                 onClick={() => {
                   if (currentChatId)
                     chats[hashTable[currentChatId]].scrollPos =
@@ -264,13 +264,13 @@ export default function Messenger() {
               </Button>
             )}
           {currentChatId &&
-            getChatById(chats, currentChatId).messages.map((value) => (
+            getChatById(chats, currentChatId).messages.map((value, index) => (
               <div
                 className={
                   "border border-dark rounded p-2 my-2" +
                   (value.senderId === user.id ? " text-right" : " text-left")
                 }
-                key={value.id}
+                key={index}
               >
                 <div>{value.body}</div>
                 {value.createdAt.substring(0, 19).replace(/[T,]/, " ")}

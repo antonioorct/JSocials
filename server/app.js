@@ -50,12 +50,13 @@ sequelize.models.chat.hasMany(sequelize.models.message);
 sequelize.models.chat.hasMany(sequelize.models.chatUser);
 sequelize.models.message.belongsTo(sequelize.models.chat);
 
-sequelize.models.post.belongsTo(sequelize.models.post, {
-  as: "comment",
-  foreignKey: "postId",
+sequelize.models.post.hasMany(sequelize.models.post, { as: "comments" });
+sequelize.models.post.belongsTo(sequelize.models.user);
+
+sequelize.models.post.belongsToMany(sequelize.models.user, {
+  through: { model: models.userPostLike },
 });
-sequelize.models.post.hasMany(sequelize.models.user);
-// sequelize.models.user.belongsTo(sequelize.models.post);
-// sequelize.models.post.belongsTo(sequelize.models.post);
+sequelize.models.post.hasMany(sequelize.models.userPostLike);
+sequelize.models.userPostLike.belongsTo(sequelize.models.user);
 
 module.exports = app;
