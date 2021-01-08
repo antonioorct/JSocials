@@ -20,6 +20,7 @@ const models = [
   require("./models/chat.model"),
   require("./models/chatUser.model"),
   require("./models/userPostLike.model"),
+  require("./models/friend.model"),
 ];
 
 models.forEach((model) => {

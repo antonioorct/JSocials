@@ -59,4 +59,11 @@ sequelize.models.post.belongsToMany(sequelize.models.user, {
 sequelize.models.post.hasMany(sequelize.models.userPostLike);
 sequelize.models.userPostLike.belongsTo(sequelize.models.user);
 
+sequelize.models.user.belongsToMany(sequelize.models.user, {
+  through: sequelize.models.friend,
+  foreignKey: "user1_id",
+  otherKey: "user2_id",
+  as: "friends",
+});
+
 module.exports = app;
