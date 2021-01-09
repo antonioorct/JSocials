@@ -74,8 +74,7 @@ router.get("/:postId", async function (req, res) {
     ],
     where: {
       createdAt: { [Op.lt]: createdAt },
-      postId: req.params.postId,
-      postId: { [Op.ne]: null },
+      postId: { [Op.eq]: req.params.postId, [Op.ne]: null },
     },
     order: [["createdAt", "DESC"]],
     limit: 5,
