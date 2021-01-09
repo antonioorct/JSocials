@@ -68,12 +68,28 @@ sequelize.models.user.belongsToMany(sequelize.models.user, {
 sequelize.models.friend.belongsTo(sequelize.models.user, {
   foreignKey: "user2_id",
 });
+
+sequelize.models.user.hasMany(sequelize.models.pendingFriend, {
+  foreignKey: "userOutgoingId",
+  as: "outgoing",
+});
+sequelize.models.user.hasMany(sequelize.models.pendingFriend, {
+  foreignKey: "userIncomingId",
+  as: "incoming",
+});
+
 sequelize.models.pendingFriend.belongsTo(sequelize.models.user, {
-  foreignKey: "user1_id",
+  foreignKey: "userOutgoingId",
+  as: "userOutgoing",
+});
+sequelize.models.pendingFriend.belongsTo(sequelize.models.user, {
+  foreignKey: "userIncomingId",
+  as: "userIncoming",
 });
 sequelize.models.pendingFriend.removeAttribute("id");
 sequelize.models.friend.removeAttribute("id");
 sequelize.models.friend.removeAttribute("user1_id");
 sequelize.models.friend.removeAttribute("user2_id");
+sequelize.models.user.removeAttribute("user_id");
 
 module.exports = app;

@@ -4,15 +4,17 @@ module.exports = (sequelize) =>
   sequelize.define(
     "pendingFriend",
     {
-      user1Id: {
+      userOutgoingId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: false,
+        field: "user_outgoing_id",
       },
-      user2Id: {
+      userIncomingId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: false,
+        field: "user_incoming_id",
       },
       createdAt: {
         type: DataTypes.DATE,

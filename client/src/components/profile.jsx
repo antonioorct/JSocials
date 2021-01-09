@@ -69,8 +69,8 @@ export default function Profile() {
           <Button
             onClick={async () => {
               await http.post("http://localhost:3001/api/users/friends", {
-                user1Id: user.id,
-                user2Id: userProfile.id,
+                userOutgoingId: user.id,
+                userIncomingId: userProfile.id,
               });
 
               setFriendStatus("pending to");
@@ -84,7 +84,7 @@ export default function Profile() {
           <Button
             onClick={async () => {
               await http.delete(
-                `http://localhost:3001/api/users/friends?user1Id=${user.id}&user2Id=${userProfile.id}`
+                `http://localhost:3001/api/users/friends?userIncomingId=${user.id}&userOutgoingId=${userProfile.id}`
               );
 
               setFriendStatus("not friends");
@@ -100,7 +100,7 @@ export default function Profile() {
             <Button
               onClick={async () => {
                 await http.delete(
-                  `http://localhost:3001/api/users/friends?user1Id=${user.id}&user2Id=${userProfile.id}`
+                  `http://localhost:3001/api/users/friends?userOutgoingId=${user.id}&userIncomingId=${userProfile.id}`
                 );
 
                 setFriendStatus("not friends");
@@ -150,9 +150,11 @@ export default function Profile() {
                     Edit profile
                   </Button>
                 ) : (
-                  <Button>Send message</Button>
+                  <div>
+                    <Button>Send message</Button>
+                    {renderFriendButton(friendStatus)}
+                  </div>
                 )}
-                {renderFriendButton(friendStatus)}
               </div>
 
               <div className="col-9">
