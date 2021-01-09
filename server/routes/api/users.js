@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { QueryTypes } = require("sequelize");
 const { models, model } = require("../../sequelize");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
@@ -42,8 +43,8 @@ router.post("/", async function (req, res, next) {
 
 router.get("/friends/:userId", async function (req, res) {
   const friends = await models.friend.findAll({
-    include: { model: models.user, foreignKey: "user2Id" },
-    where: { user1Id: req.params.userId },
+    include: { model: models.user, foreignKey: "userOutgoingId" },
+    where: { userIncomingId: req.params.userId },
   });
 
   if (!friends || friends.length === 0) res.status(404).send();
@@ -51,10 +52,63 @@ router.get("/friends/:userId", async function (req, res) {
 });
 
 router.get("/friends/:userId/pending", async function (req, res) {
-  const friendRequests = await models.pendingFriend.findAll({
-    include: { model: models.user, foreignKey: "user1Id" },
-    where: { user2Id: req.params.userId },
-  });
+  const userId = req.params.userId;
+  const include = req.query.include;
+
+  let friendRequests = { incoming: [], outgoing: [] };
+  switch (include) {
+    case "all":
+      friendRequests.outgoing = await sequelize.query(
+        `
+      				SELECT 
+          users.id "id",
+					users.first_name "firstName",
+          users.last_name "lastName"
+				FROM
+					pending_friends
+						INNER JOIN
+					users ON pending_friends.user_incoming_id = users.id
+				WHERE
+					user_outgoing_id = ?;
+      `,
+        {
+          type: QueryTypes.SELECT,
+          replacements: [userId],
+        }
+      );
+      friendRequests.incoming = await sequelize.query(
+        `
+      				SELECT 
+          users.id "id",
+					users.first_name "firstName",
+					users.last_name "lastName"
+				FROM
+					pending_friends
+						INNER JOIN
+					users ON pending_friends.user_outgoing_id = users.id
+				WHERE
+					user_incoming_id = ?;
+      `,
+        {
+          type: QueryTypes.SELECT,
+          replacements: [userId],
+        }
+      );
+      break;
+    case "incoming":
+      friendRequests = await models.pendingFriend.findAll({
+        include: { model: models.user, foreignKey: "userIncomingId" },
+        where: { userOutgoingId: userId },
+      });
+      break;
+    case "outgoing":
+      friendRequests = await models.pendingFriend.findAll({
+        include: { model: models.user, foreignKey: "userOutgoingId" },
+        where: { userIncomingId: userId },
+      });
+      break;
+  }
+  console.log(friendRequests);
 
   res.status(200).send(friendRequests);
 });
@@ -63,7 +117,16 @@ router.post("/friends", async function (req, res) {
   if (req.query.accept) {
     try {
       await models.pendingFriend.destroy({
-        where: { user1Id: req.body.user2Id, user2Id: req.body.user1Id },
+        where: {
+          userIncomingId: req.body.user2Id,
+          userOutgoingId: req.body.user1Id,
+        },
+      });
+      await models.pendingFriend.destroy({
+        where: {
+          userIncomingId: req.body.user1Id,
+          userOutgoingId: req.body.user2Id,
+        },
       });
 
       if (req.query.accept === "false")
@@ -86,44 +149,46 @@ router.post("/friends", async function (req, res) {
 });
 
 router.delete("/friends", async function (req, res) {
-  const user1Id = req.query.user1Id;
-  const user2Id = req.query.user2Id;
+  const userIncomingId = req.query.userIncomingId;
+  const userOutgoingId = req.query.userOutgoingId;
 
   await models.pendingFriend.destroy({
-    where: { user1Id, user2Id },
+    where: { userIncomingId: userIncomingId, userOutgoingId },
   });
 
   await models.friend.destroy({
-    where: { user1Id, user2Id },
+    where: { user1Id: userIncomingId, user2Id: userOutgoingId },
   });
   await models.friend.destroy({
-    where: { user1Id: req.query.user2Id, user2Id: req.query.user1Id },
+    where: {
+      user1Id: userOutgoingId,
+      user2Id: userIncomingId,
+    },
   });
 
   return res.status(200).send();
 });
 
 router.get("/friends/:user1Id/status", async function (req, res) {
-  const user1Id = req.params.user1Id;
-  const user2Id = req.query.user2Id;
+  const userIncomingId = req.params.user1Id;
+  const userOutgoingId = req.query.user2Id;
 
-  console.log("test");
   const isFriend = await models.friend.findOne({
-    where: { user1Id, user2Id },
+    where: { user1Id: userIncomingId, user2Id: userOutgoingId },
   });
 
   if (isFriend) return res.status(201).send({ status: "friends" });
   else {
-    const isPendingTo = await models.pendingFriend.findOne({
-      where: { user1Id, user2Id },
-    });
-
-    if (isPendingTo) return res.status(202).send({ status: "pending to" });
     const isPendingFrom = await models.pendingFriend.findOne({
-      where: { user1Id: user2Id, user2Id: user1Id },
+      where: { userIncomingId, userOutgoingId },
     });
 
     if (isPendingFrom) return res.status(202).send({ status: "pending from" });
+    const isPendingTo = await models.pendingFriend.findOne({
+      where: { userIncomingId: userOutgoingId, userOutgoingId: userIncomingId },
+    });
+
+    if (isPendingTo) return res.status(202).send({ status: "pending to" });
 
     return res.status(203).send({ status: "not friends" });
   }
