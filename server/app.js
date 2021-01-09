@@ -59,4 +59,37 @@ sequelize.models.post.belongsToMany(sequelize.models.user, {
 sequelize.models.post.hasMany(sequelize.models.userPostLike);
 sequelize.models.userPostLike.belongsTo(sequelize.models.user);
 
+sequelize.models.user.belongsToMany(sequelize.models.user, {
+  through: sequelize.models.friend,
+  foreignKey: "user1_id",
+  otherKey: "user2_id",
+  as: "friends",
+});
+sequelize.models.friend.belongsTo(sequelize.models.user, {
+  foreignKey: "user2_id",
+});
+
+sequelize.models.user.hasMany(sequelize.models.pendingFriend, {
+  foreignKey: "userOutgoingId",
+  as: "outgoing",
+});
+sequelize.models.user.hasMany(sequelize.models.pendingFriend, {
+  foreignKey: "userIncomingId",
+  as: "incoming",
+});
+
+sequelize.models.pendingFriend.belongsTo(sequelize.models.user, {
+  foreignKey: "userOutgoingId",
+  as: "userOutgoing",
+});
+sequelize.models.pendingFriend.belongsTo(sequelize.models.user, {
+  foreignKey: "userIncomingId",
+  as: "userIncoming",
+});
+sequelize.models.pendingFriend.removeAttribute("id");
+sequelize.models.friend.removeAttribute("id");
+sequelize.models.friend.removeAttribute("user1_id");
+sequelize.models.friend.removeAttribute("user2_id");
+sequelize.models.user.removeAttribute("user_id");
+
 module.exports = app;

@@ -1,10 +1,20 @@
 const express = require("express");
 const { Op } = require("sequelize");
+const sequelize = require("../../sequelize");
 const router = express.Router();
-const { models, model } = require("../../sequelize");
+const { models, model, Sequelize } = require("../../sequelize");
 
 router.get("", async function (req, res) {
   const userId = req.query.userId;
+
+  const friends = await models.user.findAll({
+    include: [{ model: models.user, as: "friends", attributes: ["id"] }],
+    where: { id: userId },
+  });
+
+  const friendIds = friends[0]
+    .getDataValue("friends")
+    .map((friend) => friend.getDataValue("id"));
 
   const posts = await models.post.findAll({
     include: [
@@ -28,17 +38,20 @@ router.get("", async function (req, res) {
         attributes: { exclude: ["user_id"] },
         order: [["createdAt", "DESC"]],
       },
-      { model: models.user, attributes: ["firstName", "lastName"] },
+      {
+        model: models.user,
+        attributes: ["firstName", "lastName"],
+      },
       {
         model: models.userPostLike,
         include: { model: models.user, attributes: ["firstName", "lastName"] },
       },
     ],
-    where: Object.assign(
-      { postId: { [Op.eq]: null } },
-      userId ? { userId } : null
-    ),
-    attributes: { exclude: ["postId"] },
+    where: {
+      postId: { [Op.eq]: null },
+      userId: { [Op.in]: [...friendIds, userId] },
+    },
+    order: [["createdAt", "DESC"]],
   });
 
   if (!posts) return res.sendStatus(404);

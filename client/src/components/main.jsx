@@ -25,7 +25,7 @@ export default function Main() {
 
   useEffect(() => {
     const fetchAndSetPosts = async () => {
-      const data = await getPostsFromUserId();
+      const data = await getPostsFromUserId(user.id);
 
       setPosts(data);
     };
@@ -83,7 +83,7 @@ export default function Main() {
   };
 
   const fetchAndSetComments = async (postId, createdAt) => {
-    const { data, headers } = await http.get(
+    const { data } = await http.get(
       "http://localhost:3001/api/posts/" + postId + "?createdAt=" + createdAt
     );
 
@@ -108,7 +108,7 @@ export default function Main() {
         onSubmit={async (e) => {
           e.preventDefault();
           const result = await addPost({ userId: user.id, body: postForm });
-          setPosts([...posts, result]);
+          setPosts([result, ...posts]);
           setPostForm("");
         }}
       >

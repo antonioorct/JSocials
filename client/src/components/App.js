@@ -11,6 +11,9 @@ import Main from "./main";
 import Messenger from "./messenger";
 import Register from "./register";
 import Profile from "./profile";
+import Search from "./search";
+import Friends from "./friends";
+import FriendRequests from "./friendRequests";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -39,7 +42,14 @@ export default function App() {
             component={Messenger}
             exact
           ></ProtectedRoute>
+          <ProtectedRoute path="/friends" component={Friends} exact />
+          <ProtectedRoute
+            path="/friendrequests"
+            component={FriendRequests}
+            exact
+          />
 
+          <Route path="/search" component={Search} />
           <Route path="/:username" component={Profile} />
         </Switch>
       </Container>
