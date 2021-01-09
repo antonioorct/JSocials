@@ -8,7 +8,7 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Table from "react-bootstrap/Table";
 import { UserContext } from "../contexts/UserContext";
-import InfoTable from "./shared/infoTable";
+import Info from "./shared/info";
 
 export default function Profile() {
   const user = useContext(UserContext)[0];
@@ -18,6 +18,7 @@ export default function Profile() {
   const [friendStatus, setFriendStatus] = useState(false);
   let loaded = useRef(false);
   const [info, setInfo] = useState({
+    Bio: "djkajdkasjdsk",
     Gender: "Male",
     Location: "Zagreb, Croatia",
     Website: "website.com",
@@ -41,6 +42,34 @@ export default function Profile() {
     checkFriend();
   }, [userProfile]);
 
+  const changeEditing = async (updateUser) => {
+    setEditing(false);
+
+    if (updateUser) {
+      const { data } = await http.post(
+        "http://localhost:3001/api/users/" + user.id,
+        info
+      );
+
+      setUserProfile(data);
+      setInfo({
+        Bio: data.bio,
+        Gender: data.gender,
+        Location: data.location,
+        Website: data.website,
+        "Relationship status": data.relationshipStatus,
+      });
+    } else {
+      setInfo({
+        Bio: "djkajdkasjdsk",
+        Gender: "Male",
+        Location: "Zagreb, Croatia",
+        Website: "website.com",
+        "Relationship status": "Single",
+      });
+    }
+  };
+
   const checkFriend = async () => {
     if (!userProfile) return;
     const { data } = await http.get(
@@ -61,6 +90,9 @@ export default function Profile() {
       setUserProfile({ id: 0 });
     }
   };
+
+  const handleChange = (e) =>
+    setInfo({ ...info, [e.target.id]: e.target.value });
 
   const renderFriendButton = (friendStatus) => {
     switch (friendStatus) {
@@ -144,11 +176,22 @@ export default function Profile() {
               <div className="col-3 text-center">
                 <Image src={userProfile.imagePath} fluid rounded />
                 {user.username === userProfile.username ? (
-                  <Button
-                    onClick={() => setEditing((prevEditing) => !prevEditing)}
-                  >
-                    Edit profile
-                  </Button>
+                  !editing ? (
+                    <Button
+                      onClick={() => setEditing((prevEditing) => !prevEditing)}
+                    >
+                      Edit profile
+                    </Button>
+                  ) : (
+                    <div>
+                      <Button onClick={() => changeEditing(true)}>
+                        Submit
+                      </Button>
+                      <Button onClick={() => changeEditing(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  )
                 ) : (
                   <div>
                     <Button>Send message</Button>
@@ -162,14 +205,50 @@ export default function Profile() {
 
                 <Tabs className="mb-1" defaultActiveKey="about">
                   <Tab eventKey="about" title="About">
-                    <p className="border border-dark rounded p-2">
-                      {userProfile.bio}
-                    </p>
-                    <InfoTable
-                      info={info}
-                      setInfo={setInfo}
-                      editing={editing}
-                    />
+                    {editing ? (
+                      <FormControl
+                        value={info["Bio"]}
+                        id="Bio"
+                        onChange={handleChange}
+                      ></FormControl>
+                    ) : (
+                      <p className="border border-dark rounded p-2">
+                        {info["Bio"]}
+                      </p>
+                    )}
+
+                    <Table borderless style={{ tableLayout: "fixed" }}>
+                      <tbody>
+                        <tr>
+                          <Info
+                            upper="Gender"
+                            lower={info["Gender"]}
+                            handleChange={handleChange}
+                            editing={editing}
+                          />
+                          <Info
+                            upper="Location"
+                            lower={info["Location"]}
+                            handleChange={handleChange}
+                            editing={editing}
+                          />
+                          <Info
+                            upper="Website"
+                            lower={info["Website"]}
+                            handleChange={handleChange}
+                            editing={editing}
+                          />
+                        </tr>
+                        <tr>
+                          <Info
+                            upper="Relationship status"
+                            lower={info["Relationship status"]}
+                            handleChange={handleChange}
+                            editing={editing}
+                          />
+                        </tr>
+                      </tbody>
+                    </Table>
                   </Tab>
 
                   <Tab eventKey="photos" title="Photos">
