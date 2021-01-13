@@ -41,6 +41,15 @@ router.post("/", async function (req, res, next) {
   }
 });
 
+router.put("/:userId", async function (req, res) {
+  await models.user.update(req.body, {
+    where: { id: req.params.userId },
+  });
+  const updatedUser = await models.user.findByPk(req.params.userId);
+
+  res.status(200).send(updatedUser);
+});
+
 router.get("/friends/:userId", async function (req, res) {
   const friends = await models.friend.findAll({
     include: { model: models.user, foreignKey: "userOutgoingId" },
