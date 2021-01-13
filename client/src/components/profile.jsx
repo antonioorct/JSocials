@@ -24,10 +24,10 @@ export default function Profile() {
 
   useEffect(() => {
     getProfile(username);
-    checkFriend();
   }, [username]);
 
   useEffect(() => {
+    checkFriend();
     setInfo({
       bio: userProfile.bio,
       gender: userProfile.gender,
