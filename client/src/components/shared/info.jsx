@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import FormControl from "react-bootstrap/FormControl";
 import Form from "react-bootstrap/Form";
+import { toCamelCase } from "../../util/stringUtil";
 
 export default function Info({ upper, lower, editing, handleChange }) {
   return (
@@ -15,13 +16,11 @@ export default function Info({ upper, lower, editing, handleChange }) {
         />
       </div>
       {editing ? (
-        <Form>
-          <FormControl
-            onChange={handleChange}
-            id={upper}
-            value={lower}
-          ></FormControl>
-        </Form>
+        <FormControl
+          onChange={handleChange}
+          name={toCamelCase(upper)}
+          value={lower}
+        ></FormControl>
       ) : (
         <p className="ml-2 mt-1">{lower}</p>
       )}
