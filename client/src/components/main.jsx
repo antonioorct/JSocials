@@ -15,11 +15,13 @@ import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
 import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import FormFile from "react-bootstrap/esm/FormFile";
+import Image from "react-bootstrap/Image";
 
 export default function Main() {
   const user = useContext(UserContext)[0];
   const [posts, setPosts] = useState(null);
-  const [postForm, setPostForm] = useState("");
+  const [postForm, setPostForm] = useState({ body: "", file: null });
   const [replying, setReplying] = useState(-1);
   const [replyForm, setReplyForm] = useState("");
 
@@ -98,23 +100,34 @@ export default function Main() {
     return data;
   };
 
-  const submitPost = async (e) => {
-    e.preventDefault();
-  };
-
   return (
     <div>
       <Form
         onSubmit={async (e) => {
           e.preventDefault();
-          const result = await addPost({ userId: user.id, body: postForm });
+          const sendFormData = new FormData();
+          if (postForm.file) sendFormData.append("image", postForm.file);
+          sendFormData.append("body", postForm.body);
+          sendFormData.append("userId", user.id);
+
+          const result = await addPost(sendFormData);
+          console.log(result);
+
           setPosts([result, ...posts]);
-          setPostForm("");
+          setPostForm({ body: "", file: null });
         }}
+        encType="multipart/form-data"
       >
+        <FormFile
+          onChange={({ target }) =>
+            setPostForm({ body: postForm.body, file: target.files[0] })
+          }
+        ></FormFile>
         <FormControl
-          value={postForm}
-          onChange={({ target }) => setPostForm(target.value)}
+          value={postForm.body}
+          onChange={({ target }) =>
+            setPostForm({ body: target.value, file: postForm.file })
+          }
           placeholder="Write something here..."
         ></FormControl>
         <Button type="submit">Post</Button>
@@ -132,6 +145,12 @@ export default function Main() {
                 </h5>
                 <div className="ml-3">
                   <p>{post.body}</p>
+                  {post.imagePath && (
+                    <Image
+                      src={"img/" + post.imagePath}
+                      style={{ height: "300px" }}
+                    ></Image>
+                  )}
                   <p>
                     <OverlayTrigger
                       placement="top"
