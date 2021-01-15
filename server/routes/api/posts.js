@@ -1,8 +1,9 @@
 const express = require("express");
 const { Op } = require("sequelize");
-const sequelize = require("../../sequelize");
 const router = express.Router();
-const { models, model, Sequelize } = require("../../sequelize");
+const { models } = require("../../sequelize");
+const fs = require("fs");
+const multer = require("multer")();
 
 router.get("", async function (req, res) {
   const userId = req.query.userId;
@@ -84,9 +85,20 @@ router.get("/:postId", async function (req, res) {
   else return res.status(200).send(comments);
 });
 
-router.post("/", async function (req, res) {
+router.post("/", multer.single("image"), async function (req, res) {
   try {
-    const newPost = await models.post.create(req.body);
+    if (req.file)
+      fs.writeFile(
+        "C:\\College\\Zavrsni\\Projekt\\client\\public\\img\\" +
+          req.file.originalname,
+        req.file.buffer,
+        (e) => console.log(e)
+      );
+
+    const newPost = await models.post.create({
+      ...req.body,
+      imagePath: req.file ? req.file.originalname : null,
+    });
     const newFullPost = await models.post.findByPk(newPost.getDataValue("id"), {
       include: [{ model: models.user, attributes: ["firstName", "lastName"] }],
       attributes: { exclude: ["postId"] },
