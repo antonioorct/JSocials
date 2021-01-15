@@ -25,6 +25,9 @@ module.exports = (sequelize) =>
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      imagePath: {
+        type: DataTypes.STRING,
+      },
       numLikes: {
         type: DataTypes.INTEGER,
         allowNull: false,
