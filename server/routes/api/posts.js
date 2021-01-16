@@ -1,3 +1,4 @@
+const Sequelize = require("sequelize");
 const express = require("express");
 const { Op } = require("sequelize");
 const router = express.Router();
@@ -25,7 +26,7 @@ router.get("", async function (req, res) {
         include: [
           {
             model: models.user,
-            attributes: ["firstName", "lastName", "id"],
+            attributes: ["firstName", "lastName", "username", "id"],
           },
           {
             model: models.userPostLike,
@@ -41,7 +42,7 @@ router.get("", async function (req, res) {
       },
       {
         model: models.user,
-        attributes: ["firstName", "lastName"],
+        attributes: ["firstName", "lastName", "username"],
       },
       {
         model: models.userPostLike,
@@ -60,6 +61,42 @@ router.get("", async function (req, res) {
 });
 
 router.get("/:postId", async function (req, res) {
+  const post = await models.post.findByPk(req.params.postId, {
+    include: [
+      {
+        model: models.post,
+        as: "comments",
+        include: [
+          {
+            model: models.user,
+            attributes: ["firstName", "lastName", "username", "id"],
+          },
+          {
+            model: models.userPostLike,
+            include: {
+              model: models.user,
+              attributes: ["firstName", "lastName"],
+            },
+          },
+        ],
+        attributes: { exclude: ["user_id"] },
+      },
+      {
+        model: models.user,
+        attributes: ["firstName", "lastName", "username"],
+      },
+      {
+        model: models.userPostLike,
+        include: { model: models.user, attributes: ["firstName", "lastName"] },
+      },
+    ],
+    order: [[Sequelize.col("comments.created_at"), "DESC"]],
+  });
+
+  res.status(200).send(post);
+});
+
+router.get("/:postId/comments", async function (req, res) {
   const createdAt = req.query.createdAt;
 
   const comments = await models.post.findAll({
@@ -78,10 +115,21 @@ router.get("/:postId", async function (req, res) {
       postId: { [Op.eq]: req.params.postId, [Op.ne]: null },
     },
     order: [["createdAt", "DESC"]],
+    limit: parseInt(req.query.limit) || null,
   });
 
   if (!comments) return res.sendStatus(404);
   else return res.status(200).send(comments);
+});
+
+router.get("/images/:userId", async function (req, res) {
+  const images = await models.post.findAll({
+    attributes: ["id", "imagePath"],
+    order: [["createdAt", "DESC"]],
+    where: { userId: req.params.userId, imagePath: { [Op.ne]: null } },
+  });
+
+  res.status(200).send(images);
 });
 
 router.post("/", multer.single("image"), async function (req, res) {

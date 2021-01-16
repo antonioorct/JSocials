@@ -93,13 +93,26 @@ function deletePost(post) {
 }
 
 async function getComments(post) {
-  console.log();
   const { data } = await http.get(
     "http://localhost:3001/api/posts/" +
       post.id +
       "?createdAt=" +
       new Date(Date.now()).toLocaleString()
   );
+
+  return data;
+}
+
+async function getImages(user) {
+  const { data } = await http.get(
+    "http://localhost:3001/api/posts/images/" + user.id
+  );
+
+  return data;
+}
+
+async function getPost(post) {
+  const { data } = await http.get("http://localhost:3001/api/posts/" + post.id);
 
   return data;
 }
@@ -116,4 +129,6 @@ export {
   replaceComment,
   deletePost,
   getComments,
+  getImages,
+  getPost,
 };
