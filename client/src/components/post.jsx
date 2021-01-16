@@ -6,6 +6,7 @@ import {
   deletePost,
   replaceComment,
   getComments,
+  getPost,
 } from "../services/postService";
 
 import Modal from "react-bootstrap/Modal";
@@ -24,24 +25,30 @@ export default function Post({ post, setPost }) {
   const user = useContext(UserContext)[0];
   const [replying, setReplying] = useState(false);
   const [replyForm, setReplyForm] = useState("");
-  const [comments, setComments] = useState([]);
+  const [modalPost, setModalPost] = useState(null);
 
-  const getSetComments = async () => {
-    const comm = await getComments(post);
+  const getSelectedPost = async () => {
+    const selectedPost = await getPost(post);
 
-    setComments(comm);
+    setModalPost(selectedPost);
   };
 
-  useEffect(() => {
+  const closeModal = () => {
+    setModalPost(null);
+    setPost(null);
+  };
+
+  useEffect(async () => {
     if (!post) return;
-    getSetComments();
+
+    await getSelectedPost();
   }, [post]);
 
   return (
-    post && (
+    modalPost && (
       <Modal
         show={true}
-        onHide={() => setPost(null)}
+        onHide={() => closeModal()}
         dialogClassName="model-dialog"
         contentClassName="model-content"
       >
@@ -55,11 +62,11 @@ export default function Post({ post, setPost }) {
               zIndex: "2",
               padding: "0 1rem 1rem 1rem",
             }}
-            onClick={() => setPost(null)}
+            onClick={() => closeModal()}
           >
             <span>×</span>
           </button>
-          {post.imagePath ? (
+          {modalPost.imagePath ? (
             <div
               className="col m-auto"
               style={{
@@ -68,7 +75,7 @@ export default function Post({ post, setPost }) {
             >
               <Image
                 className="modal-img"
-                src={"img/" + post.imagePath}
+                src={"img/" + modalPost.imagePath}
                 fluid
               />
             </div>
@@ -77,20 +84,22 @@ export default function Post({ post, setPost }) {
           )}
           <div className="col-3">
             <h4>
-              {post.user.firstName} {post.user.lastName}
+              <a href={`/${modalPost.user.username}`}>
+                {modalPost.user.firstName} {modalPost.user.lastName}
+              </a>
             </h4>
 
-            <p>{post.body}</p>
+            <p>{modalPost.body}</p>
 
             <p>
               <OverlayTrigger
                 placement="top"
                 overlay={
-                  post.userPostLikes.length === 0 ? (
+                  modalPost.userPostLikes.length === 0 ? (
                     <div />
                   ) : (
                     <Tooltip>
-                      {post.userPostLikes
+                      {modalPost.userPostLikes
                         .map((like, index) => {
                           if (index < 5)
                             return (
@@ -99,9 +108,9 @@ export default function Post({ post, setPost }) {
                           else return null;
                         })
                         .join(", ") +
-                        (post.userPostLikes.length === 1
+                        (modalPost.userPostLikes.length === 1
                           ? " has"
-                          : post.userPostLikes.length > 5
+                          : modalPost.userPostLikes.length > 5
                           ? ",... have"
                           : " have") +
                         " liked this post."}
@@ -109,10 +118,10 @@ export default function Post({ post, setPost }) {
                   )
                 }
               >
-                <span>{post.numLikes} Likes</span>
+                <span>{modalPost.numLikes} Likes</span>
               </OverlayTrigger>
               <br />
-              {post.numComments} Comments
+              {modalPost.numComments} Comments
               <br />
               {replying ? (
                 <Form
@@ -121,16 +130,15 @@ export default function Post({ post, setPost }) {
 
                     const newComment = await addCommentToPost({
                       userId: user.id,
-                      postId: post.id,
+                      postId: modalPost.id,
                       body: replyForm,
                     });
 
-                    const tempPost = post;
+                    const tempPost = modalPost;
                     tempPost.comments.unshift(newComment);
                     tempPost.numComments++;
 
-                    setPost(tempPost);
-                    setComments([newComment, ...comments]);
+                    setModalPost(tempPost);
                     setReplying(false);
                     setReplyForm("");
                   }}
@@ -147,7 +155,7 @@ export default function Post({ post, setPost }) {
                         Send
                       </Button>
                       <Button
-                        onClick={() => setReplying(-1)}
+                        onClick={() => setReplying(false)}
                         variant="outline-danger"
                       >
                         Cancel
@@ -160,12 +168,14 @@ export default function Post({ post, setPost }) {
                   Reply
                 </a>
               )}
-              {!post.userPostLikes.find((like) => like.userId === user.id) ? (
+              {!modalPost.userPostLikes.find(
+                (like) => like.userId === user.id
+              ) ? (
                 <a
                   onClick={() => {
-                    const newPost = changePostLike(post, user, true);
+                    const newPost = changePostLike(modalPost, user, true);
 
-                    setPost(newPost);
+                    setModalPost(newPost);
                   }}
                   href="#"
                 >
@@ -175,9 +185,9 @@ export default function Post({ post, setPost }) {
               ) : (
                 <a
                   onClick={() => {
-                    const newPost = changePostLike(post, user, false);
+                    const newPost = changePostLike(modalPost, user, false);
 
-                    setPost(newPost);
+                    setModalPost(newPost);
                   }}
                   href="#"
                 >
@@ -185,13 +195,13 @@ export default function Post({ post, setPost }) {
                   Unlike
                 </a>
               )}
-              {post.userId === user.id && (
+              {modalPost.userId === user.id && (
                 <a
                   href="#"
                   onClick={() => {
-                    deletePost(post);
+                    deletePost(modalPost);
 
-                    setPost(null);
+                    closeModal();
                   }}
                 >
                   {" "}
@@ -204,10 +214,12 @@ export default function Post({ post, setPost }) {
               className="ml-3 overflow-auto"
               style={{ height: "calc(90vh - 200px)" }}
             >
-              {comments.map((comment) => (
+              {modalPost.comments.map((comment) => (
                 <div className="mb-3" key={comment.id}>
                   <div className="font-weight-bold">
-                    {comment.user.firstName} {comment.user.lastName}
+                    <a href={`/${comment.user.username}`}>
+                      {comment.user.firstName} {comment.user.lastName}
+                    </a>
                   </div>
                   <div>{comment.body}</div>
                   <OverlayTrigger
@@ -242,9 +254,9 @@ export default function Post({ post, setPost }) {
                       onClick={() => {
                         const newComment = changePostLike(comment, user, true);
 
-                        const newPost = replaceComment([post], newComment);
+                        const newPost = replaceComment([modalPost], newComment);
 
-                        setPost(newPost[0]);
+                        setModalPost(newPost[0]);
                       }}
                       href="#"
                     >
@@ -256,9 +268,9 @@ export default function Post({ post, setPost }) {
                       onClick={() => {
                         const newComment = changePostLike(comment, user, false);
 
-                        const newPost = replaceComment([post], newComment);
+                        const newPost = replaceComment([modalPost], newComment);
 
-                        setPost(newPost[0]);
+                        setModalPost(newPost[0]);
                       }}
                       href="#"
                     >
@@ -272,7 +284,7 @@ export default function Post({ post, setPost }) {
                       onClick={() => {
                         deletePost(comment);
 
-                        const tempPost = post;
+                        const tempPost = modalPost;
                         tempPost.comments = tempPost.comments.filter(
                           (x) => comment.id !== x.id
                         );
@@ -286,7 +298,7 @@ export default function Post({ post, setPost }) {
                         //     new Date(Date.now()).toISOString()
                         //   );
 
-                        setPost(tempPost);
+                        setModalPost(tempPost);
                       }}
                     >
                       {" "}
