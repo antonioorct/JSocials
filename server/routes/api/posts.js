@@ -78,7 +78,6 @@ router.get("/:postId", async function (req, res) {
       postId: { [Op.eq]: req.params.postId, [Op.ne]: null },
     },
     order: [["createdAt", "DESC"]],
-    limit: 5,
   });
 
   if (!comments) return res.sendStatus(404);
