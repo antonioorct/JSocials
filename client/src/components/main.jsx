@@ -4,8 +4,10 @@ import {
   getPostsFromUserId,
   addPost,
   addCommentToPost,
-  likePost,
-  unlikePost,
+  changePostLike,
+  replacePost,
+  replaceComment,
+  deletePost,
 } from "../services/postService";
 import http from "../services/httpService";
 
@@ -17,6 +19,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import FormFile from "react-bootstrap/esm/FormFile";
 import Image from "react-bootstrap/Image";
+import Post from "./post";
 
 export default function Main() {
   const user = useContext(UserContext)[0];
@@ -24,6 +27,8 @@ export default function Main() {
   const [postForm, setPostForm] = useState({ body: "", file: null });
   const [replying, setReplying] = useState(-1);
   const [replyForm, setReplyForm] = useState("");
+
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     const fetchAndSetPosts = async () => {
@@ -35,54 +40,13 @@ export default function Main() {
     fetchAndSetPosts();
   }, [user.id]);
 
-  const changePostLike = async (post, index, isLike) => {
-    const tempPosts = [...posts];
+  useEffect(() => {
+    console.log(selectedPost);
+    if (!selectedPost) return;
+    const newPosts = replacePost(posts, selectedPost);
 
-    if (isLike) {
-      const newLike = await likePost(post.id, user.id);
-      if (!post.postId) {
-        tempPosts[index].numLikes++;
-        tempPosts[index].userPostLikes.push({
-          userId: user.id,
-          postId: post.id,
-          user: {
-            firstName: user.firstName,
-            lastName: user.lastName,
-          },
-        });
-      } else {
-        const postIndex = tempPosts.findIndex(
-          (tempPost) => tempPost.id === post.postId
-        );
-        tempPosts[postIndex].comments[index].numLikes++;
-        tempPosts[postIndex].comments[index].userPostLikes.push({
-          userId: user.id,
-          postId: post.id,
-          user: { firstName: user.firstName, lastName: user.lastName },
-        });
-      }
-    } else {
-      const newLike = await unlikePost(post.id, user.id);
-      if (!post.postId) {
-        tempPosts[index].numLikes--;
-        tempPosts[index].userPostLikes = tempPosts[index].userPostLikes.filter(
-          (like) => like.userId !== user.id
-        );
-      } else {
-        const postIndex = tempPosts.findIndex(
-          (tempPost) => tempPost.id === post.postId
-        );
-        tempPosts[postIndex].comments[index].numLikes--;
-        tempPosts[postIndex].comments[index].userPostLikes = tempPosts[
-          postIndex
-        ].comments[index].userPostLikes.filter(
-          (like) => like.userId !== user.id
-        );
-      }
-    }
-
-    setPosts(tempPosts);
-  };
+    setPosts(newPosts);
+  }, [selectedPost]);
 
   const fetchAndSetComments = async (postId, createdAt) => {
     const { data } = await http.get(
@@ -92,16 +56,9 @@ export default function Main() {
     return data;
   };
 
-  const deletePost = async (postId) => {
-    const { data } = await http.delete(
-      "http://localhost:3001/api/posts/" + postId
-    );
-
-    return data;
-  };
-
   return (
     <div>
+      <Post post={selectedPost} setPost={setSelectedPost} />
       <Form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -119,6 +76,7 @@ export default function Main() {
         encType="multipart/form-data"
       >
         <FormFile
+          accept="image/png, image/jpeg, image/bmp"
           onChange={({ target }) =>
             setPostForm({ body: postForm.body, file: target.files[0] })
           }
@@ -132,6 +90,7 @@ export default function Main() {
         ></FormControl>
         <Button type="submit">Post</Button>
       </Form>
+
       <div className="overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         {posts &&
           posts.map((post, postIndex) => {
@@ -144,13 +103,18 @@ export default function Main() {
                   {post.user.firstName} {post.user.lastName}
                 </h5>
                 <div className="ml-3">
-                  <p>{post.body}</p>
-                  {post.imagePath && (
-                    <Image
-                      src={"img/" + post.imagePath}
-                      style={{ height: "300px" }}
-                    ></Image>
-                  )}
+                  <div
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setSelectedPost(post)}
+                  >
+                    <p>{post.body}</p>
+                    {post.imagePath && (
+                      <Image
+                        src={"img/" + post.imagePath}
+                        style={{ height: "300px" }}
+                      ></Image>
+                    )}
+                  </div>
                   <p>
                     <OverlayTrigger
                       placement="top"
@@ -235,9 +199,13 @@ export default function Main() {
                       (like) => like.userId === user.id
                     ) ? (
                       <a
-                        onClick={async () =>
-                          changePostLike(post, postIndex, true)
-                        }
+                        onClick={() => {
+                          const newPost = changePostLike(post, user, true);
+
+                          const newPosts = replacePost(posts, newPost);
+
+                          setPosts(newPosts);
+                        }}
                         href="#"
                       >
                         {" "}
@@ -245,9 +213,13 @@ export default function Main() {
                       </a>
                     ) : (
                       <a
-                        onClick={async () =>
-                          changePostLike(post, postIndex, false)
-                        }
+                        onClick={() => {
+                          const newPost = changePostLike(post, user, false);
+
+                          const newPosts = replacePost(posts, newPost);
+
+                          setPosts(newPosts);
+                        }}
                         href="#"
                       >
                         {" "}
@@ -258,11 +230,9 @@ export default function Main() {
                       <a
                         href="#"
                         onClick={() => {
-                          deletePost(post.id);
-                          let tempPosts = [...posts];
-                          tempPosts = tempPosts.filter((x) => post.id !== x.id);
+                          deletePost(post);
 
-                          setPosts(tempPosts);
+                          setPosts(posts.filter((x) => post.id !== x.id));
                         }}
                       >
                         {" "}
@@ -271,7 +241,7 @@ export default function Main() {
                     )}
                   </p>
                   <div className="ml-3">
-                    {post.comments.map((comment, commentIndex) => (
+                    {post.comments.map((comment) => (
                       <div className="mb-3" key={comment.id}>
                         <div className="font-weight-bold">
                           {comment.user.firstName} {comment.user.lastName}
@@ -308,9 +278,20 @@ export default function Main() {
                           (like) => like.userId === user.id
                         ) ? (
                           <a
-                            onClick={async () =>
-                              changePostLike(comment, commentIndex, true)
-                            }
+                            onClick={() => {
+                              const newComment = changePostLike(
+                                comment,
+                                user,
+                                true
+                              );
+
+                              const newPosts = replaceComment(
+                                posts,
+                                newComment
+                              );
+
+                              setPosts(newPosts);
+                            }}
                             href="#"
                           >
                             {" "}
@@ -318,9 +299,20 @@ export default function Main() {
                           </a>
                         ) : (
                           <a
-                            onClick={async () =>
-                              changePostLike(comment, commentIndex, false)
-                            }
+                            onClick={() => {
+                              const newComment = changePostLike(
+                                comment,
+                                user,
+                                false
+                              );
+
+                              const newPosts = replaceComment(
+                                posts,
+                                newComment
+                              );
+
+                              setPosts(newPosts);
+                            }}
                             href="#"
                           >
                             {" "}
@@ -331,7 +323,7 @@ export default function Main() {
                           <a
                             href="#"
                             onClick={async () => {
-                              await deletePost(comment.id);
+                              await deletePost(comment);
                               const tempPosts = [...posts];
                               tempPosts[postIndex].comments = tempPosts[
                                 postIndex
