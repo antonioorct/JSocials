@@ -41,7 +41,6 @@ export default function Main() {
   }, [user.id]);
 
   useEffect(() => {
-    console.log(selectedPost);
     if (!selectedPost) return;
     const newPosts = replacePost(posts, selectedPost);
 
@@ -50,7 +49,12 @@ export default function Main() {
 
   const fetchAndSetComments = async (postId, createdAt) => {
     const { data } = await http.get(
-      "http://localhost:3001/api/posts/" + postId + "?createdAt=" + createdAt
+      "http://localhost:3001/api/posts/" +
+        postId +
+        "/comments" +
+        "?createdAt=" +
+        createdAt +
+        "&limit=5"
     );
 
     return data;
