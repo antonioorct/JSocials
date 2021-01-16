@@ -22,6 +22,7 @@ export default function Messenger() {
   let typingTimeout = useRef(0);
 
   const [messageForm, setMessageForm] = useState("");
+  const [searchForm, setSearchForm] = useState("");
 
   useEffect(() => {
     setSocket(socketIo("http://localhost:3001"));
@@ -207,9 +208,21 @@ export default function Messenger() {
   return (
     <div className="row m-0">
       <div className="col-2">
+        <Form>
+          <FormControl
+            value={searchForm}
+            onChange={({ target }) => {
+              setSearchForm(target.value);
+            }}
+            placeholder="Search chat..."
+          ></FormControl>
+        </Form>
         {chats &&
-          chats.map((chat, index) => {
-            return (
+          chats
+            .filter((chat) =>
+              chat.name.toLowerCase().includes(searchForm.toLowerCase())
+            )
+            .map((chat, index) => (
               <div
                 style={{ cursor: "pointer" }}
                 className="border border-dark"
@@ -237,8 +250,7 @@ export default function Messenger() {
                   </div>
                 )}
               </div>
-            );
-          })}
+            ))}
       </div>
       <div className="col-10">
         <div
