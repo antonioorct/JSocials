@@ -42,6 +42,68 @@ async function unlikePost(postId, userId) {
   return newLike;
 }
 
+function replacePost(posts, newPost) {
+  const tempPosts = [...posts];
+
+  const postIndex = posts.findIndex((post) => post.id === newPost.id);
+  tempPosts[postIndex] = newPost;
+
+  return tempPosts;
+}
+
+function replaceComment(posts, newComment) {
+  const tempPosts = [...posts];
+
+  const postIndex = posts.findIndex((post) => post.id === newComment.postId);
+  const commentIndex = tempPosts[postIndex].comments.findIndex(
+    (comment) => comment.id === newComment.id
+  );
+  tempPosts[postIndex].comments[commentIndex] = newComment;
+
+  return tempPosts;
+}
+
+function changePostLike(post, user, isLike) {
+  if (isLike) {
+    likePost(post.id, user.id);
+
+    post.numLikes++;
+    post.userPostLikes.push({
+      userId: user.id,
+      postId: post.id,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
+  } else {
+    unlikePost(post.id, user.id);
+
+    post.numLikes--;
+    post.userPostLikes = post.userPostLikes.filter(
+      (like) => like.userId !== user.id
+    );
+  }
+
+  return post;
+}
+
+function deletePost(post) {
+  http.delete("http://localhost:3001/api/posts/" + post.id);
+}
+
+async function getComments(post) {
+  console.log();
+  const { data } = await http.get(
+    "http://localhost:3001/api/posts/" +
+      post.id +
+      "?createdAt=" +
+      new Date(Date.now()).toLocaleString()
+  );
+
+  return data;
+}
+
 export {
   getAllPosts,
   getPostsFromUserId,
@@ -49,4 +111,9 @@ export {
   addCommentToPost,
   likePost,
   unlikePost,
+  changePostLike,
+  replacePost,
+  replaceComment,
+  deletePost,
+  getComments,
 };
