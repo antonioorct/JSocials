@@ -11,7 +11,9 @@ import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import { UserContext } from "../contexts/UserContext";
 import Info from "./shared/info";
-import { toSentenceCase, toCamelCase } from "../util/stringUtil";
+import { toSentenceCase } from "../util/stringUtil";
+import Post from "./post";
+import { getImages } from "../services/postService";
 
 export default function Profile() {
   const user = useContext(UserContext)[0];
@@ -21,6 +23,9 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [friendStatus, setFriendStatus] = useState(false);
   const [info, setInfo] = useState({});
+
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     getProfile(username);
@@ -138,6 +143,33 @@ export default function Profile() {
     }
   };
 
+  const renderImages = () => {
+    let returnArray = [],
+      tempArray = [];
+
+    images.forEach((img, index) => {
+      tempArray.push(
+        <Image
+          style={{ cursor: "pointer" }}
+          onClick={() => setSelectedPost(images[index])}
+          className="col-4"
+          src={"img/" + img.imagePath}
+          key={index}
+        />
+      );
+
+      if ((index + 1) % 3 === 0) {
+        returnArray.push(<div className="row">{tempArray}</div>);
+
+        tempArray = [];
+      }
+    });
+    if (tempArray.length !== 0)
+      returnArray.push(<div className="row">{tempArray}</div>);
+
+    return returnArray;
+  };
+
   const handleChange = (e) =>
     setInfo({ ...info, [e.target.name]: e.target.value });
 
@@ -149,132 +181,126 @@ export default function Profile() {
       info
     );
 
-    console.log(data);
     setUserProfile(data);
   };
 
   return (
-    <div className="offset-2 col-8 mt-5">
-      {userProfile.id === 0 ? (
-        <Redirect to="/notfound" />
-      ) : (
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-3 text-center">
-              <Image src={userProfile.imagePath} fluid rounded />
-              {user.username === userProfile.username ? (
-                !editing ? (
-                  <Button
-                    onClick={() => setEditing((prevEditing) => !prevEditing)}
-                  >
-                    Edit profile
-                  </Button>
+    <div>
+      <Post post={selectedPost} setPost={setSelectedPost} />
+
+      <div className="offset-2 col-8 mt-5">
+        {userProfile.id === 0 ? (
+          <Redirect to="/notfound" />
+        ) : (
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-3 text-center">
+                <Image
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {}}
+                  src={userProfile.imagePath}
+                  fluid
+                  rounded
+                />
+                {user.username === userProfile.username ? (
+                  !editing ? (
+                    <Button
+                      onClick={() => setEditing((prevEditing) => !prevEditing)}
+                    >
+                      Edit profile
+                    </Button>
+                  ) : (
+                    <div>
+                      <Button type="submit" form="infoForm">
+                        Submit
+                      </Button>
+                      <Button
+                        type="reset"
+                        form="infoForm"
+                        onClick={() => setEditing(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )
                 ) : (
                   <div>
-                    <Button type="submit" form="infoForm">
-                      Submit
-                    </Button>
-                    <Button
-                      type="reset"
-                      form="infoForm"
-                      onClick={() => setEditing(false)}
-                    >
-                      Cancel
-                    </Button>
+                    <Button>Send message</Button>
+                    {renderFriendButton(friendStatus)}
                   </div>
-                )
-              ) : (
-                <div>
-                  <Button>Send message</Button>
-                  {renderFriendButton(friendStatus)}
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <div className="col-9">
-              <h2>{`${userProfile.firstName} ${userProfile.lastName}`}</h2>
+              <div className="col-9">
+                <h2>{`${userProfile.firstName} ${userProfile.lastName}`}</h2>
 
-              <Tabs className="mb-1" defaultActiveKey="about">
-                <Tab eventKey="about" title="About">
-                  {editing ? (
-                    <FormControl
-                      value={info["bio"]}
-                      name="bio"
-                      onChange={handleChange}
-                    ></FormControl>
-                  ) : (
-                    <p className="border border-dark rounded p-2">
-                      {info["bio"]}
-                    </p>
-                  )}
+                <Tabs
+                  className="mb-1"
+                  defaultActiveKey="about"
+                  onSelect={async (key) => {
+                    if (key !== "photos" || images.length !== 0) return;
+                    console.log("loading images");
+                    const newImages = await getImages(userProfile);
 
-                  <Form id="infoForm" onSubmit={(e) => handleSubmit(e)}>
-                    <Table borderless style={{ tableLayout: "fixed" }}>
-                      <tbody>
-                        <tr>
-                          {Object.keys(info)
-                            .slice(1, 4)
-                            .map((prop) => (
-                              <Info
-                                upper={toSentenceCase(prop)}
-                                lower={info[prop]}
-                                name={prop}
-                                handleChange={handleChange}
-                                editing={editing}
-                              />
-                            ))}
-                        </tr>
-                        <tr>
-                          {Object.keys(info)
-                            .slice(4, 7)
-                            .map((prop) => (
-                              <Info
-                                upper={toSentenceCase(prop)}
-                                lower={info[prop]}
-                                name={prop}
-                                handleChange={handleChange}
-                                editing={editing}
-                              />
-                            ))}
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </Form>
-                </Tab>
+                    setImages(newImages);
+                  }}
+                >
+                  <Tab eventKey="about" title="About">
+                    {editing ? (
+                      <FormControl
+                        value={info["bio"]}
+                        name="bio"
+                        onChange={handleChange}
+                      ></FormControl>
+                    ) : (
+                      <p className="border border-dark rounded p-2">
+                        {info["bio"]}
+                      </p>
+                    )}
 
-                <Tab eventKey="photos" title="Photos">
-                  <Table borderless>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <Image src="img/profile_photo.png" fluid />
-                        </td>
-                        <td>
-                          <Image src="img/profile_photo.png" fluid />
-                        </td>
-                        <td>
-                          <Image src="img/profile_photo.png" fluid />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <Image src="img/profile_photo.png" fluid />
-                        </td>
-                        <td>
-                          <Image src="img/profile_photo.png" fluid />
-                        </td>
-                        <td>
-                          <Image src="img/profile_photo.png" fluid />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </Tab>
-              </Tabs>
+                    <Form id="infoForm" onSubmit={(e) => handleSubmit(e)}>
+                      <Table borderless style={{ tableLayout: "fixed" }}>
+                        <tbody>
+                          <tr>
+                            {Object.keys(info)
+                              .slice(1, 4)
+                              .map((prop) => (
+                                <Info
+                                  upper={toSentenceCase(prop)}
+                                  lower={info[prop]}
+                                  name={prop}
+                                  handleChange={handleChange}
+                                  editing={editing}
+                                />
+                              ))}
+                          </tr>
+                          <tr>
+                            {Object.keys(info)
+                              .slice(4, 7)
+                              .map((prop) => (
+                                <Info
+                                  upper={toSentenceCase(prop)}
+                                  lower={info[prop]}
+                                  name={prop}
+                                  handleChange={handleChange}
+                                  editing={editing}
+                                />
+                              ))}
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </Form>
+                  </Tab>
+
+                  <Tab eventKey="photos" title="Photos">
+                    {renderImages()}
+                  </Tab>
+                </Tabs>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
