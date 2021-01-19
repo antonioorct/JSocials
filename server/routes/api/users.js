@@ -52,8 +52,8 @@ router.put("/:userId", async function (req, res) {
 
 router.get("/friends/:userId", async function (req, res) {
   const friends = await models.friend.findAll({
-    include: { model: models.user, foreignKey: "userOutgoingId" },
-    where: { userIncomingId: req.params.userId },
+    include: { model: models.user, foreignKey: "user2Id" },
+    where: { user1Id: req.params.userId },
   });
 
   if (!friends || friends.length === 0) res.status(404).send();
