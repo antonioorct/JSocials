@@ -14,6 +14,7 @@ import Info from "./shared/info";
 import { toSentenceCase } from "../util/stringUtil";
 import Post from "./post";
 import { getImages } from "../services/postService";
+import { useHistory } from "react-router-dom";
 
 export default function Profile() {
   const user = useContext(UserContext)[0];
@@ -26,6 +27,8 @@ export default function Profile() {
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [images, setImages] = useState([]);
+
+  const history = useHistory();
 
   useEffect(() => {
     getProfile(username);
@@ -225,7 +228,15 @@ export default function Profile() {
                   )
                 ) : (
                   <div>
-                    <Button>Send message</Button>
+                    <Button
+                      onClick={() =>
+                        history.replace("/messenger", {
+                          newChatUser: userProfile,
+                        })
+                      }
+                    >
+                      Send message
+                    </Button>
                     {renderFriendButton(friendStatus)}
                   </div>
                 )}
