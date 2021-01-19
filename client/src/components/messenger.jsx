@@ -33,7 +33,7 @@ export default function Messenger(props) {
   const [showNewChats, setShowNewChats] = useState(false);
   const [friends, setFriends] = useState([]);
 
-  const params = useParams();
+  const messageFormRef = useRef(null);
 
   useEffect(async () => {
     setSocket(socketIo("http://localhost:3001"));
@@ -272,7 +272,10 @@ export default function Messenger(props) {
 
                 if (currentChat && !showNewChats)
                   currentChat.scrollPos = messageContainer.current.scrollTop;
+
                 setCurrentChat(chat);
+
+                if (messageFormRef.current) messageFormRef.current.focus();
               }}
             >
               <h5>{chat.name}</h5>
@@ -380,6 +383,7 @@ export default function Messenger(props) {
                   onChange={handleChange}
                   placeholder="Enter message..."
                   autoFocus
+                  ref={messageFormRef}
                 ></FormControl>
               </Form>
             </div>
