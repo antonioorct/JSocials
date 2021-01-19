@@ -22,12 +22,10 @@ module.exports = (sequelize) =>
           foreignKey: "id",
         },
       },
-      createdAt: {
-        type: DataTypes.DATE,
-      },
     },
     {
       updatedAt: false,
+      createdAt: false,
       underscored: true,
       tableName: "chats_users",
     }

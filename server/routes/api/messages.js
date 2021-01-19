@@ -10,15 +10,19 @@ router.get("/:id", async function (req, res, next) {
       FROM (SELECT *
         FROM messages
         WHERE chat_id = ? 
-        AND unix_timestamp(created_at) < unix_timestamp(?)
+        ${
+          req.query.createdAt
+            ? "AND unix_timestamp(created_at) < unix_timestamp(?)"
+            : ""
+        }
         ORDER BY id DESC
         LIMIT 25) AS t
-      ORDER BY id asc;`,
+      ORDER BY id ASC;`,
     {
       type: QueryTypes.SELECT,
       model: models.message,
       mapToModel: true,
-      replacements: [req.params.id, req.header("createdAt")],
+      replacements: [req.params.id, req.query.createdAt || null],
     }
   );
   const count = await models.message.count({
