@@ -24,15 +24,19 @@ router.get("/:id", async function (req, res, next) {
       WHERE c.id IN
         ( SELECT chat_id
           FROM chats_users
-          WHERE user_id = ?)
-        AND m.sender_id <> u.id
+          WHERE user_id = ? AND unix_timestamp(m.created_at) >= unix_timestamp(chats_users.created_at))
+        AND u.id <> ?
         AND m.id =
         ( SELECT max(messages.id)
           FROM messages
           WHERE chat_id = c.id)
       ORDER BY m.created_at DESC
       ${req.query.limit ? "LIMIT " + req.query.limit : ""};`,
-    { type: QueryTypes.SELECT, nest: true, replacements: [req.params.id] }
+    {
+      type: QueryTypes.SELECT,
+      nest: true,
+      replacements: [req.params.id, req.params.id],
+    }
   );
 
   res.status(200).send(chats);
@@ -51,6 +55,15 @@ router.post("/", async function (req, res) {
   });
 
   res.status(200).send(newChat);
+});
+
+router.delete("/:chatId", async function (req, res) {
+  const deleted = await models.chatUser.update(
+    { createdAt: new Date(Date.now()).getTime() },
+    { where: { chatId: req.params.chatId, userId: req.query.userId } }
+  );
+
+  res.status(200).send(deleted);
 });
 
 module.exports = router;

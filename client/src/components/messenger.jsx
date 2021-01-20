@@ -131,7 +131,9 @@ export default function Messenger(props) {
       "http://localhost:3001/api/messages/" +
         currentChat.chatId +
         "?createdAt=" +
-        createdAt
+        createdAt +
+        "&userId=" +
+        user.id
     );
 
     const tempScroll = messageContainer.current.scrollHeight;
@@ -210,17 +212,12 @@ export default function Messenger(props) {
     clearTimeout(sendTypingTimeout.current);
     sendTypingTimeout.current = 0;
 
-    const newChat =
-      currentChat.messages.length === 0
-        ? await createNewChat(user, currentChat.friend)
-        : null;
-
     const { data: newMessage } = await http.post(
       "http://localhost:3001/api/messages",
       {
         senderId: user.id,
         body: messageForm,
-        chatId: newChat ? newChat.id : currentChat.chatId,
+        chatId: currentChat.chatId,
         createdAt: new Date().getTime(),
       }
     );
