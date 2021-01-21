@@ -1,54 +1,89 @@
 const express = require("express");
 const router = express.Router();
-const { QueryTypes } = require("sequelize");
+const { QueryTypes, ValidationError } = require("sequelize");
 const { models, model } = require("../../sequelize");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 const sequelize = require("../../sequelize");
+const { authenticate, authenticateSameUser } = require("../../middleware/jwt");
+const { MissingField } = require("../../errors");
+const { userExists } = require("../../middleware/userCheck");
 
-router.get("", async function (req, res, next) {
-  let user = [];
-  if (req.query.firstName)
-    user = await models.user.findAll({
-      where: {
-        firstName: { [Op.like]: "%" + req.query.firstName + "%" },
+router.get("", async function (req, res) {
+  const user = await models.user.findAll({
+    where: {
+      [Op.or]: {
+        firstName: { [Op.like]: "%" + req.query.searchTerm + "%" },
+        lastName: { [Op.like]: "%" + req.query.searchTerm + "%" },
+        username: { [Op.like]: "%" + req.query.searchTerm + "%" },
       },
-    });
-  else if (req.query.username)
-    user = await models.user.findOne({
-      where: {
-        username: { [Op.like]: "%" + req.query.username + "%" },
-      },
-    });
+    },
+  });
 
   if (!user || user.length === 0) res.status(404).send();
-  else res.send(user);
+  else res.status(200).send(user);
 });
 
-router.get("/", async function (req, res, next) {
-  const users = await models.user.findAll();
-  res.send(users);
+router.get("/:userIdentifier", authenticate, async function (req, res) {
+  let user;
+
+  if (isNaN(parseInt(req.params.userIdentifier)))
+    user = await models.user.findOne({
+      where: { username: req.params.userIdentifier },
+    });
+  else
+    user = await models.user.findOne({
+      where: { id: req.params.userIdentifier },
+    });
+
+  if (!user) res.status(404).send();
+  else res.status(200).send(user);
 });
 
 router.post("/", async function (req, res, next) {
+  const requiredFields = ["username", "password", "email"];
+
   try {
-    req.body["password"] = await bcrypt.hash(req.body["password"], 10);
+    const missingFields = requiredFields.filter(
+      (field) => !req.body.hasOwnProperty(field)
+    );
+    if (missingFields.length != 0) throw new MissingField(missingFields);
+
+    req.body.password = await bcrypt.hash(req.body.password, 10);
     const newUser = await models.user.create(req.body);
 
     res.status(201).send(newUser);
-  } catch (e) {
-    res.status(400).send("Error creating user:\n" + e.message);
+  } catch (err) {
+    next(err);
   }
 });
 
-router.put("/:userId", async function (req, res) {
-  await models.user.update(req.body, {
-    where: { id: req.params.userId },
-  });
-  const updatedUser = await models.user.findByPk(req.params.userId);
+router.put(
+  "/:userId",
+  [authenticateSameUser, userExists],
+  async function (req, res, next) {
+    try {
+      await models.user.update(req.body, {
+        where: { id: req.params.userId },
+      });
+      const updatedUser = await models.user.findByPk(req.params.userId);
 
-  res.status(200).send(updatedUser);
-});
+      res.status(200).send(updatedUser);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  "/:userId",
+  [authenticateSameUser, userExists],
+  async function (req, res) {
+    await models.user.destroy({ where: { id: req.params.userId } });
+
+    res.status(201).send();
+  }
+);
 
 router.get("/friends/:userId", async function (req, res) {
   const friends = await models.friend.findAll({
