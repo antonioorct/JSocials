@@ -1,7 +1,13 @@
 import axios from "axios";
+import { getToken } from "./authService";
 
 axios.interceptors.request.use(
   function (config) {
+    config.headers = {
+      Authorization: "Bearer " + getToken(),
+      Accept: "application/json",
+    };
+
     return config;
   },
   function (error) {
