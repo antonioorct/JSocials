@@ -42,7 +42,7 @@ const handleErrors = (err, req, res, next) => {
     });
   else
     return res.status(500).json({
-      status: "500",
+      status: 500,
       message: err.message,
     });
 };

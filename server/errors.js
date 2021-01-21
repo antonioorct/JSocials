@@ -21,7 +21,13 @@ class MissingField extends GeneralError {
   }
 }
 class BadRequest extends GeneralError {}
-class NotFound extends GeneralError {}
+class NotFound extends GeneralError {
+  constructor(message) {
+    super();
+    this.title = "NOT_FOUND";
+    this.detail = message;
+  }
+}
 
 module.exports = {
   GeneralError,
