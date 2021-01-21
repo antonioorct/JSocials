@@ -1,32 +1,21 @@
-const express = require("express");
-const router = express.Router();
+const { generateToken } = require("../../middleware/jwt");
+const { Router } = require("express");
+const router = Router();
 const { models } = require("../../sequelize");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const { compare } = require("bcrypt");
 
-router.post("/", async function (req, res, next) {
-  // const { error } = validateUserAuthentication(req.body);
-  // if (error) return res.status(400).send(error.details[0].message);
+router.post("/", async function (req, res) {
+  const user = await models.user.findOne({
+    where: { username: req.body.username },
+  });
+  if (!user) return res.status(404).send("Invalid email and/or password");
 
-  console.log(req.body);
-  let user = await models.user.findOne({ where: { email: req.body.email } });
-  if (!user) return res.status(400).send("Invalid email and/or password");
-
-  let passCompare = await bcrypt.compare(req.body.password, user.password);
+  let passCompare = await compare(req.body.password, user.password);
 
   if (!passCompare)
-    return res.status(400).send("Invalid email and/or password");
+    return res.status(404).send("Invalid email and/or password");
 
-  const token = jwt.sign(
-    {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      email: user.email,
-    },
-    process.env.JWT_SECRET
-  );
+  const token = generateToken(user.id);
 
   res.send(token);
 });
