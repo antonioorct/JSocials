@@ -1,16 +1,30 @@
-router.get("/friends/:userId/pending", async function (req, res) {
-  const userId = req.params.userId;
-  const include = req.query.include;
+const { MissingField, BadRequest, NotFound } = require("../../errors");
+const express = require("express");
+const { authenticate, authenticateSameUser } = require("../../middleware/jwt");
+const router = express.Router();
+const { models } = require("../../sequelize");
+const sequelize = require("../../sequelize");
+const { QueryTypes } = require("sequelize");
 
-  let friendRequests = { incoming: [], outgoing: [] };
-  switch (include) {
-    case "all":
-      friendRequests.outgoing = await sequelize.query(
-        `
+router.get(
+  "/users/:userId/friend-requests",
+  authenticateSameUser,
+  async function (req, res, next) {
+    try {
+      const userId = req.userId;
+      const direction = req.query.direction;
+      if (!direction) throw new MissingField(["direction"]);
+
+      let pendingFriends = { incoming: [], outgoing: [] };
+      switch (direction) {
+        case "both":
+          pendingFriends.outgoing = await sequelize.query(
+            `
       				SELECT 
           users.id "id",
 					users.first_name "firstName",
-          users.last_name "lastName"
+          users.last_name "lastName",
+          users.image_path "imagePath"
 				FROM
 					pending_friends
 						INNER JOIN
@@ -18,17 +32,18 @@ router.get("/friends/:userId/pending", async function (req, res) {
 				WHERE
 					user_outgoing_id = ?;
       `,
-        {
-          type: QueryTypes.SELECT,
-          replacements: [userId],
-        }
-      );
-      friendRequests.incoming = await sequelize.query(
-        `
+            {
+              type: QueryTypes.SELECT,
+              replacements: [userId],
+            }
+          );
+          pendingFriends.incoming = await sequelize.query(
+            `
       				SELECT 
           users.id "id",
 					users.first_name "firstName",
-					users.last_name "lastName"
+					users.last_name "lastName",
+          users.image_path "imagePath"
 				FROM
 					pending_friends
 						INNER JOIN
@@ -36,86 +51,133 @@ router.get("/friends/:userId/pending", async function (req, res) {
 				WHERE
 					user_incoming_id = ?;
       `,
-        {
-          type: QueryTypes.SELECT,
-          replacements: [userId],
-        }
-      );
-      break;
-    case "incoming":
-      friendRequests = await models.pendingFriend.findAll({
-        include: { model: models.user, foreignKey: "userIncomingId" },
-        where: { userOutgoingId: userId },
-      });
-      break;
-    case "outgoing":
-      friendRequests = await models.pendingFriend.findAll({
-        include: { model: models.user, foreignKey: "userOutgoingId" },
-        where: { userIncomingId: userId },
-      });
-      break;
-  }
-  console.log(friendRequests);
+            {
+              type: QueryTypes.SELECT,
+              replacements: [userId],
+            }
+          );
+          break;
+        case "incoming":
+          pendingFriends = await models.user.findAll({
+            include: {
+              model: models.pendingFriend,
+              where: { userIncomingId: userId },
+              foreignKey: "userOutgoingId",
+              as: "outgoing",
+              attributes: [],
+            },
+            attributes: ["id", "firstName", "lastName", "imagePath"],
+          });
+          break;
+        case "outgoing":
+          pendingFriends = await models.user.findAll({
+            include: {
+              model: models.pendingFriend,
+              where: { userOutgoingId: userId },
+              foreignKey: "userIncomingId",
+              as: "incoming",
+              attributes: [],
+            },
+            attributes: ["id", "firstName", "lastName", "imagePath"],
+          });
+          break;
+        default:
+          throw new BadRequest("Invalid direction query");
+      }
 
-  res.status(200).send(friendRequests);
-});
-
-router.post("/friends", async function (req, res) {
-  if (req.query.accept) {
-    try {
-      await models.pendingFriend.destroy({
-        where: {
-          userIncomingId: req.body.user2Id,
-          userOutgoingId: req.body.user1Id,
-        },
-      });
-      await models.pendingFriend.destroy({
-        where: {
-          userIncomingId: req.body.user1Id,
-          userOutgoingId: req.body.user2Id,
-        },
-      });
-
-      if (req.query.accept === "false")
-        return res.status(200).send("Friend request denied");
-
-      await models.friend.create(req.body);
-      const newRequest = await models.friend.create({
-        user1Id: req.body.user2Id,
-        user2Id: req.body.user1Id,
-      });
-      res.status(201).send(newRequest);
-    } catch (e) {
-      res.status(400).send("Error creating user:\n" + e.message);
+      res.status(200).send(pendingFriends);
+    } catch (err) {
+      next(err);
     }
-  } else {
-    const newRequest = await models.pendingFriend.create(req.body);
+  }
+);
+
+router.post("/friend-requests", authenticate, async function (req, res, next) {
+  try {
+    if (!req.body.friendId) throw new MissingField(["friendId"]);
+    else if (req.body.friendId == req.userId)
+      throw new BadRequest("Invalid friendId");
+
+    const userExists = await models.user.findByPk(req.body.friendId);
+    if (!userExists) throw new NotFound("User not found");
+
+    const requestExists = await models.pendingFriend.findOne({
+      where: { userOutgoingId: req.body.friendId, userIncomingId: req.userId },
+    });
+    if (requestExists) throw new BadRequest("Friend request already exists");
+    const friendsExists = await models.friend.findOne({
+      where: { user1Id: req.userId, user2Id: req.body.friendId },
+    });
+    if (friendsExists) throw new BadRequest("Friendship already exists");
+
+    const newRequest = await models.pendingFriend.create({
+      userOutgoingId: req.userId,
+      userIncomingId: req.body.friendId,
+    });
 
     res.status(201).send(newRequest);
+  } catch (err) {
+    next(err);
   }
 });
 
-router.get("/friends/:user1Id/status", async function (req, res) {
-  const userIncomingId = req.params.user1Id;
-  const userOutgoingId = req.query.user2Id;
+router.post(
+  "/friend-requests/:pendingFriendId",
+  authenticate,
+  async function (req, res, next) {
+    try {
+      const friendRequest = await models.pendingFriend.findByPk(
+        req.params.pendingFriendId
+      );
+      if (friendRequest.userIncomingId !== req.userId)
+        return res.status(403).send("Access denied.");
 
-  const isFriend = await models.friend.findOne({
-    where: { user1Id: userIncomingId, user2Id: userOutgoingId },
-  });
+      await models.pendingFriend.destroy({
+        where: { id: req.params.pendingFriendId },
+      });
 
-  if (isFriend) return res.status(201).send({ status: "friends" });
-  else {
-    const isPendingFrom = await models.pendingFriend.findOne({
-      where: { userIncomingId, userOutgoingId },
-    });
+      await models.friend.create({
+        user1Id: req.userId,
+        user2Id: friendRequest.userOutgoingId,
+      });
+      await models.friend.create({
+        user1Id: friendRequest.userOutgoingId,
+        user2Id: req.userId,
+      });
 
-    if (isPendingFrom) return res.status(202).send({ status: "pending from" });
-    const isPendingTo = await models.pendingFriend.findOne({
-      where: { userIncomingId: userOutgoingId, userOutgoingId: userIncomingId },
-    });
-
-    if (isPendingTo) return res.status(202).send({ status: "pending to" });
-
-    return res.status(203).send({ status: "not friends" });
+      res.status(201).send();
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
+
+router.delete(
+  "/friend-requests/:pendingFriendId",
+  authenticate,
+  async function (req, res, next) {
+    try {
+      const friendRequest = await models.pendingFriend.findByPk(
+        req.params.pendingFriendId
+      );
+
+      if (!friendRequest)
+        return res.status(404).send("No friend request found.");
+      else if (
+        friendRequest.userOutgoingId !== req.userId &&
+        friendRequest.userIncomingId !== req.userId
+      )
+        return res.status(403).send("Access denied.");
+
+      await models.pendingFriend.destroy({
+        where: { id: req.params.pendingFriendId },
+      });
+
+      res.status(200).send();
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+module.exports = router;

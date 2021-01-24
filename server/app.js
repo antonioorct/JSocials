@@ -89,7 +89,6 @@ sequelize.models.pendingFriend.belongsTo(sequelize.models.user, {
   foreignKey: "userIncomingId",
   as: "userIncoming",
 });
-sequelize.models.pendingFriend.removeAttribute("id");
 sequelize.models.friend.removeAttribute("id");
 sequelize.models.friend.removeAttribute("user1_id");
 sequelize.models.friend.removeAttribute("user2_id");
