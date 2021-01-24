@@ -7,7 +7,6 @@ const {
 } = require("../../middleware/userCheck");
 const { authenticate } = require("../../middleware/jwt");
 const { models } = require("../../sequelize");
-const { Op } = require("sequelize");
 
 router.get(
   "/posts/:postId/comments",
