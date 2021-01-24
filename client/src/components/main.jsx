@@ -107,7 +107,7 @@ export default function Main() {
                   {post.user.firstName} {post.user.lastName}
                 </h5>
                 <div className="ml-3">
-                  <div
+                  <span
                     style={{ cursor: "pointer" }}
                     onClick={() => setSelectedPost(post)}
                   >
@@ -118,7 +118,7 @@ export default function Main() {
                         style={{ height: "300px" }}
                       ></Image>
                     )}
-                  </div>
+                  </span>
                   <p>
                     <OverlayTrigger
                       placement="top"

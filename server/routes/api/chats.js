@@ -8,6 +8,7 @@ const { authenticate, authenticateSameUser } = require("../../middleware/jwt");
 const express = require("express");
 const router = express.Router();
 const { QueryTypes } = require("sequelize");
+
 const sequelize = require("../../sequelize");
 const { models } = require("../../sequelize");
 

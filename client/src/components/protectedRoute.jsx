@@ -7,7 +7,7 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
 
   return user.isAuthenticated ? (
     <Route {...rest}>
-      <Component />
+      <Component {...rest} />
     </Route>
   ) : (
     <Redirect to="/login" />

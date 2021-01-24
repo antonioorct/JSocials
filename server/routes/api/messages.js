@@ -5,20 +5,32 @@ const router = express.Router();
 const { models } = require("../../sequelize");
 
 router.get("/:id", async function (req, res, next) {
+  console.log(req.query.createdAt);
   const messages = await sequelize.query(
     ` SELECT *
       FROM (SELECT *
         FROM messages
         WHERE chat_id = ? 
-        AND unix_timestamp(created_at) < unix_timestamp(?)
+        ${
+          req.query.createdAt
+            ? "AND unix_timestamp(created_at) < unix_timestamp(?)"
+            : ""
+        }
         ORDER BY id DESC
         LIMIT 25) AS t
-      ORDER BY id asc;`,
+        inner join chats_users AS cu on cu.chat_id = t.chat_id
+        WHERE cu.user_id = ?
+        AND unix_timestamp(t.created_at) >= unix_timestamp(cu.created_at)
+      ORDER BY id ASC;`,
     {
       type: QueryTypes.SELECT,
       model: models.message,
       mapToModel: true,
-      replacements: [req.params.id, req.header("createdAt")],
+      replacements: [
+        req.params.id,
+        req.query.createdAt || null,
+        req.query.userId,
+      ],
     }
   );
   const count = await models.message.count({
@@ -30,9 +42,12 @@ router.get("/:id", async function (req, res, next) {
 });
 
 router.post("/", async function (req, res, next) {
-  let newMessage = "";
   try {
-    newMessage = await models.message.create(req.body);
+    if (!req.body.chatId) {
+      const chatCount = await models.chat.count({where: })
+      if(chatCount === 1)
+    }
+    const newMessage = await models.message.create(req.body);
   } catch (e) {
     console.log(e);
   }

@@ -10,3 +10,9 @@
 .modal-img {
   max-height: 86vh;
 }
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
