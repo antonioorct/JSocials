@@ -25,6 +25,8 @@ const handleErrors = (err, req, res, next) => {
             detail: "Missing required fields: " + nullKey,
             invalidParams: [nullKey],
           });
+        default:
+          return res.status(500).send(error);
       }
     });
   } else if (err instanceof MissingField) {
