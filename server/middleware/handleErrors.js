@@ -1,3 +1,4 @@
+const { NotFound } = require("http-errors");
 const { ValidationError } = require("sequelize");
 const { GeneralError, MissingField } = require("../errors");
 
@@ -38,13 +39,19 @@ const handleErrors = (err, req, res, next) => {
       detail: err.detail,
       invalidParams: err.invalidParams,
     });
-  } else if (err instanceof GeneralError)
+  } else if (err instanceof GeneralError) {
     return res.status(err.getCode()).json({
       status: err.getCode(),
       title: err.title,
       detail: err.detail,
     });
-  else
+  } else if (err instanceof NotFound) {
+    console.log("Route not found");
+    return res.status(404).json({
+      status: 404,
+      message: "Route not found",
+    });
+  } else
     return res.status(500).json({
       status: 500,
       message: err.message,
