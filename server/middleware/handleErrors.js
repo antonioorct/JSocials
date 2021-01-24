@@ -2,6 +2,8 @@ const { ValidationError } = require("sequelize");
 const { GeneralError, MissingField } = require("../errors");
 
 const handleErrors = (err, req, res, next) => {
+  console.log(err);
+
   if (err instanceof ValidationError) {
     err.errors.forEach((error) => {
       console.log(error);

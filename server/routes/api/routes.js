@@ -4,6 +4,7 @@ var authRouter = require("./auth");
 var postRouter = require("./posts");
 var messageRouter = require("./messages");
 var chatRouter = require("./chats");
+var friendsRouter = require("./friends");
 
 module.exports = (app) => {
   app.use("/", indexRouter);
@@ -12,4 +13,5 @@ module.exports = (app) => {
   app.use("/api/posts", postRouter);
   app.use("/api/messages", messageRouter);
   app.use("/api/", chatRouter);
+  app.use("/api", friendsRouter);
 };
