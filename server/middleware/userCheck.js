@@ -78,9 +78,50 @@ async function postExists(req, res, next) {
         detail: "Post not found",
       });
 
+    req.post = post;
     next();
   } catch (err) {
     return res.sendStatus(500);
   }
 }
-module.exports = { userExists, chatExists, messageExists, postExists };
+
+async function commentExists(req, res, next) {
+  let commentId = req.params.commentId;
+
+  try {
+    if (!commentId) return res.status(400).send();
+
+    const comment = await models.post.findByPk(commentId);
+
+    if (!comment || !comment.postId)
+      return res.status(404).json({
+        status: 404,
+        title: "Comment not found",
+        detail: "Comment not found",
+      });
+
+    req.comment = comment;
+    next();
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+}
+
+async function postNotPrivate(req, res, next) {
+  try {
+    if (req.post.private) return res.status(403).send("Access denied.");
+
+    next();
+  } catch (err) {
+    return res.status(500).send();
+  }
+}
+
+module.exports = {
+  userExists,
+  chatExists,
+  messageExists,
+  postExists,
+  commentExists,
+  postNotPrivate,
+};

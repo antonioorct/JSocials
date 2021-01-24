@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const express = require("express");
-const { Op } = require("sequelize");
 const router = express.Router();
+const { Op } = require("sequelize");
 const { models } = require("../../sequelize");
 const { userExists, postExists } = require("../../middleware/userCheck");
 const { authenticate, authenticateSameUser } = require("../../middleware/jwt");
