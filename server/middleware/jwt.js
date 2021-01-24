@@ -26,13 +26,12 @@ function authenticateSameUser(req, res, next) {
   if (!token)
     return res.status(401).send("Access denied. No JWT token provided.");
 
-  token = token.split(" ")[0];
+  token = token.split(" ")[1];
 
   try {
     const { sub } = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (decoded.sub != req.params.userId)
-      res.status(403).send("Access denied.");
+    if (sub != req.params.userId) res.status(403).send("Access denied.");
 
     req.userId = sub;
     next();
