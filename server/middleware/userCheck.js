@@ -4,7 +4,7 @@ async function userExists(req, res, next) {
   let userId = req.params.userId;
 
   try {
-    if (!userId) return res.status(500).send();
+    if (!userId) return res.status(400).send();
 
     const user = await models.user.findByPk(userId);
 
@@ -25,7 +25,7 @@ async function chatExists(req, res, next) {
   let chatId = req.params.chatId;
 
   try {
-    if (!chatId) return res.status(500).send();
+    if (!chatId) return res.status(400).send();
 
     const chat = await models.chat.findByPk(chatId);
 
@@ -46,7 +46,7 @@ async function messageExists(req, res, next) {
   let messageId = req.params.messageId;
 
   try {
-    if (!messageId) return res.status(500).send();
+    if (!messageId) return res.status(400).send();
 
     const message = await models.message.findByPk(messageId);
 
@@ -62,4 +62,25 @@ async function messageExists(req, res, next) {
     return res.sendStatus(500);
   }
 }
-module.exports = { userExists, chatExists, messageExists };
+
+async function postExists(req, res, next) {
+  let postId = req.params.postId;
+
+  try {
+    if (!postId) return res.status(400).send();
+
+    const post = await models.post.findByPk(postId);
+
+    if (!post)
+      return res.status(404).json({
+        status: 404,
+        title: "Post not found",
+        detail: "Post not found",
+      });
+
+    next();
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+}
+module.exports = { userExists, chatExists, messageExists, postExists };
