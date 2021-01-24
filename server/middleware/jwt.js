@@ -31,11 +31,13 @@ function authenticateSameUser(req, res, next) {
   try {
     const { sub } = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (sub != req.params.userId) res.status(403).send("Access denied.");
+    if (sub != req.params.userId) return res.status(403).send("Access denied.");
 
     req.userId = sub;
     next();
   } catch (e) {
+    console.log(token);
+    console.log(e);
     res.status(403).send("Access denied. Invalid token.");
   }
 }
