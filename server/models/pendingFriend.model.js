@@ -4,17 +4,19 @@ module.exports = (sequelize) =>
   sequelize.define(
     "pendingFriend",
     {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
       userOutgoingId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: false,
-        field: "user_outgoing_id",
       },
       userIncomingId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: false,
-        field: "user_incoming_id",
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -24,6 +26,5 @@ module.exports = (sequelize) =>
     {
       updatedAt: false,
       underscored: true,
-      tableName: "pending_friends",
     }
   );

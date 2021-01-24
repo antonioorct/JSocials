@@ -8,9 +8,9 @@ export async function register(email, password) {
   await http.post(apiEndPoint + "users", { email, password });
 }
 
-export async function sendLoginInfo(email, password) {
+export async function sendLoginInfo(username, password) {
   const { data: jwt } = await http.post(apiEndPoint + "auth", {
-    email,
+    username,
     password,
   });
 
@@ -29,4 +29,7 @@ export async function getLoggedInUser() {
   const token = localStorage.getItem("token");
   if (!token) return initialState;
   else return { ...jwtDecode(token), isAuthenticated: true };
+}
+export function getToken() {
+  return localStorage.getItem("token");
 }

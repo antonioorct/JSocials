@@ -1,3 +1,4 @@
+const handleErrors = require("./middleware/handleErrors");
 require("dotenv").config();
 const createError = require("http-errors");
 const express = require("express");
@@ -27,11 +28,13 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 
+app.use(handleErrors);
+
 app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  res.status(err.status || 500);
+  res.status(err.status);
 });
 
 sequelize.models.user.belongsToMany(sequelize.models.chat, {
@@ -86,7 +89,6 @@ sequelize.models.pendingFriend.belongsTo(sequelize.models.user, {
   foreignKey: "userIncomingId",
   as: "userIncoming",
 });
-sequelize.models.pendingFriend.removeAttribute("id");
 sequelize.models.friend.removeAttribute("id");
 sequelize.models.friend.removeAttribute("user1_id");
 sequelize.models.friend.removeAttribute("user2_id");

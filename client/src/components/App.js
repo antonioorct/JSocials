@@ -22,7 +22,7 @@ export default function App() {
     const fetchAndSetUser = async () => {
       const loggedInUser = await getLoggedInUser();
 
-      setUser(loggedInUser);
+      setUser({ id: loggedInUser.sub, isAuthenticated: true });
     };
 
     fetchAndSetUser();

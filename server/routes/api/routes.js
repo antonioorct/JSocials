@@ -1,15 +1,23 @@
-var indexRouter = require("./index");
-var usersRouter = require("./users");
 var authRouter = require("./auth");
-var postRouter = require("./posts");
-var messageRouter = require("./messages");
-var chatRouter = require("./chats");
+var usersRouter = require("./users");
+var friendsRouter = require("./friends");
+var friendRequestsRouter = require("./friendRequests");
+var postsRouter = require("./posts");
+var commentsRouter = require("./comments");
+var likesRouter = require("./likes");
+var imagesRouter = require("./images");
+var chatsRouter = require("./chats");
+var messagesRouter = require("./messages");
 
 module.exports = (app) => {
-  app.use("/", indexRouter);
-  app.use("/api/users", usersRouter);
   app.use("/api/auth", authRouter);
-  app.use("/api/posts", postRouter);
-  app.use("/api/messages", messageRouter);
-  app.use("/api/chats", chatRouter);
+  app.use("/api/users", usersRouter);
+  app.use("/api", friendsRouter);
+  app.use("/api", friendRequestsRouter);
+  app.use("/api", postsRouter);
+  app.use("/api", commentsRouter);
+  app.use("/api", imagesRouter);
+  app.use("/api", likesRouter);
+  app.use("/api/", chatsRouter);
+  app.use("/api/messages", messagesRouter);
 };

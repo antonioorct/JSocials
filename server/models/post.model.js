@@ -40,13 +40,21 @@ module.exports = (sequelize) =>
         defaultValue: 0,
         unsigned: true,
       },
+      private: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: 0,
+      },
       createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
       },
     },
     {
-      updatedAt: false,
       underscored: true,
     }
   );
