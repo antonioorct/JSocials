@@ -21,4 +21,45 @@ async function userExists(req, res, next) {
   }
 }
 
-module.exports = { userExists };
+async function chatExists(req, res, next) {
+  let chatId = req.params.chatId;
+
+  try {
+    if (!chatId) return res.status(500).send();
+
+    const chat = await models.chat.findByPk(chatId);
+
+    if (!chat)
+      return res.status(404).json({
+        status: 404,
+        title: "Chat not found",
+        detail: "Chat not found",
+      });
+
+    next();
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+}
+
+async function messageExists(req, res, next) {
+  let messageId = req.params.messageId;
+
+  try {
+    if (!messageId) return res.status(500).send();
+
+    const message = await models.message.findByPk(messageId);
+
+    if (!message)
+      return res.status(404).json({
+        status: 404,
+        title: "Message not found",
+        detail: "Message not found",
+      });
+
+    next();
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+}
+module.exports = { userExists, chatExists, messageExists };

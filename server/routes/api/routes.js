@@ -11,5 +11,5 @@ module.exports = (app) => {
   app.use("/api/auth", authRouter);
   app.use("/api/posts", postRouter);
   app.use("/api/messages", messageRouter);
-  app.use("/api/chats", chatRouter);
+  app.use("/api/", chatRouter);
 };
