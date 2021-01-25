@@ -1,35 +1,99 @@
 import http from "./httpService";
 import jwtDecode from "jwt-decode";
 import { initialState } from "../contexts/UserContext";
+import { getLocalUserData } from "./userService";
 
-const apiEndPoint = "http://localhost:3001/api/";
+const apiEndPoint = process.env.REACT_APP_API_URL;
 
-export async function register(email, password) {
-  await http.post(apiEndPoint + "users", { email, password });
+async function register(email, password) {
+  await http.post(`${apiEndPoint}/users`, { email, password });
 }
 
-export async function sendLoginInfo(username, password) {
-  const { data: jwt } = await http.post(apiEndPoint + "auth", {
+async function sendLoginInfo(username, password) {
+  const { data } = await http.post(`${apiEndPoint}/auth`, {
     username,
     password,
   });
 
-  return jwt;
+  return data;
 }
 
-export async function login(jwt) {
+async function refreshJwt(userId) {
+  const { data } = await http.post(`${apiEndPoint}/auth/${userId}/jwt`);
+
+  return data;
+}
+
+async function saveJwt(jwt) {
+  if (isSession()) sessionStorage.setItem("token", jwt);
+  else localStorage.setItem("token", jwt);
+}
+
+async function saveJwtToSession(jwt) {
+  sessionStorage.setItem("token", jwt);
+}
+
+async function saveJwtToLocal(jwt) {
   localStorage.setItem("token", jwt);
 }
 
-export async function logout() {
+async function logout() {
   localStorage.removeItem("token");
+  localStorage.removeItem("userData");
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("userData");
 }
 
-export async function getLoggedInUser() {
-  const token = localStorage.getItem("token");
+async function getLoggedInUser() {
+  let token = localStorage.getItem("token");
+  if (!token) token = sessionStorage.getItem("token");
+
   if (!token) return initialState;
-  else return { ...jwtDecode(token), isAuthenticated: true };
+  else {
+    const { sub: userId, iat: tokenIssuedAt, exp: tokenExpires } = jwtDecode(
+      token
+    );
+    const userData = await getLocalUserData(userId);
+
+    if (
+      new Date(Date.now()).getTime() / 1000 - tokenIssuedAt >= 3600 &&
+      !isSession()
+    ) {
+      console.log(
+        "New token -> last time difference: " +
+          (new Date(Date.now()).getTime() / 1000 - tokenIssuedAt).toString()
+      );
+      const newJwt = await refreshJwt(userId);
+
+      saveJwt(newJwt);
+      return await getLoggedInUser();
+    }
+
+    return { id: userId, tokenIssuedAt, isAuthenticated: true, ...userData };
+  }
 }
-export function getToken() {
-  return localStorage.getItem("token");
+
+function getToken() {
+  return localStorage.getItem("token") || sessionStorage.getItem("token");
 }
+
+function isSession() {
+  return sessionStorage.getItem("token")
+    ? true
+    : localStorage.getItem("token")
+    ? false
+    : null;
+}
+
+export {
+  register,
+  sendLoginInfo,
+  refreshJwt,
+  saveJwt,
+  saveJwtToLocal,
+  saveJwtToSession,
+  logout,
+  getLoggedInUser,
+  getToken,
+  isSession,
+};

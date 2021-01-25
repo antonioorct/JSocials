@@ -9,7 +9,7 @@ var imagesRouter = require("./images");
 var chatsRouter = require("./chats");
 
 module.exports = (app) => {
-  app.use("/api/auth", authRouter);
+  app.use("/api", authRouter);
   app.use("/api/users", usersRouter);
   app.use("/api", friendsRouter);
   app.use("/api", friendRequestsRouter);

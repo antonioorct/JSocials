@@ -28,10 +28,11 @@ router.get("/:userIdentifier", authenticate, async function (req, res) {
   if (isNaN(parseInt(req.params.userIdentifier)))
     user = await models.user.findOne({
       where: { username: req.params.userIdentifier },
+      attributes: { exclude: ["password"] },
     });
   else
-    user = await models.user.findOne({
-      where: { id: req.params.userIdentifier },
+    user = await models.user.findByPk(req.params.userIdentifier, {
+      attributes: { exclude: ["password"] },
     });
 
   if (!user) res.status(404).send();

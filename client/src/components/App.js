@@ -1,6 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
-import Container from "react-bootstrap/Container";
 import { Route, Switch } from "react-router-dom";
 import ProtectedRoute from "../components/protectedRoute";
 import { UserContext } from "../contexts/UserContext";
@@ -20,9 +19,9 @@ export default function App() {
 
   useEffect(() => {
     const fetchAndSetUser = async () => {
-      const loggedInUser = await getLoggedInUser();
+      const userData = await getLoggedInUser();
 
-      setUser({ id: loggedInUser.sub, isAuthenticated: true });
+      setUser(userData);
     };
 
     fetchAndSetUser();
@@ -31,28 +30,26 @@ export default function App() {
   return user ? (
     <UserContext.Provider value={[user, setUser]}>
       <HeaderBar />
-      <Container fluid="true">
-        <Switch>
-          <Route path="/login" component={Login} exact></Route>
-          <Route path="/register" component={Register} exact></Route>
+      <Switch>
+        <Route path="/login" component={Login} exact></Route>
+        <Route path="/register" component={Register} exact></Route>
 
-          <ProtectedRoute path="/" component={Main} exact></ProtectedRoute>
-          <ProtectedRoute
-            path="/messenger"
-            component={Messenger}
-            exact
-          ></ProtectedRoute>
-          <ProtectedRoute path="/friends" component={Friends} exact />
-          <ProtectedRoute
-            path="/friendrequests"
-            component={FriendRequests}
-            exact
-          />
+        <ProtectedRoute path="/" component={Main} exact></ProtectedRoute>
+        <ProtectedRoute
+          path="/messenger"
+          component={Messenger}
+          exact
+        ></ProtectedRoute>
+        <ProtectedRoute path="/friends" component={Friends} exact />
+        <ProtectedRoute
+          path="/friendrequests"
+          component={FriendRequests}
+          exact
+        />
 
-          <Route path="/search" component={Search} />
-          <Route path="/:username" component={Profile} />
-        </Switch>
-      </Container>
+        <Route path="/search" component={Search} />
+        <Route path="/:username" component={Profile} />
+      </Switch>
     </UserContext.Provider>
   ) : (
     <div />

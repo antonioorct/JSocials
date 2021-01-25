@@ -1,18 +1,28 @@
 import React, { Component, useContext, useState } from "react";
-import { sendLoginInfo, login, getLoggedInUser } from "../services/authService";
+import {
+  sendLoginInfo,
+  getLoggedInUser,
+  saveJwtToLocal,
+  saveJwtToSession,
+} from "../services/authService";
 
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
-import { InputGroup } from "react-bootstrap/InputGroup";
 
 import { UserContext } from "../contexts/UserContext";
+import Container from "react-bootstrap/Container";
+import FormCheck from "react-bootstrap/FormCheck";
 
 function Login({ history }) {
-  const [userForm, setUserForm] = useState({ email: "", password: "" });
-  const [user, setUser] = useContext(UserContext);
+  const [userForm, setUserForm] = useState({
+    email: "",
+    password: "",
+    remember: false,
+  });
+  const setUser = useContext(UserContext)[1];
 
-  const handleChange = (e) => {
-    setUserForm({ ...userForm, [e.target.id]: e.target.value });
+  const handleChange = ({ target }) => {
+    setUserForm({ ...userForm, [target.id]: target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -20,9 +30,12 @@ function Login({ history }) {
 
     try {
       const jwt = await sendLoginInfo(userForm.email, userForm.password);
-      await login(jwt);
-      const loggedInUser = await getLoggedInUser();
-      setUser(loggedInUser);
+
+      if (userForm.remember) saveJwtToLocal(jwt);
+      else saveJwtToSession(jwt);
+
+      const userData = await getLoggedInUser();
+      setUser(userData);
 
       history.push("/");
     } catch (e) {
@@ -31,27 +44,38 @@ function Login({ history }) {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <label>
-        E-Mail
-        <FormControl
-          type="text"
-          id="email"
-          value={userForm.email}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Password
-        <FormControl
-          type="password"
-          id="password"
-          value={userForm.password}
-          onChange={handleChange}
-        />
-      </label>
-      <input className="btn btn-primary" type="submit" value="Login"></input>
-    </Form>
+    <Container>
+      <Form onSubmit={handleSubmit}>
+        <label>
+          E-Mail
+          <FormControl
+            type="text"
+            id="email"
+            value={userForm.email}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Password
+          <FormControl
+            type="password"
+            id="password"
+            value={userForm.password}
+            onChange={handleChange}
+          />
+        </label>
+        <FormCheck
+          type="checkbox"
+          id="remember"
+          label="Remember me"
+          checked={userForm.remember}
+          onChange={({ target }) =>
+            setUserForm({ ...userForm, remember: target.checked })
+          }
+        ></FormCheck>
+        <input className="btn btn-primary" type="submit" value="Login"></input>
+      </Form>
+    </Container>
   );
 }
 
