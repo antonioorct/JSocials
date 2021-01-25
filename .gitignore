@@ -32,5 +32,6 @@ client/debug.log
 client/.eslintcache
 client/.eslintcache
 server/.env
+client/.env
 client/public/img
 .prettierrc
