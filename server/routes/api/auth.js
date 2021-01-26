@@ -3,18 +3,25 @@ const { Router } = require("express");
 const router = Router();
 const { models } = require("../../sequelize");
 const { compare } = require("bcrypt");
+const { NotFound, MissingField } = require("../../errors");
 
-router.post("/auth", async function (req, res) {
+router.post("/auth", async function (req, res, next) {
+  const requiredFields = ["username", "password"];
+
   try {
+    const missingFields = requiredFields.filter(
+      (field) => !req.body.hasOwnProperty(field)
+    );
+    if (missingFields.length !== 0) throw new MissingField(missingFields);
+
     const user = await models.user.findOne({
       where: { username: req.body.username },
     });
-    if (!user) return res.status(404).send("Invalid email and/or password");
+    if (!user) throw new NotFound("Invalid email and/or password.");
 
     let passCompare = await compare(req.body.password, user.password);
 
-    if (!passCompare)
-      return res.status(404).send("Invalid email and/or password");
+    if (!passCompare) throw new NotFound("Invalid email and/or password.");
 
     const token = generateToken(user.id);
 

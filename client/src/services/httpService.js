@@ -15,18 +15,21 @@ axios.interceptors.request.use(
   }
 );
 
-axios.interceptors.response.use(null, (error) => {
-  const expectedError =
-    error.response &&
-    error.response.status >= 400 &&
-    error.response.status < 500;
+axios.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (!err.response || err.response.status >= 500)
+      return Promise.reject({
+        ...err,
+        response: { data: { detail: "Internal server error" } },
+      });
 
-  if (!expectedError) {
-    console.log(error);
+    if (err.response.status >= 400 && err.response.status <= 405)
+      return Promise.reject(err);
+
+    return Promise.reject(err);
   }
-
-  return Promise.reject(error);
-});
+);
 
 const http = {
   get: axios.get,

@@ -5,10 +5,6 @@ import { getLocalUserData } from "./userService";
 
 const apiEndPoint = process.env.REACT_APP_API_URL;
 
-async function register(email, password) {
-  await http.post(`${apiEndPoint}/users`, { email, password });
-}
-
 async function sendLoginInfo(username, password) {
   const { data } = await http.post(`${apiEndPoint}/auth`, {
     username,
@@ -86,7 +82,6 @@ function isSession() {
 }
 
 export {
-  register,
   sendLoginInfo,
   refreshJwt,
   saveJwt,

@@ -3,6 +3,22 @@ import { isSession } from "./authService";
 
 const apiEndPoint = process.env.REACT_APP_API_URL;
 
+async function sendRegisterInfo({
+  username,
+  email,
+  firstName,
+  lastName,
+  password,
+}) {
+  await http.post(`${apiEndPoint}/users`, {
+    username,
+    email,
+    firstName,
+    lastName,
+    password,
+  });
+}
+
 async function getUser(userId) {
   const { data } = await http.get(`${apiEndPoint}/users/${userId}`);
 
@@ -37,4 +53,4 @@ function saveUserToSession(userData) {
   sessionStorage.setItem("userData", userData);
 }
 
-export { getUser, saveUserToLocal, getLocalUserData };
+export { sendRegisterInfo, getUser, saveUserToLocal, getLocalUserData };
