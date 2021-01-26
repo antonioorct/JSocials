@@ -24,6 +24,8 @@ axios.interceptors.response.use(
         response: { data: { detail: "Internal server error" } },
       });
 
+    console.log(err.response);
+
     if (err.response.status >= 400 && err.response.status <= 405)
       return Promise.reject(err);
 
