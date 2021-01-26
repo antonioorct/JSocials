@@ -16,6 +16,7 @@ router.get(
         `
                     SELECT 
                   u.id AS id,
+                  u.username AS username,
                   u.first_name AS firstName,
                   u.last_name AS lastName,
                   u.image_path AS imagePath
@@ -25,7 +26,11 @@ router.get(
                   users AS u ON f.user2_id = u.id
               WHERE
                 f.user1_id = ?;`,
-        { type: QueryTypes.SELECT, nest: true, replacements: [req.userId] }
+        {
+          type: QueryTypes.SELECT,
+          nest: true,
+          replacements: [req.params.userId],
+        }
       );
 
       if (!friends) res.status(404).send();
@@ -56,13 +61,18 @@ router.get(
       if (isFriend) return res.status(200).send({ status: "friends" });
 
       const isPendingFrom = await models.pendingFriend.findOne({
-        where: { userIncomingId: user1Id, userOutgoingId: user2Id },
+        where: {
+          userIncomingId: user1Id,
+          userOutgoingId: user2Id,
+        },
       });
 
       if (isPendingFrom)
-        return res
-          .status(200)
-          .send({ status: "pending", direction: "incoming" });
+        return res.status(200).send({
+          id: isPendingFrom.id,
+          status: "pending",
+          direction: "incoming",
+        });
       const isPendingTo = await models.pendingFriend.findOne({
         where: {
           userIncomingId: user2Id,
@@ -71,9 +81,11 @@ router.get(
       });
 
       if (isPendingTo)
-        return res
-          .status(200)
-          .send({ status: "pending", direction: "outgoing" });
+        return res.status(200).send({
+          id: isPendingTo.id,
+          status: "pending",
+          direction: "outgoing",
+        });
 
       return res.status(404).send();
     } catch (err) {

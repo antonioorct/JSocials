@@ -164,8 +164,10 @@ router.delete(
       if (!friendRequest)
         return res.status(404).send("No friend request found.");
       else if (
-        friendRequest.userOutgoingId !== req.userId &&
-        friendRequest.userIncomingId !== req.userId
+        !(
+          friendRequest.userOutgoingId === req.userId ||
+          friendRequest.userIncomingId === req.userId
+        )
       )
         return res.status(403).send("Access denied.");
 
