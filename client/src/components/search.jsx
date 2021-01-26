@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import http from "../services/httpService";
+import { searchUsers } from "../services/userService";
 
 export default function Search(props) {
   const [users, setUsers] = useState([]);
   const params = useParams();
 
   useEffect(async () => {
-    const { data: users } = await http.get(
-      "http://localhost:3001/api/users" +
-        "?firstName=" +
-        props.location.state.firstName
-    );
+    const users = await searchUsers(props.location.state.searchTerm);
 
     setUsers(users);
   }, [params]);

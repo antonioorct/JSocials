@@ -34,10 +34,11 @@ export default function HeaderBar(props) {
         <Form
           onSubmit={(e) => {
             e.preventDefault();
+            if (search === "") return;
 
             if (window.location.pathname === "/search")
               window.location.reload();
-            history.replace("/search", { firstName: search });
+            history.replace("/search", { searchTerm: search });
           }}
           className="mr-4"
         >
