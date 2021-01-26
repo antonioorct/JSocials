@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Redirect, useParams } from "react-router-dom";
-import http from "../services/httpService";
+import { useHistory } from "react-router-dom";
+
 import Image from "react-bootstrap/Image";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -9,33 +10,52 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
+
 import { UserContext } from "../contexts/UserContext";
-import Info from "./shared/info";
+import { getUser, editUserData } from "../services/userService";
+import {
+  getFriendStatus,
+  removeFriendship,
+  sendFriendRequest,
+  cancelFriendRequest,
+  acceptFriendRequest,
+} from "../services/friendsService";
 import { toSentenceCase } from "../util/stringUtil";
+
+import Info from "./shared/info";
+import ImageTable from "./shared/imageTable";
 import Post from "./post";
-import { getImages } from "../services/postService";
-import { useHistory } from "react-router-dom";
+import Main from "./main";
+import Friends from "./friends";
 
 export default function Profile() {
   const user = useContext(UserContext)[0];
   const [userProfile, setUserProfile] = useState({});
-  const { username } = useParams();
+  const params = useParams();
 
   const [editing, setEditing] = useState(false);
   const [friendStatus, setFriendStatus] = useState(false);
   const [info, setInfo] = useState({});
 
   const [selectedPost, setSelectedPost] = useState(null);
-  const [images, setImages] = useState([]);
+  const [loadedTabs, setLoadedTabs] = useState({
+    posts: false,
+    friends: false,
+    photos: false,
+  });
 
   const history = useHistory();
 
   useEffect(() => {
-    getProfile(username);
-  }, [username]);
+    if (userProfile.username && params.username !== userProfile.username)
+      return history.go(0);
+
+    fetchAndSetProfile(params.username);
+  }, [params]);
 
   useEffect(() => {
-    checkFriend();
+    if (user.id !== userProfile.id) checkFriend();
+
     setInfo({
       bio: userProfile.bio,
       gender: userProfile.gender,
@@ -46,145 +66,115 @@ export default function Profile() {
     });
   }, [userProfile]);
 
-  const getProfile = async (username) => {
+  const fetchAndSetProfile = async (username) => {
     try {
-      const res = await http.get(
-        "http://localhost:3001/api/users" + "?username=" + username
-      );
-      setUserProfile(res.data);
+      const user = await getUser(username);
+
+      setUserProfile(user);
     } catch (e) {
       setUserProfile({ id: 0 });
     }
   };
 
   const checkFriend = async () => {
-    if (!userProfile) return;
-    const { data } = await http.get(
-      `http://localhost:3001/api/users/friends/${user.id}/status?user2Id=${userProfile.id}`
-    );
+    if (!userProfile.id) return;
+    const status = await getFriendStatus(user.id, userProfile.id);
 
-    setFriendStatus(data.status);
-  };
-
-  const replyToRequest = async (friendId, accept) => {
-    await http.post(
-      "http://localhost:3001/api/users/friends?accept=" + accept,
-      { user1Id: user.id, user2Id: friendId }
-    );
-
-    setFriendStatus(accept ? "friends" : "not friends");
+    setFriendStatus(status);
   };
 
   const renderFriendButton = (friendStatus) => {
-    switch (friendStatus) {
-      case "not friends":
-        return (
-          <Button
-            onClick={async () => {
-              await http.post("http://localhost:3001/api/users/friends", {
-                userOutgoingId: user.id,
-                userIncomingId: userProfile.id,
-              });
-
-              setFriendStatus("pending to");
-            }}
-          >
-            Add friend
-          </Button>
-        );
+    switch (friendStatus.status) {
       case "friends":
         return (
           <Button
-            onClick={async () => {
-              await http.delete(
-                `http://localhost:3001/api/users/friends?userIncomingId=${user.id}&userOutgoingId=${userProfile.id}`
-              );
+            onClick={() => {
+              removeFriendship(user.id, userProfile.id);
 
-              setFriendStatus("not friends");
+              setFriendStatus({ status: "not friends" });
             }}
           >
             Remove friend
           </Button>
         );
-      case "pending to":
+      case "not friends":
         return (
-          <ButtonGroup>
-            <Button disabled>Friend Request Pending</Button>
-            <Button
-              onClick={async () => {
-                await http.delete(
-                  `http://localhost:3001/api/users/friends?userOutgoingId=${user.id}&userIncomingId=${userProfile.id}`
-                );
+          <Button
+            onClick={() => {
+              sendFriendRequest(userProfile.id);
 
-                setFriendStatus("not friends");
-              }}
-              variant="danger"
-            >
-              x
-            </Button>
-          </ButtonGroup>
+              setFriendStatus({ status: "pending", direction: "outgoing" });
+            }}
+          >
+            Add friend
+          </Button>
         );
-      case "pending from":
-        return (
-          <div>
-            <Button
-              variant="success"
-              onClick={() => replyToRequest(userProfile.id, true)}
-            >
-              Accept
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => replyToRequest(userProfile.id, false)}
-            >
-              Reject
-            </Button>
-          </div>
-        );
+      case "pending":
+        if (friendStatus.direction === "incoming")
+          return (
+            <div>
+              <Button
+                variant="success"
+                onClick={() => {
+                  acceptFriendRequest(friendStatus.id);
+
+                  setFriendStatus({ status: "friends" });
+                }}
+              >
+                Accept
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  cancelFriendRequest(friendStatus.id);
+
+                  setFriendStatus({ status: "not friends" });
+                }}
+              >
+                Reject
+              </Button>
+            </div>
+          );
+        else
+          return (
+            <ButtonGroup>
+              <Button disabled>Friend Request Pending</Button>
+              <Button
+                onClick={async () => {
+                  cancelFriendRequest(friendStatus.id);
+
+                  setFriendStatus({ status: "not friends" });
+                }}
+                variant="danger"
+              >
+                x
+              </Button>
+            </ButtonGroup>
+          );
       default:
         return <div />;
     }
   };
 
   const renderImages = () => {
-    let returnArray = [],
-      tempArray = [];
+    return (
+      <ImageTable userId={userProfile.id} setSelectedPost={setSelectedPost} />
+    );
+  };
 
-    images.forEach((img, index) => {
-      tempArray.push(
-        <Image
-          style={{ cursor: "pointer" }}
-          onClick={() => setSelectedPost(images[index])}
-          className="col-4"
-          src={"img/" + img.imagePath}
-          key={index}
-        />
-      );
-
-      if ((index + 1) % 3 === 0) {
-        returnArray.push(<div className="row">{tempArray}</div>);
-
-        tempArray = [];
-      }
-    });
-    if (tempArray.length !== 0)
-      returnArray.push(<div className="row">{tempArray}</div>);
-
-    return returnArray;
+  const renderFriendsTab = () => {
+    return <Friends userId={userProfile.id} />;
   };
 
   const handleChange = (e) =>
     setInfo({ ...info, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    setEditing(false);
     e.preventDefault();
-    const { data } = await http.put(
-      "http://localhost:3001/api/users/" + user.id,
-      info
-    );
+    setEditing(false);
+    const newUserProfile = await editUserData(user.id, info);
 
-    setUserProfile(data);
+    setUserProfile(newUserProfile);
   };
 
   return (
@@ -249,11 +239,8 @@ export default function Profile() {
                   className="mb-1"
                   defaultActiveKey="about"
                   onSelect={async (key) => {
-                    if (key !== "photos" || images.length !== 0) return;
-                    console.log("loading images");
-                    const newImages = await getImages(userProfile);
-
-                    setImages(newImages);
+                    if (key !== true)
+                      setLoadedTabs({ ...loadedTabs, [key]: true });
                   }}
                 >
                   <Tab eventKey="about" title="About">
@@ -302,9 +289,15 @@ export default function Profile() {
                       </Table>
                     </Form>
                   </Tab>
+                  <Tab eventKey="posts" title="Posts">
+                    {loadedTabs.posts && <Main userId={userProfile.id} />}
+                  </Tab>
+                  <Tab eventKey="friends" title="Friends">
+                    {loadedTabs.friends && renderFriendsTab()}
+                  </Tab>
 
                   <Tab eventKey="photos" title="Photos">
-                    {renderImages()}
+                    {loadedTabs.photos && renderImages()}
                   </Tab>
                 </Tabs>
               </div>

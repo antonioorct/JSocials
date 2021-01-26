@@ -1,15 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
 import {
-  getPostsFromUserId,
+  fetchFeed,
   addPost,
   addCommentToPost,
   changePostLike,
   replacePost,
   replaceComment,
   deletePost,
+  getPostsFromUserId,
 } from "../services/postService";
 import http from "../services/httpService";
+import Post from "./post";
 
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
@@ -19,26 +21,29 @@ import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import FormFile from "react-bootstrap/esm/FormFile";
 import Image from "react-bootstrap/Image";
-import Post from "./post";
+import FormCheck from "react-bootstrap/FormCheck";
+import FormGroup from "react-bootstrap/esm/FormGroup";
+import { useParams } from "react-router-dom";
 
-export default function Main() {
+export default function Main({ userId }) {
   const user = useContext(UserContext)[0];
   const [posts, setPosts] = useState(null);
-  const [postForm, setPostForm] = useState({ body: "", file: null });
+  const [postForm, setPostForm] = useState({
+    body: "",
+    file: null,
+    privatePost: false,
+  });
   const [replying, setReplying] = useState(-1);
   const [replyForm, setReplyForm] = useState("");
 
   const [selectedPost, setSelectedPost] = useState(null);
 
+  const params = useParams();
+
   useEffect(() => {
-    const fetchAndSetPosts = async () => {
-      const data = await getPostsFromUserId(user.id);
-
-      setPosts(data);
-    };
-
-    fetchAndSetPosts();
-  }, [user.id]);
+    if (userId) fetchAndSetPostsFromUserId(userId);
+    else fetchAndSetPosts();
+  }, [user.id, params]);
 
   useEffect(() => {
     if (!selectedPost) return;
@@ -46,6 +51,18 @@ export default function Main() {
 
     setPosts(newPosts);
   }, [selectedPost]);
+
+  const fetchAndSetPosts = async () => {
+    const data = await fetchFeed(user.id);
+
+    setPosts(data);
+  };
+
+  const fetchAndSetPostsFromUserId = async (userId) => {
+    const data = await getPostsFromUserId(userId);
+
+    setPosts(data);
+  };
 
   const fetchAndSetComments = async (postId, createdAt) => {
     const { data } = await http.get(
@@ -69,29 +86,50 @@ export default function Main() {
           const sendFormData = new FormData();
           if (postForm.file) sendFormData.append("image", postForm.file);
           sendFormData.append("body", postForm.body);
-          sendFormData.append("userId", user.id);
+          sendFormData.append("private", postForm.privatePost);
 
           const result = await addPost(sendFormData);
-          console.log(result);
 
           setPosts([result, ...posts]);
-          setPostForm({ body: "", file: null });
+          setPostForm({ body: "", file: null, privatePost: false });
         }}
         encType="multipart/form-data"
       >
         <FormFile
           accept="image/png, image/jpeg, image/bmp"
           onChange={({ target }) =>
-            setPostForm({ body: postForm.body, file: target.files[0] })
+            setPostForm({
+              body: postForm.body,
+              file: target.files[0],
+              privatePost: postForm.privatePost,
+            })
           }
         ></FormFile>
         <FormControl
           value={postForm.body}
           onChange={({ target }) =>
-            setPostForm({ body: target.value, file: postForm.file })
+            setPostForm({
+              body: target.value,
+              file: postForm.file,
+              privatePost: postForm.privatePost,
+            })
           }
           placeholder="Write something here..."
         ></FormControl>
+        <FormGroup controlId="formBasicCheckbox">
+          <FormCheck
+            value={postForm.privatePost}
+            onChange={({ target }) =>
+              setPostForm({
+                body: postForm.body,
+                file: postForm.file,
+                privatePost: target.value,
+              })
+            }
+            type="checkbox"
+            label="Private"
+          ></FormCheck>
+        </FormGroup>
         <Button type="submit">Post</Button>
       </Form>
 
@@ -157,8 +195,7 @@ export default function Main() {
                       <Form
                         onSubmit={async (e) => {
                           e.preventDefault();
-                          const newComment = await addCommentToPost({
-                            userId: user.id,
+                          const newComment = await addCommentToPost(post.id, {
                             postId: post.id,
                             body: replyForm,
                           });
@@ -234,7 +271,7 @@ export default function Main() {
                       <a
                         href="#"
                         onClick={() => {
-                          deletePost(post);
+                          deletePost(post.id);
 
                           setPosts(posts.filter((x) => post.id !== x.id));
                         }}
@@ -327,7 +364,7 @@ export default function Main() {
                           <a
                             href="#"
                             onClick={async () => {
-                              await deletePost(comment);
+                              await deletePost(comment.id);
                               const tempPosts = [...posts];
                               tempPosts[postIndex].comments = tempPosts[
                                 postIndex
