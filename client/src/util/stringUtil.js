@@ -19,11 +19,4 @@ export function toCamelCase(str) {
       .join("")
       .slice(1)
   );
-  // for (let i = 1; i < str.length; i++) {
-  //   if (/[A-Z]/g.test(str.charAt(i)))
-  //     newStr += " " + str.charAt(i).toLowerCase();
-  //   else newStr += str.charAt(i);
-  // }
-
-  // return newStr;
 }
