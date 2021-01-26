@@ -6,13 +6,10 @@ import socketIo from "socket.io-client";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
-import InputGroup from "react-bootstrap/InputGroup";
 
-import { getFriends } from "../services/friendsService";
-import { createNewChat } from "../services/chatService";
+import { getFriendsFromUserId } from "../services/friendsService";
 
 import "../style.css";
-import { useParams } from "react-router-dom";
 
 export default function Messenger(props) {
   const user = useContext(UserContext)[0];
@@ -236,7 +233,7 @@ export default function Messenger(props) {
           style={{ width: "100%" }}
           variant="success"
           onClick={async () => {
-            const data = await getFriends(user);
+            const data = await getFriendsFromUserId(user.id);
             setFriends(data);
 
             setShowNewChats(true);

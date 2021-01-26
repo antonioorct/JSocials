@@ -19,8 +19,22 @@ async function sendRegisterInfo({
   });
 }
 
+async function searchUsers(searchTerm) {
+  const { data } = await http.get(
+    `${apiEndPoint}/users?searchTerm=${searchTerm}`
+  );
+
+  return data;
+}
+
 async function getUser(userId) {
   const { data } = await http.get(`${apiEndPoint}/users/${userId}`);
+
+  return data;
+}
+
+async function editUserData(userId, editData) {
+  const { data } = await http.put(`${apiEndPoint}/users/${userId}`, editData);
 
   return data;
 }
@@ -53,4 +67,11 @@ function saveUserToSession(userData) {
   sessionStorage.setItem("userData", userData);
 }
 
-export { sendRegisterInfo, getUser, saveUserToLocal, getLocalUserData };
+export {
+  sendRegisterInfo,
+  searchUsers,
+  getUser,
+  editUserData,
+  saveUserToLocal,
+  getLocalUserData,
+};

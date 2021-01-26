@@ -1,33 +1,42 @@
 import http from "./httpService";
 
-const apiEndPoint = "http://localhost:3001/api/posts";
+const apiEndPoint = process.env.REACT_APP_API_URL;
 
-async function getAllPosts() {
-  const { data } = await http.get(apiEndPoint);
+async function fetchFeed(userId) {
+  const { data } = await http.get(`${apiEndPoint}/posts/feed/${userId}`);
 
   return data;
 }
 
 async function getPostsFromUserId(userId) {
-  const queryString = userId ? "?userId=" + userId : "";
-  const { data } = await http.get(apiEndPoint + queryString);
+  const { data } = await http.get(`${apiEndPoint}/users/${userId}/posts`);
+
+  return data;
+}
+
+async function getPost(postId) {
+  const { data } = await http.get(`${apiEndPoint}/posts/${postId}`);
 
   return data;
 }
 
 async function addPost(post) {
-  const { data: newPost } = await http.post(apiEndPoint, post);
+  const { data: newPost } = await http.post(`${apiEndPoint}/posts`, post);
 
   return newPost;
 }
 
-async function addCommentToPost(comment) {
-  const { data: newComment } = await http.post(
-    apiEndPoint + `/${comment.postId}`,
+function deletePost(postId) {
+  http.delete(`${apiEndPoint}/posts/${postId}`);
+}
+
+async function addCommentToPost(postId, comment) {
+  const { data } = await http.post(
+    `${apiEndPoint}/posts/${postId}/comments`,
     comment
   );
 
-  return newComment;
+  return data;
 }
 
 async function likePost(postId, userId) {
@@ -88,10 +97,6 @@ function changePostLike(post, user, isLike) {
   return post;
 }
 
-function deletePost(post) {
-  http.delete("http://localhost:3001/api/posts/" + post.id);
-}
-
 async function getComments(post) {
   const { data } = await http.get(
     "http://localhost:3001/api/posts/" +
@@ -103,23 +108,15 @@ async function getComments(post) {
   return data;
 }
 
-async function getImages(user) {
-  const { data } = await http.get(
-    "http://localhost:3001/api/posts/images/" + user.id
-  );
-
-  return data;
-}
-
-async function getPost(post) {
-  const { data } = await http.get("http://localhost:3001/api/posts/" + post.id);
+async function getImages(userId) {
+  const { data } = await http.get(`${apiEndPoint}/users/${userId}/images`);
 
   return data;
 }
 
 export {
-  getAllPosts,
   getPostsFromUserId,
+  fetchFeed,
   addPost,
   addCommentToPost,
   likePost,
