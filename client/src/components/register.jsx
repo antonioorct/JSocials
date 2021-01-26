@@ -58,7 +58,7 @@ export default function Register({ history }) {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <FormGroup>
           <FormLabel>Username</FormLabel>
-          <FormControl type="text" name="username" ref={register} />
+          <FormControl type="text" name="username" ref={register} autoFocus />
           <p style={{ color: "red" }}>{errors.username?.message}</p>
         </FormGroup>
 
