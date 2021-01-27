@@ -23,7 +23,7 @@ export default function HeaderBar(props) {
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
-      <Navbar.Brand href="/">TVZSocials</Navbar.Brand>
+      <Navbar.Brand href="/">JSocials</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Nav>
         <Nav.Link href="/messenger">Messenger</Nav.Link>
