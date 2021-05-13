@@ -7,14 +7,36 @@ const {
 } = require("../../middleware/userCheck");
 const { authenticate } = require("../../middleware/jwt");
 const { models } = require("../../sequelize");
+const { Op } = require("sequelize");
 
 router.get(
   "/posts/:postId/comments",
   [authenticate, postExists, postNotPrivate],
   async function (req, res, next) {
     try {
-      const comments = await models.comment.findAll({
-        where: { postId: req.params.postId },
+      const limit = parseInt(req.query.limit);
+      const createdAt = req.query.createdAt || new Date(Date.now());
+
+      const comments = await models.post.findAll({
+        include: [
+          {
+            model: models.user,
+            attributes: ["id", "firstName", "lastName", "username"],
+          },
+          {
+            model: models.userPostLike,
+            include: {
+              model: models.user,
+              attributes: ["firstName", "lastName"],
+            },
+          },
+        ],
+        where: {
+          postId: req.params.postId,
+          createdAt: { [Op.lt]: createdAt },
+        },
+        limit: limit || null,
+        order: [["createdAt", "DESC"]],
       });
 
       if (!comments) return res.status(404).send();
@@ -29,14 +51,35 @@ router.get(
 router.post(
   "/posts/:postId/comments",
   [authenticate, postExists, postNotPrivate],
-  async function (req, res) {
+  async function (req, res, next) {
     try {
-      const newComment = await models.comment.create({
+      const newComment = await models.post.create({
+        userId: req.userId,
         body: req.body.body,
         postId: req.params.postId,
       });
 
-      res.status(201).send(newComment);
+      const newFullComment = await models.post.findByPk(newComment.id, {
+        include: [
+          {
+            model: models.user,
+            attributes: ["id", "firstName", "lastName", "username"],
+          },
+          {
+            model: models.userPostLike,
+            include: {
+              model: models.user,
+              attributes: ["firstName", "lastName"],
+            },
+          },
+        ],
+      });
+
+      await models.post.increment("numComments", {
+        where: { id: req.params.postId },
+      });
+
+      res.status(201).send(newFullComment);
     } catch (err) {
       next(err);
     }
@@ -74,6 +117,9 @@ router.delete(
         return res.status(403).send("Access denied.");
 
       await models.post.destroy({ where: { id: req.params.commentId } });
+      await models.post.decrement("numComments", {
+        where: { id: req.comment.postId },
+      });
 
       return res.status(200).send();
     } catch (err) {

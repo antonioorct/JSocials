@@ -2,10 +2,8 @@ import React, { useContext, useState, useEffect } from "react";
 
 import {
   addCommentToPost,
-  changePostLike,
   deletePost,
   replaceComment,
-  getComments,
   getPost,
 } from "../services/postService";
 
@@ -173,9 +171,8 @@ export default function Post({ post, setPost }) {
               ) ? (
                 <a
                   onClick={() => {
-                    const newPost = changePostLike(modalPost, user, true);
-
-                    setModalPost(newPost);
+                    // const newPost = changePostLike(modalPost, user, true);
+                    // setModalPost(newPost);
                   }}
                   href="#"
                 >
@@ -185,9 +182,8 @@ export default function Post({ post, setPost }) {
               ) : (
                 <a
                   onClick={() => {
-                    const newPost = changePostLike(modalPost, user, false);
-
-                    setModalPost(newPost);
+                    // const newPost = changePostLike(modalPost, user, false);
+                    // setModalPost(newPost);
                   }}
                   href="#"
                 >
@@ -252,11 +248,9 @@ export default function Post({ post, setPost }) {
                   ) ? (
                     <a
                       onClick={() => {
-                        const newComment = changePostLike(comment, user, true);
-
-                        const newPost = replaceComment([modalPost], newComment);
-
-                        setModalPost(newPost[0]);
+                        // const newComment = changePostLike(comment, user, true);
+                        // const newPost = replaceComment([modalPost], newComment);
+                        // setModalPost(newPost[0]);
                       }}
                       href="#"
                     >
@@ -266,11 +260,9 @@ export default function Post({ post, setPost }) {
                   ) : (
                     <a
                       onClick={() => {
-                        const newComment = changePostLike(comment, user, false);
-
-                        const newPost = replaceComment([modalPost], newComment);
-
-                        setModalPost(newPost[0]);
+                        // const newComment = changePostLike(comment, user, false);
+                        // const newPost = replaceComment([modalPost], newComment);
+                        // setModalPost(newPost[0]);
                       }}
                       href="#"
                     >

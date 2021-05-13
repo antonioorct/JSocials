@@ -6,11 +6,12 @@ const { models } = require("../../sequelize");
 const { userExists, postExists } = require("../../middleware/userCheck");
 const { authenticate, authenticateSameUser } = require("../../middleware/jwt");
 const fs = require("fs");
+const sequelize = require("../../sequelize");
 const multer = require("multer")();
 
 router.get(
-  "/users/:userId/feed",
-  authenticateSameUser,
+  "/posts/feed/:userId",
+  [userExists, authenticateSameUser],
   async function (req, res, next) {
     try {
       const userId = req.userId;
@@ -19,7 +20,6 @@ router.get(
         include: [{ model: models.user, as: "friends", attributes: ["id"] }],
         where: { id: userId },
       });
-      if (!friends) return res.status(404).send();
 
       const friendIds = friends[0]
         .getDataValue("friends")
@@ -193,13 +193,31 @@ router.post(
   "/posts",
   [authenticate, multer.single("image")],
   async function (req, res, next) {
+    const t = await sequelize.transaction();
+
     try {
-      const newPost = await models.post.create({
-        body: req.body.body,
-        private: false || req.body.private,
-        userId: req.userId,
-        imagePath: req.file ? req.file.originalname : null,
-      });
+      const newPost = await models.post.create(
+        {
+          body: req.body.body,
+          private: false || req.body.private,
+          userId: req.userId,
+          imagePath: req.file ? req.file.originalname : null,
+        },
+        { transaction: t }
+      );
+
+      if (req.file)
+        fs.writeFile(
+          "C:\\College\\Zavrsni\\Projekt\\client\\public\\img\\" +
+            req.file.originalname,
+          req.file.buffer,
+          (res, err) => {
+            if (err) console.log(err);
+          }
+        );
+
+      await t.commit();
+
       const newFullPost = await models.post.findByPk(newPost.id, {
         include: [
           {
@@ -209,18 +227,12 @@ router.post(
         ],
         attributes: { exclude: ["postId"] },
       });
+
       newFullPost.setDataValue("comments", []);
       newFullPost.setDataValue("userPostLikes", []);
-
-      if (req.file)
-        fs.writeFile(
-          "C:\\College\\Zavrsni\\Projekt\\client\\public\\img\\" +
-            req.file.originalname,
-          req.file.buffer
-        );
-
       res.status(201).send(newFullPost);
     } catch (err) {
+      await t.rollback();
       next(err);
     }
   }
@@ -262,6 +274,10 @@ router.delete(
       if (!userOwnsPost) return res.status(403).send("Access denied.");
 
       await models.post.destroy({ where: { id: postId } });
+      if (req.post.postId !== null)
+        await models.post.decrement("numComments", {
+          where: { id: req.post.postId },
+        });
 
       res.status(200).send();
     } catch (err) {

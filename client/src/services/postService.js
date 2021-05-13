@@ -14,8 +14,8 @@ async function getPostsFromUserId(userId) {
   return data;
 }
 
-async function getPost(postId) {
-  const { data } = await http.get(`${apiEndPoint}/posts/${postId}`);
+async function getPost(post) {
+  const { data } = await http.get(`${apiEndPoint}/posts/${post.id}`);
 
   return data;
 }
@@ -39,16 +39,31 @@ async function addCommentToPost(postId, comment) {
   return data;
 }
 
-async function likePost(postId, userId) {
-  const newLike = await http.post(apiEndPoint + `/${postId}/${userId}`);
+function likePost(post, user) {
+  http.post(apiEndPoint + `/posts/${post.id}/likes`);
 
-  return newLike;
+  post.numLikes++;
+  post.userPostLikes.push({
+    userId: user.id,
+    postId: post.id,
+    user: {
+      firstName: user.firstName,
+      lastName: user.lastName,
+    },
+  });
+
+  return post;
 }
 
-async function unlikePost(postId, userId) {
-  const newLike = await http.delete(apiEndPoint + `/${postId}/${userId}`);
+function unlikePost(post, user) {
+  http.delete(apiEndPoint + `/posts/${post.id}/likes`);
 
-  return newLike;
+  post.numLikes--;
+  post.userPostLikes = post.userPostLikes.filter(
+    (like) => like.userId !== user.id
+  );
+
+  return post;
 }
 
 function replacePost(posts, newPost) {
@@ -70,31 +85,6 @@ function replaceComment(posts, newComment) {
   tempPosts[postIndex].comments[commentIndex] = newComment;
 
   return tempPosts;
-}
-
-function changePostLike(post, user, isLike) {
-  if (isLike) {
-    likePost(post.id, user.id);
-
-    post.numLikes++;
-    post.userPostLikes.push({
-      userId: user.id,
-      postId: post.id,
-      user: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-    });
-  } else {
-    unlikePost(post.id, user.id);
-
-    post.numLikes--;
-    post.userPostLikes = post.userPostLikes.filter(
-      (like) => like.userId !== user.id
-    );
-  }
-
-  return post;
 }
 
 async function getComments(post) {
@@ -121,7 +111,6 @@ export {
   addCommentToPost,
   likePost,
   unlikePost,
-  changePostLike,
   replacePost,
   replaceComment,
   deletePost,

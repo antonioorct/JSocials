@@ -4,11 +4,12 @@ import {
   fetchFeed,
   addPost,
   addCommentToPost,
-  changePostLike,
   replacePost,
   replaceComment,
   deletePost,
   getPostsFromUserId,
+  likePost,
+  unlikePost,
 } from "../services/postService";
 import http from "../services/httpService";
 import Post from "./post";
@@ -43,7 +44,7 @@ export default function Main({ userId }) {
   useEffect(() => {
     if (userId) fetchAndSetPostsFromUserId(userId);
     else fetchAndSetPosts();
-  }, [user.id, params]);
+  }, [user.id]);
 
   useEffect(() => {
     if (!selectedPost) return;
@@ -75,6 +76,31 @@ export default function Main({ userId }) {
     );
 
     return data;
+  };
+
+  const renderLikeTooltip = (post) => {
+    return post.userPostLikes.length === 0 ? (
+      <span>{post.numLikes} Likes</span>
+    ) : (
+      <OverlayTrigger
+        placement="top"
+        overlay={
+          <Tooltip>
+            {post.userPostLikes
+              .map((like) => like.user.firstName + " " + like.user.lastName)
+              .join(", ") +
+              (post.userPostLikes.length === 1
+                ? " has"
+                : post.userPostLikes.length > 5
+                ? ",... have"
+                : " have") +
+              " liked this post."}
+          </Tooltip>
+        }
+      >
+        <span>{post.numLikes} Likes</span>
+      </OverlayTrigger>
+    );
   };
 
   return (
@@ -158,36 +184,7 @@ export default function Main({ userId }) {
                     )}
                   </span>
                   <p>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={
-                        post.userPostLikes.length === 0 ? (
-                          <div />
-                        ) : (
-                          <Tooltip>
-                            {post.userPostLikes
-                              .map((like, index) => {
-                                if (index < 5)
-                                  return (
-                                    like.user.firstName +
-                                    " " +
-                                    like.user.lastName
-                                  );
-                                else return null;
-                              })
-                              .join(", ") +
-                              (post.userPostLikes.length === 1
-                                ? " has"
-                                : post.userPostLikes.length > 5
-                                ? ",... have"
-                                : " have") +
-                              " liked this post."}
-                          </Tooltip>
-                        )
-                      }
-                    >
-                      <span>{post.numLikes} Likes</span>
-                    </OverlayTrigger>
+                    {renderLikeTooltip(post)}
                     <br />
                     {post.numComments} Comments
                     <br />
@@ -241,9 +238,9 @@ export default function Main({ userId }) {
                     ) ? (
                       <a
                         onClick={() => {
-                          const newPost = changePostLike(post, user, true);
+                          const tempPost = likePost(post, user);
 
-                          const newPosts = replacePost(posts, newPost);
+                          const newPosts = replacePost(posts, tempPost);
 
                           setPosts(newPosts);
                         }}
@@ -255,9 +252,9 @@ export default function Main({ userId }) {
                     ) : (
                       <a
                         onClick={() => {
-                          const newPost = changePostLike(post, user, false);
+                          const tempPost = unlikePost(post, user);
 
-                          const newPosts = replacePost(posts, newPost);
+                          const newPosts = replacePost(posts, tempPost);
 
                           setPosts(newPosts);
                         }}
@@ -288,50 +285,20 @@ export default function Main({ userId }) {
                           {comment.user.firstName} {comment.user.lastName}
                         </div>
                         <div>{comment.body}</div>
-                        <OverlayTrigger
-                          placement="top"
-                          overlay={
-                            comment.userPostLikes.length === 0 ? (
-                              <div />
-                            ) : (
-                              <Tooltip>
-                                {comment.userPostLikes
-                                  .map(
-                                    (like) =>
-                                      like.user.firstName +
-                                      " " +
-                                      like.user.lastName
-                                  )
-                                  .join(", ") +
-                                  (comment.userPostLikes.length === 1
-                                    ? " has"
-                                    : comment.userPostLikes.length > 5
-                                    ? ",... have"
-                                    : " have") +
-                                  " liked this post."}
-                              </Tooltip>
-                            )
-                          }
-                        >
-                          <span>{comment.numLikes} Likes</span>
-                        </OverlayTrigger>
+                        {renderLikeTooltip(comment)}
                         {!comment.userPostLikes.find(
                           (like) => like.userId === user.id
                         ) ? (
                           <a
                             onClick={() => {
-                              const newComment = changePostLike(
-                                comment,
-                                user,
-                                true
-                              );
+                              const tempComment = likePost(comment, user);
 
-                              const newPosts = replaceComment(
+                              const newPost = replaceComment(
                                 posts,
-                                newComment
+                                tempComment
                               );
 
-                              setPosts(newPosts);
+                              setPosts(newPost);
                             }}
                             href="#"
                           >
@@ -341,18 +308,14 @@ export default function Main({ userId }) {
                         ) : (
                           <a
                             onClick={() => {
-                              const newComment = changePostLike(
-                                comment,
-                                user,
-                                false
-                              );
+                              const tempComment = unlikePost(comment, user);
 
-                              const newPosts = replaceComment(
+                              const newPost = replaceComment(
                                 posts,
-                                newComment
+                                tempComment
                               );
 
-                              setPosts(newPosts);
+                              setPosts(newPost);
                             }}
                             href="#"
                           >

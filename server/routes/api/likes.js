@@ -28,7 +28,7 @@ router.delete(
     try {
       await models.userPostLike.destroy({
         where: {
-          postId: req.params.postId,
+          postId: parseInt(req.params.postId),
           userId: req.userId,
         },
       });
