@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { models, model } = require("../../sequelize");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
 const { authenticate, authenticateSameUser } = require("../../middleware/jwt");
 const { MissingField } = require("../../errors");

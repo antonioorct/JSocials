@@ -2,7 +2,7 @@ const { generateToken, authenticateSameUser } = require("../../middleware/jwt");
 const { Router } = require("express");
 const router = Router();
 const { models } = require("../../sequelize");
-const { compare } = require("bcrypt");
+const { compare } = require("bcryptjs");
 const { NotFound, MissingField } = require("../../errors");
 
 router.post("/auth", async function (req, res, next) {
