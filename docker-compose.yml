@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+  database:
+    image: mysql:8.0.25
+    # command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - database:/var/lib/mysql
+  server:
+    build: server
+    volumes:
+      - ./server:/home/node/app
+    network_mode: host
+    environment:
+      DB_DB: database
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+  client:
+    build: client
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+    network_mode: bridge
+    environment:
+      REACT_APP_API_URL: http://localhost:3001/api
+volumes:
+  database:
