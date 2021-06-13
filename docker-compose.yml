@@ -3,7 +3,6 @@ version: "3.7"
 services:
   database:
     image: mysql:8.0.25
-    # command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: database
@@ -24,6 +23,7 @@ services:
       DB_PORT: 3306
       DB_USER: root
       DB_PASS: root
+      JWT_SECRET: secret_key
   client:
     build: client
     ports:
