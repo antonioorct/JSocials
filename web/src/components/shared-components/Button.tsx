@@ -27,7 +27,7 @@ const ButtonContainer = styled.button<ButtonProps>`
 
   &:hover {
     background-color: ${(props) =>
-      theme.components.button[props.color].backgroundHover};
+    theme.components.button[props.color].backgroundHover};
 
     color: ${(props) => theme.components.button[props.color].hover};
   }
