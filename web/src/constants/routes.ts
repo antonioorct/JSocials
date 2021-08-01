@@ -1,5 +1,6 @@
 import { FC } from "react";
 import Login from "../pages/Login";
+import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
 
 export interface IRoute {
@@ -12,6 +13,7 @@ export interface IRoute {
 interface IRoutes {
   notFound: IRoute;
   login: IRoute;
+  register: IRoute;
 }
 
 const routes: IRoutes = {
@@ -19,6 +21,12 @@ const routes: IRoutes = {
     name: "Login",
     href: "/login",
     component: Login,
+    protected: false,
+  },
+  register: {
+    name: "Register",
+    href: "/register",
+    component: Register,
     protected: false,
   },
   notFound: {

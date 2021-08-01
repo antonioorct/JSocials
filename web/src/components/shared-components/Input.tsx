@@ -7,12 +7,16 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
 }
 
+const Container = styled.div`
+  flex-basis: 100%;
+`;
+
 const InputField = styled.input<InputProps>`
   transition: all 0.3s;
 
   width: 100%;
   margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.6rem;
 
   border: none;
   border-bottom: solid 3px ${(props) => props.error && theme.palette.danger};
@@ -27,6 +31,7 @@ const InputField = styled.input<InputProps>`
 
   ${theme.mediaQueries.mobile} {
     padding: 0.25rem;
+    padding-bottom: 0.6rem;
   }
 `;
 
@@ -54,7 +59,7 @@ const Input: FC<InputProps> = ({
   label,
 }: InputProps) => {
   return (
-    <>
+    <Container>
       {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
       <InputField
         className={className}
@@ -65,7 +70,7 @@ const Input: FC<InputProps> = ({
         onChange={onChange}
         error={error}
       />
-    </>
+    </Container>
   );
 };
 
