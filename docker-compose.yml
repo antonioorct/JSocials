@@ -1,38 +1,33 @@
-version: "3.7"
+version: "3.9"
 
 services:
-  database:
-    image: mysql:8.0.25
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+  mysql:
+    image: mysql:5.7
     ports:
-      - 3306:3306
-    volumes:
-      - database:/var/lib/mysql
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    env_file:
+      - ./.env
+
   server:
-    build: server
-    volumes:
-      - ./server:/home/node/app
-    network_mode: host
-    environment:
-      DB_DB: database
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASS: root
-      JWT_SECRET: secret_key
-  client:
-    build: client
+    build: ./server
     ports:
-      - 3000:3000
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    depends_on:
+      - mysql
     volumes:
-      - ./client/src:/app/src
-      - ./client/public:/app/public
-    network_mode: bridge
-    environment:
-      REACT_APP_API_URL: http://localhost:3001/api
-volumes:
-  database:
+      - ./server:/app
+      - /app/node_modules
+    env_file:
+      - ./.env
+
+  web:
+    build: ./web
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - server
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    env_file:
+      - ./.env
