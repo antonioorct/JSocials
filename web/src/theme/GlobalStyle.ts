@@ -34,7 +34,7 @@ const GlobalStyle: GlobalStyleComponent<
     font-family: ${theme.fonts.heading};
   }
 
-  p {
+  p, input, button {
     font-family: ${theme.fonts.default};
   }
 
