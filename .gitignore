@@ -16,7 +16,11 @@ web/coverage
 # production
 web/build
 
+# cache
+.eslintcache
+
 # misc
+server/*.log
 web/.DS_Store
 .env
 .env.local
