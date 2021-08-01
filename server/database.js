@@ -1,4 +1,5 @@
 const { Sequelize } = require("sequelize");
+const logger = require("./logger");
 
 const RETRY_TIMEOUT = 5000;
 
@@ -11,10 +12,11 @@ let retryCounter = 0;
 async function init() {
   try {
     await sequelize.sync({ alter: true });
+    logger.info("Database initialized");
   } catch (err) {
     if (retryCounter < 5) {
-      console.error("Error initializing the database: ", err);
-      console.error(`Retrying in ${RETRY_TIMEOUT / 1000} seconds`);
+      logger.error("Error initializing the database: ", err);
+      logger.error(`Retrying in ${RETRY_TIMEOUT / 1000} seconds`);
 
       retryCounter++;
 
