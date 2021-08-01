@@ -9,6 +9,7 @@ interface IAnchor extends LinkProps {
   newTab?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const StyledAnchor = styled(({ underline, ...props }: IAnchor) => (
   <Link {...props} />
 ))`
@@ -69,8 +70,8 @@ const Anchor: FC<IAnchor> = ({
   underline = false,
   label,
   newTab,
-}: IAnchor) => (
-  <>
+}: IAnchor) =>
+  children ? (
     <StylelessAnchor
       to={to}
       target={newTab ? "_blank" : undefined}
@@ -78,6 +79,7 @@ const Anchor: FC<IAnchor> = ({
     >
       {children}
     </StylelessAnchor>
+  ) : (
     <StyledAnchor
       to={to}
       className={className}
@@ -86,7 +88,6 @@ const Anchor: FC<IAnchor> = ({
     >
       {label}
     </StyledAnchor>
-  </>
-);
+  );
 
 export default Anchor;
