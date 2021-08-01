@@ -175,8 +175,8 @@ const LinkBar = styled.div<{ $topOfPage: boolean }>`
     align-items: start;
     gap: 1rem;
 
-    transition: 0.15s linear transform 0.35s;
-    transform: translateX(-107%);
+    transition: 0.15s linear transform 0.1s;
+    transform: translateX(-100vw);
 
     width: 75vw;
     height: 80vh;
@@ -212,6 +212,14 @@ const ExpandedMobileHeader = styled.div`
   padding: 1rem 0;
   margin: 0 auto;
   width: 90%;
+`;
+
+const ExpandedMobileAnchor = styled(Anchor)`
+  color: ${theme.palette.white};
+
+  &:hover {
+    color: ${theme.palette.white};
+  }
 `;
 
 const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
@@ -262,7 +270,7 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
 
         <MobileBackground $topOfPage={topOfPage}>
           <ExpandedMobileHeader>
-            <Anchor to="/" label="JSocials" />
+            <ExpandedMobileAnchor to="/" label="JSocials" />
 
             <MobileBurger htmlFor="header-toggle" $topOfPage={topOfPage}>
               <div />

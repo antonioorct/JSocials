@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
+  label?: string;
 }
 
 const InputField = styled.input<InputProps>`
@@ -14,8 +15,7 @@ const InputField = styled.input<InputProps>`
   padding-bottom: 0.5rem;
 
   border: none;
-  border-bottom: solid 0.1875rem
-    ${(props) => props.error && theme.palette.danger};
+  border-bottom: solid 3px ${(props) => props.error && theme.palette.danger};
 
   background: none;
 
@@ -30,6 +30,19 @@ const InputField = styled.input<InputProps>`
   }
 `;
 
+const InputLabel = styled.label`
+  display: block;
+  opacity: 0.75;
+
+  margin-bottom: 0.5rem;
+  margin-left: 0.1rem;
+
+  white-space: nowrap;
+
+  font-weight: bold;
+  font-size: 0.9rem;
+`;
+
 const Input: FC<InputProps> = ({
   placeholder,
   name,
@@ -38,17 +51,21 @@ const Input: FC<InputProps> = ({
   type,
   error,
   className,
+  label,
 }: InputProps) => {
   return (
-    <InputField
-      className={className}
-      placeholder={placeholder}
-      name={name}
-      id={id}
-      type={type}
-      onChange={onChange}
-      error={error}
-    />
+    <>
+      {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
+      <InputField
+        className={className}
+        placeholder={placeholder}
+        name={name}
+        id={id}
+        type={type}
+        onChange={onChange}
+        error={error}
+      />
+    </>
   );
 };
 
