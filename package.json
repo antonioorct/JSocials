@@ -7,8 +7,16 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^5.8.2",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "husky": ">=6",
     "lint-staged": ">=10",
     "prettier": "^2.3.2",
@@ -19,7 +27,7 @@
     "*.{js,css,md}": "prettier --write"
   },
   "scripts": {
-    "lint": "eslint --ext .tsx,.js,.ts .",
+    "lint": "eslint --ext .tsx,.js,.ts ./web",
     "prepare": "husky install"
   }
 }
