@@ -7,7 +7,7 @@ const Wrapper = styled.div`
   margin: auto;
 
   ${theme.mediaQueries.mobile} {
-    width: 100%;
+    width: 85%;
   }
 `;
 

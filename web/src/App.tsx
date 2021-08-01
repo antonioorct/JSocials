@@ -3,6 +3,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { FC } from "react";
 import GlobalStyle from "./theme/GlobalStyle";
+import Header from "./components/Header";
 
 const getRoutes = (): React.ReactElement[] =>
   Object.keys(ROUTES).map((key, index) => {
@@ -25,6 +26,7 @@ const App: FC = () => {
     <>
       <GlobalStyle />
       <Router>
+        <Header />
         <Switch>{getRoutes()}</Switch>
       </Router>
     </>
