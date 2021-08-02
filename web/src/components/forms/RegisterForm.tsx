@@ -26,6 +26,11 @@ const ErrorMessage = styled.div`
   }
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const validation = {
   firstName: (firstName: string): string | undefined => {
     return firstName === "" ? "First name is required" : undefined;
@@ -57,11 +62,6 @@ const validation = {
         : undefined;
   },
 };
-
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-`;
 
 const LoginForm: FC<RegisterFormProps> = ({
   handleSubmit,

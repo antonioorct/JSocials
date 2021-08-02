@@ -37,9 +37,12 @@ interface IPalette {
   info: string;
   warning: string;
 
-  black: string;
-  lightBlack: string;
   white: string;
+  darkWhite: string;
+  lightGray: string;
+  darkGray: string;
+  lightBlack: string;
+  black: string;
 }
 
 interface IGlobalStyling {
@@ -88,9 +91,12 @@ const colors: IPalette = {
   info: "#17a2b8",
   warning: "#ffc107",
 
-  black: "#000",
-  lightBlack: "#333",
   white: "#fff",
+  darkWhite: "#ededed",
+  lightGray: "#bbb",
+  darkGray: "#999",
+  lightBlack: "#333",
+  black: "#000",
 };
 
 const fonts: IFonts = {
@@ -109,7 +115,7 @@ export const theme: IDefaultTheme = {
 
   globalStyling: {
     color: colors.black,
-    background: colors.white,
+    background: colors.darkWhite,
 
     fontFamily: "Open sans",
     fontSize: "16px",
