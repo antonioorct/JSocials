@@ -1,17 +1,22 @@
 import { theme } from "../../theme/theme.config";
-import { FC, InputHTMLAttributes } from "react";
-import styled from "styled-components";
+import { FC, InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import styled, { css } from "styled-components";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   label?: string;
+  onChange(
+    e:
+      | InputHTMLAttributes<HTMLInputElement>
+      | TextareaHTMLAttributes<HTMLTextAreaElement>
+  ): void;
 }
 
 const Container = styled.div`
   flex-basis: 100%;
 `;
 
-const InputField = styled.input<InputProps>`
+const InputStyling = css<InputProps>`
   transition: all 0.3s;
 
   width: 100%;
@@ -33,6 +38,14 @@ const InputField = styled.input<InputProps>`
     padding: 0.25rem;
     padding-bottom: 0.6rem;
   }
+`;
+
+const InputField = styled.input<InputProps>`
+  ${InputStyling}
+`;
+
+const TextAreaField = styled.textarea<InputProps>`
+  ${InputStyling}
 `;
 
 const InputLabel = styled.label`
@@ -62,6 +75,32 @@ const Input: FC<InputProps> = ({
     <Container>
       {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
       <InputField
+        className={className}
+        placeholder={placeholder}
+        name={name}
+        id={id}
+        type={type}
+        onChange={onChange}
+        error={error}
+      />
+    </Container>
+  );
+};
+
+export const TextArea: FC<InputProps> = ({
+  placeholder,
+  name,
+  id,
+  onChange,
+  type,
+  error,
+  className,
+  label,
+}: InputProps) => {
+  return (
+    <Container>
+      {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
+      <TextAreaField
         className={className}
         placeholder={placeholder}
         name={name}

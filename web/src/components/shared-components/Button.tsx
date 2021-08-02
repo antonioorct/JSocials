@@ -13,7 +13,7 @@ const ButtonContainer = styled.button<ButtonProps>`
 
   cursor: pointer;
 
-  padding: 0.5rem 1rem;
+  padding: ${(props) => (props.color === "link" ? "0" : "0.5rem 1rem;")};
   border: none;
   border-radius: ${(props) =>
     theme.components.button[props.color].borderRadius};

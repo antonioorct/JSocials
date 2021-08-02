@@ -9,3 +9,9 @@ export interface IRegisterForm extends ILoginForm {
   email: string;
   repeatPassword: string;
 }
+
+export interface INewPostForm {
+  content: string;
+  attachment: string;
+  private: boolean;
+}

@@ -32,11 +32,19 @@ const GlobalStyle: GlobalStyleComponent<
   h3, h4,
   h5, h6 {
     font-family: ${theme.fonts.heading};
-    font-size: 4rem;
     font-weight: normal;
   }
 
-  p, input, button {
+  h1 {
+    font-size: 4rem;
+  }
+
+  h2 {
+    margin: 1rem 0;
+  }
+
+  p, input, button,
+  textarea {
     font-family: ${theme.fonts.default};
   }
 

@@ -2,6 +2,7 @@ import { FC } from "react";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
+import Home from "../pages/Home";
 
 export interface IRoute {
   name: string;
@@ -13,6 +14,7 @@ export interface IRoute {
 interface IRoutes {
   notFound: IRoute;
   login: IRoute;
+  home: IRoute;
   register: IRoute;
 }
 
@@ -27,6 +29,12 @@ const routes: IRoutes = {
     name: "Register",
     href: "/register",
     component: Register,
+    protected: false,
+  },
+  home: {
+    name: "Home",
+    href: "/",
+    component: Home,
     protected: false,
   },
   notFound: {
