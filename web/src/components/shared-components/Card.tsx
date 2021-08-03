@@ -2,7 +2,7 @@ import React, { FC, HTMLAttributes } from "react";
 import styled, { css } from "styled-components";
 import { theme } from "../../theme/theme.config";
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
   active?: boolean;
   disabled?: boolean;
 }

@@ -2,25 +2,14 @@ import { FC } from "react";
 import styled from "styled-components";
 import { IUser } from "../constants/models";
 import { theme } from "../theme/theme.config";
-import { toSentenceCase } from "../utils/stringUtils";
+import { toTitleCase } from "../utils/stringUtils";
 
 interface UserDetailsProps {
   user: IUser;
 }
 
-const AboutContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 85%;
-  margin: 0 auto;
-
-  & h2 {
-    margin-top: 0;
-  }
-
-  ${theme.mediaQueries.mobile} {
-    width: 100%;
-  }
+const Title = styled.h2`
+  margin-top: 0;
 `;
 
 const BioContainer = styled.div`
@@ -69,7 +58,7 @@ const UserDetails: FC<UserDetailsProps> = ({ user }: UserDetailsProps) => {
     for (const [key, value] of Object.entries(user.details)) {
       arr.push(
         <div key={key}>
-          <strong>{toSentenceCase(key)}</strong>
+          <strong>{toTitleCase(key)}</strong>
           <hr />
           <div>{value}</div>
         </div>
@@ -80,14 +69,14 @@ const UserDetails: FC<UserDetailsProps> = ({ user }: UserDetailsProps) => {
   };
 
   return (
-    <AboutContainer>
-      <h2>Bio</h2>
+    <>
+      <Title>Bio</Title>
       <BioContainer>
         {user.bio ? user.bio : "There's nothing here..."}
       </BioContainer>
 
       <DetailsContainer>{getUserDetails()}</DetailsContainer>
-    </AboutContainer>
+    </>
   );
 };
 

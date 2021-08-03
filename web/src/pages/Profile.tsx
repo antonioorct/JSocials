@@ -8,7 +8,7 @@ import Post from "../components/Post";
 import PostList from "../components/PostList";
 import Button from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
-import { SideTab, SideTabs } from "../components/shared-components/Tabs";
+import Tabs, { Tab } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
 import { IPost, seedPosts, seedUsers } from "../constants/models";
 import { theme } from "../theme/theme.config";
@@ -57,7 +57,7 @@ const PageContainer = styled.div`
 `;
 
 const Profile: FC = () => {
-  const [posts, setPosts] = useState(seedPosts);
+  const [posts] = useState(seedPosts);
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
 
   const handleClickOpenModal = (post: IPost) => setPostModal(post);
@@ -90,14 +90,15 @@ const Profile: FC = () => {
           <Button label="Message" color="primary" />
         </ButtonContainer>
       </Container>
+
       <Divider />
 
-      <SideTabs>
-        <SideTab eventkey="About">
+      <Tabs>
+        <Tab eventkey="About">
           <UserDetails user={posts[0].user} />
-        </SideTab>
+        </Tab>
 
-        <SideTab eventkey="Posts">
+        <Tab eventkey="Posts">
           <PostList
             posts={posts}
             onClickLike={handleClickLike}
@@ -106,21 +107,21 @@ const Profile: FC = () => {
             onClickPost={handleClickOpenModal}
             onReply={handleReply}
           />
-        </SideTab>
+        </Tab>
 
-        <SideTab eventkey="Photos">
+        <Tab eventkey="Photos">
           <ImageList
             posts={[posts[0], posts[0], posts[0], posts[0]]}
             onClickImage={handleClickOpenModal}
           />
-        </SideTab>
+        </Tab>
 
-        <SideTab eventkey="Friends">
+        <Tab eventkey="Friends">
           <FriendList
             users={[...seedUsers, ...seedUsers, ...seedUsers, seedUsers[0]]}
           />
-        </SideTab>
-      </SideTabs>
+        </Tab>
+      </Tabs>
     </PageContainer>
   );
 };

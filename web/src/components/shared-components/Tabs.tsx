@@ -1,9 +1,9 @@
 import {
   Children,
+  FC,
   HTMLAttributes,
   isValidElement,
   MouseEvent,
-  ReactElement,
   ReactNode,
   useState,
 } from "react";
@@ -12,18 +12,14 @@ import { theme } from "../../theme/theme.config";
 import Card from "./Card";
 import Container from "./Container";
 
-export interface TabsProps {
-  activeKey?: string | null;
+interface TabsProps extends HTMLAttributes<HTMLDivElement> {
+  activeKey?: string;
   defaultActiveKey?: string;
 
   onChangeTab?(newActiveKey: string): void;
-
-  children: ReactNode;
-
-  inactive?: boolean;
 }
 
-export interface SideTabProps extends HTMLAttributes<HTMLDivElement> {
+interface TabProps extends HTMLAttributes<HTMLDivElement> {
   eventkey: string;
 }
 
@@ -87,13 +83,12 @@ const SideTabContent = styled.div`
   }
 `;
 
-export function SideTabs({
-  inactive,
+const Tabs: FC<TabsProps> = ({
   activeKey: userActiveKey,
   onChangeTab,
   children,
   defaultActiveKey,
-}: TabsProps): ReactElement {
+}: TabsProps) => {
   const [activeKey, setActiveKey] = useState(
     getDefaultActiveKey(children, defaultActiveKey)
   );
@@ -112,9 +107,7 @@ export function SideTabs({
       (child: ReactNode) =>
         isValidElement(child) && (
           <Card
-            active={
-              !inactive && child.props.eventkey === (userActiveKey || activeKey)
-            }
+            active={child.props.eventkey === (userActiveKey || activeKey)}
             onClick={(e: MouseEvent) => {
               e.currentTarget.scrollIntoView({
                 behavior: "smooth",
@@ -148,8 +141,10 @@ export function SideTabs({
       {renderTabContent()}
     </SideTabContainer>
   );
-}
+};
 
-export function SideTab(props: SideTabProps): ReactElement {
+export const Tab: FC<TabProps> = (props: TabProps) => {
   return <Card {...props} />;
-}
+};
+
+export default Tabs;

@@ -15,7 +15,6 @@ const Container = styled.div`
   gap: 0.5rem;
 
   & > * {
-    flex-grow: 0;
     flex-basis: calc(33.33% - 0.5rem);
 
     max-width: calc(33.33% - 0.5rem);

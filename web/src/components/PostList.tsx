@@ -1,9 +1,9 @@
-import { FC, HTMLAttributes } from "react";
+import { FC } from "react";
 import styled from "styled-components";
 import { IPost } from "../constants/models";
 import Post from "./Post";
 
-interface PostListProps extends HTMLAttributes<HTMLDivElement> {
+interface PostListProps {
   posts: IPost[];
 
   onClickLike(post: IPost): void;
@@ -28,10 +28,9 @@ const PostList: FC<PostListProps> = ({
   onClickDelete,
   onClickPost,
   onReply,
-  className,
 }: PostListProps) => {
   return (
-    <Container className={className}>
+    <Container>
       {posts.map((post, index) => (
         <Post
           post={post}
