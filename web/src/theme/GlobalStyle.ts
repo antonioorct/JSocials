@@ -37,6 +37,10 @@ const GlobalStyle: GlobalStyleComponent<
 
   h1 {
     font-size: 4rem;
+
+    ${theme.mediaQueries.mobile}{ 
+      font-size: 3rem;
+    }
   }
 
   h2 {
