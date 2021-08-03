@@ -1,12 +1,16 @@
 import { FC, useState } from "react";
 import styled from "styled-components";
 import Author from "../components/Author";
+import FriendList from "../components/FriendList";
+import ImageList from "../components/ImageList";
+import Modal from "../components/Modal";
+import Post from "../components/Post";
 import PostList from "../components/PostList";
 import Button from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import { SideTab, SideTabs } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
-import { seedPosts } from "../constants/models";
+import { IPost, seedPosts, seedUsers } from "../constants/models";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -48,11 +52,36 @@ const Divider = styled.hr`
   width: min(105rem, 95%);
 `;
 
+const PageContainer = styled.div`
+  margin-bottom: 4rem;
+`;
+
 const Profile: FC = () => {
   const [posts, setPosts] = useState(seedPosts);
+  const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
+
+  const handleClickOpenModal = (post: IPost) => setPostModal(post);
+  const handleClickCloseModal = () => setPostModal(undefined);
+
+  const handleClickLike = (post: IPost) => {};
+  const handleClickUnlike = (post: IPost) => {};
+  const handleClickDelete = (post: IPost) => {};
+
+  const handleReply = (post: IPost, content: string) => {};
 
   return (
-    <>
+    <PageContainer>
+      <Modal
+        show={postModal !== undefined}
+        component={Post}
+        post={postModal}
+        onClickCancel={handleClickCloseModal}
+        onClickDelete={handleClickDelete}
+        onClickLike={handleClickLike}
+        onClickUnlike={handleClickUnlike}
+        onReply={handleReply}
+      />
+
       <Container>
         <Author user={posts[0].user} big />
 
@@ -67,19 +96,32 @@ const Profile: FC = () => {
         <SideTab eventkey="About">
           <UserDetails user={posts[0].user} />
         </SideTab>
+
         <SideTab eventkey="Posts">
           <PostList
             posts={posts}
-            onClickLike={() => {
-              setPosts(posts);
-            }}
-            onClickUnlike={() => {}}
-            onClickDelete={() => {}}
+            onClickLike={handleClickLike}
+            onClickUnlike={handleClickUnlike}
+            onClickDelete={handleClickDelete}
+            onClickPost={handleClickOpenModal}
+            onReply={handleReply}
           />
         </SideTab>
-        <SideTab eventkey="Photos"></SideTab>
+
+        <SideTab eventkey="Photos">
+          <ImageList
+            posts={[posts[0], posts[0], posts[0], posts[0]]}
+            onClickImage={handleClickOpenModal}
+          />
+        </SideTab>
+
+        <SideTab eventkey="Friends">
+          <FriendList
+            users={[...seedUsers, ...seedUsers, ...seedUsers, seedUsers[0]]}
+          />
+        </SideTab>
       </SideTabs>
-    </>
+    </PageContainer>
   );
 };
 

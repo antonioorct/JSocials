@@ -68,7 +68,7 @@ const UserDetails: FC<UserDetailsProps> = ({ user }: UserDetailsProps) => {
 
     for (const [key, value] of Object.entries(user.details)) {
       arr.push(
-        <div>
+        <div key={key}>
           <strong>{toSentenceCase(key)}</strong>
           <hr />
           <div>{value}</div>

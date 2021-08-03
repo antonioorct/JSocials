@@ -60,6 +60,7 @@ const Home: FC = () => {
   return (
     <>
       <Modal
+        show={postModal !== undefined}
         component={Post}
         post={postModal}
         onClickCancel={handleClickCloseModal}
@@ -67,7 +68,6 @@ const Home: FC = () => {
         onClickLike={handleClickLike}
         onClickUnlike={handleClickUnlike}
         onReply={handleReply}
-        show={postModal !== undefined}
       />
 
       <Container>
