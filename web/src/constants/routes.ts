@@ -4,6 +4,7 @@ import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
 import Home from "../pages/Home";
 import Profile from "../pages/Profile";
+import Friends from "../pages/Friends";
 
 export interface IRoute {
   name: string;
@@ -14,6 +15,7 @@ export interface IRoute {
 
 interface IRoutes {
   notFound: IRoute;
+  friends: IRoute;
   login: IRoute;
   home: IRoute;
   profile: IRoute;
@@ -43,6 +45,12 @@ const routes: IRoutes = {
     name: "Home",
     href: "/",
     component: Home,
+    protected: true,
+  },
+  friends: {
+    name: "Friends",
+    href: "/friends",
+    component: Friends,
     protected: true,
   },
   notFound: {
