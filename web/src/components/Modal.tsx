@@ -18,6 +18,7 @@ const Container = styled.div`
   position: fixed;
 
   overflow: auto;
+  z-index: 10000;
 
   width: 100vw;
   height: 100vh;
@@ -49,11 +50,8 @@ const Modal: FC<ModalProps> = ({
   show,
   ...props
 }: ModalProps) => {
-  const handleClickBackground = (e: MouseEvent) => {
-    if (e.currentTarget !== e.target) return;
-
-    onClickCancel && onClickCancel();
-  };
+  const handleClickBackground = (e: MouseEvent) =>
+    e.currentTarget !== e.target && onClickCancel && onClickCancel();
 
   return show ? (
     <Container onClick={handleClickBackground}>
