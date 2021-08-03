@@ -5,13 +5,15 @@ import ContainerComponent from "../components/shared-components/Container";
 import { seedUsers } from "../constants/models";
 
 const Container = styled(ContainerComponent)`
-  padding: 7rem 0 3rem;
+  padding: 3rem 0;
   box-sizing: border-box;
 `;
 
 const Friends: FC = () => {
   return (
     <Container>
+      <h1>Friends</h1>
+
       <FriendList users={seedUsers} />
     </Container>
   );

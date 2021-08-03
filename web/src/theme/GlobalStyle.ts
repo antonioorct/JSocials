@@ -45,6 +45,7 @@ const GlobalStyle: GlobalStyleComponent<
 
   h2 {
     margin: 1rem 0;
+    font-size: 2.5rem;
   }
 
   p, input, button,
