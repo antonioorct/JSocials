@@ -118,7 +118,7 @@ const Tabs: FC<TabsProps> = ({
               handleClickTabButton(child);
             }}
           >
-            <h2>{child.props.eventkey}</h2>
+            <h3>{child.props.eventkey}</h3>
           </Card>
         )
     );

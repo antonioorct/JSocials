@@ -3,10 +3,13 @@ import styled from "styled-components";
 import { IUser } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import Author from "./Author";
-import Anchor from "./shared-components/Anchor";
 
 interface FriendListProps {
   users: IUser[];
+
+  onCancelRequest?(user: IUser): void;
+  onAcceptRequest?(user: IUser): void;
+  onDeclineRequest?(user: IUser): void;
 }
 
 const Container = styled.div`
@@ -39,27 +42,30 @@ const AuthorCard = styled(Author)`
 
   cursor: pointer;
 
-  transition: ease-in-out 0.1s;
-
   background-color: ${theme.palette.white};
 
   &:hover {
     border: 1px solid ${theme.palette.darkGray};
     background-color: ${theme.palette.darkWhite};
   }
-
-  &:active {
-    transform: translate(2px, 2px);
-  }
 `;
 
-const FriendList: FC<FriendListProps> = ({ users }: FriendListProps) => {
+const FriendList: FC<FriendListProps> = ({
+  users,
+  onAcceptRequest,
+  onDeclineRequest,
+  onCancelRequest,
+}: FriendListProps) => {
   return (
     <Container>
       {users.map((user) => (
-        <Anchor to={`/user/${user.id}`} key={user.id}>
-          <AuthorCard user={user} />
-        </Anchor>
+        <AuthorCard
+          key={user.id}
+          user={user}
+          onAcceptRequest={onAcceptRequest}
+          onDeclineRequest={onDeclineRequest}
+          onCancelRequest={onCancelRequest}
+        />
       ))}
     </Container>
   );

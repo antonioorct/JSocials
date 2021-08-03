@@ -8,7 +8,8 @@ interface UserDetailsProps {
   user: IUser;
 }
 
-const Title = styled.h2`
+const Title = styled.p`
+  font-weight: bold;
   margin-top: 0;
 `;
 
