@@ -13,12 +13,12 @@ const Container = styled(ContainerComponent)`
 
   & > div {
     display: flex;
-    height: calc(${window.innerHeight}px - 70px);
-  }
 
-  ${theme.mediaQueries.mobile} {
-    & > div {
+    height: calc(${window.innerHeight}px - 70px);
+
+    ${theme.mediaQueries.mobile} {
       flex-direction: column;
+
       width: 100%;
     }
   }
@@ -26,15 +26,22 @@ const Container = styled(ContainerComponent)`
 
 const UsersContainer = styled.div`
   flex-basis: 30%;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  display: flex;
+
   box-sizing: border-box;
-  padding: 1rem;
+  padding: 1rem 1rem 0;
   border-right: 1px solid ${theme.palette.darkGray};
 
-  overflow: auto;
+  & > * {
+    flex-basis: auto;
+  }
 
   ${theme.mediaQueries.mobile} {
-    overflow: unset;
     flex-basis: unset;
+
     padding: 0;
     margin-bottom: 1rem;
   }
@@ -43,17 +50,21 @@ const UsersContainer = styled.div`
 const UserQueryInput = styled(Input)`
   ${theme.mediaQueries.mobile} {
     display: block;
+
     width: 90%;
     margin: 0 auto 1rem;
   }
 `;
 
 const UserList = styled(FriendList)`
+  overflow: auto;
+  padding-bottom: 1rem;
+
   ${theme.mediaQueries.mobile} {
     flex-direction: row;
     flex-wrap: nowrap;
-    overflow-x: auto;
-    padding: 0 1rem;
+
+    padding: 0 1rem 1rem;
 
     & > * {
       flex: 0 0 45% !important;
@@ -66,12 +77,14 @@ const ChatContainer = styled.div`
   flex-direction: column;
 
   display: flex;
+
   padding-bottom: 0.5rem;
   box-sizing: border-box;
 
   ${theme.mediaQueries.mobile} {
-    overflow: hidden;
     flex-basis: unset;
+
+    overflow: hidden;
   }
 `;
 
@@ -131,8 +144,8 @@ const Messenger: FC = () => {
         />
         <UserList
           users={getFilteredUsers()}
-          fullWidth
           onClickUser={handleClickUser}
+          fullWidth
         />
       </UsersContainer>
 
