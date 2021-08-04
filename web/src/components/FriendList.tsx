@@ -7,20 +7,24 @@ import Author from "./Author";
 interface FriendListProps {
   users: IUser[];
 
+  fullWidth?: boolean;
+
   onCancelRequest?(user: IUser): void;
   onAcceptRequest?(user: IUser): void;
   onDeclineRequest?(user: IUser): void;
 }
 
-const Container = styled.div`
+const Container = styled.div<{ fullWidth: boolean }>`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 
   & > * {
-    flex-basis: calc(33.33% - 0.5rem);
+    flex-basis: ${(props) =>
+      props.fullWidth ? "100%" : "calc(33.33% - 0.5rem)"};
 
-    max-width: calc(33.33% - 0.5rem);
+    max-width: ${(props) =>
+      props.fullWidth ? "100%" : "calc(33.33% - 0.5rem)"};
 
     cursor: pointer;
   }
@@ -52,12 +56,13 @@ const AuthorCard = styled(Author)`
 
 const FriendList: FC<FriendListProps> = ({
   users,
+  fullWidth,
   onAcceptRequest,
   onDeclineRequest,
   onCancelRequest,
 }: FriendListProps) => {
   return (
-    <Container>
+    <Container fullWidth={fullWidth !== undefined}>
       {users.map((user) => (
         <AuthorCard
           key={user.id}
