@@ -1,26 +1,31 @@
-import { FC } from "react";
+import { FC, HTMLAttributes } from "react";
 import styled from "styled-components";
 import { IUser } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import Author from "./Author";
 
-interface FriendListProps {
+interface FriendListProps extends HTMLAttributes<HTMLDivElement> {
   users: IUser[];
+
+  fullWidth?: boolean;
 
   onCancelRequest?(user: IUser): void;
   onAcceptRequest?(user: IUser): void;
   onDeclineRequest?(user: IUser): void;
+  onClickUser?(user: IUser): void;
 }
 
-const Container = styled.div`
+const Container = styled.div<{ fullWidth: boolean }>`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 
   & > * {
-    flex-basis: calc(33.33% - 0.5rem);
+    flex-basis: ${(props) =>
+      props.fullWidth ? "100% !important" : "calc(33.33% - 0.5rem)"};
 
-    max-width: calc(33.33% - 0.5rem);
+    max-width: ${(props) =>
+      props.fullWidth ? "100% !important" : "calc(33.33% - 0.5rem)"};
 
     cursor: pointer;
   }
@@ -52,12 +57,15 @@ const AuthorCard = styled(Author)`
 
 const FriendList: FC<FriendListProps> = ({
   users,
+  fullWidth,
   onAcceptRequest,
   onDeclineRequest,
   onCancelRequest,
+  onClickUser,
+  className,
 }: FriendListProps) => {
   return (
-    <Container>
+    <Container fullWidth={fullWidth !== undefined} className={className}>
       {users.map((user) => (
         <AuthorCard
           key={user.id}
@@ -65,6 +73,7 @@ const FriendList: FC<FriendListProps> = ({
           onAcceptRequest={onAcceptRequest}
           onDeclineRequest={onDeclineRequest}
           onCancelRequest={onCancelRequest}
+          onClickUser={onClickUser}
         />
       ))}
     </Container>

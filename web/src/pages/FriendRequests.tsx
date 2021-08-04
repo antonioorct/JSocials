@@ -16,17 +16,6 @@ const Title = styled.h1`
 const FriendRequestsContainer = styled.div`
   display: flex;
   gap: 3rem;
-
-  & > div {
-    flex-basis: 100%;
-
-    & > div {
-      & > div {
-        max-width: unset;
-        flex-basis: 100% !important;
-      }
-    }
-  }
 `;
 
 const FriendRequests: FC = () => {
@@ -46,12 +35,17 @@ const FriendRequests: FC = () => {
             users={seedUsers}
             onAcceptRequest={handleAcceptRequest}
             onDeclineRequest={handleDeclineRequest}
+            fullWidth
           />
         </div>
 
         <div>
           <h2>Outgoing</h2>
-          <FriendList users={seedUsers} onCancelRequest={handleCancelRequest} />
+          <FriendList
+            users={seedUsers}
+            onCancelRequest={handleCancelRequest}
+            fullWidth
+          />
         </div>
       </FriendRequestsContainer>
     </Container>

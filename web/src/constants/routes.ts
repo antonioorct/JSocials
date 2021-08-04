@@ -6,6 +6,7 @@ import Home from "../pages/Home";
 import Profile from "../pages/Profile";
 import Friends from "../pages/Friends";
 import FriendRequests from "../pages/FriendRequests";
+import Messenger from "../pages/Messenger";
 
 export interface IRoute {
   name: string;
@@ -22,6 +23,7 @@ interface IRoutes {
   home: IRoute;
   profile: IRoute;
   register: IRoute;
+  messenger: IRoute;
 }
 
 const routes: IRoutes = {
@@ -36,6 +38,12 @@ const routes: IRoutes = {
     href: "/register",
     component: Register,
     protected: false,
+  },
+  messenger: {
+    name: "Messenger",
+    href: "/messenger",
+    component: Messenger,
+    protected: true,
   },
   profile: {
     name: "Profile",

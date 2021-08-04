@@ -27,6 +27,13 @@ interface IUserDetails {
   phone?: string;
 }
 
+export interface IMessage {
+  id: number;
+  content: string;
+  user: IUser;
+  sentAt?: Date;
+}
+
 export const seedUsers: IUser[] = [
   {
     id: 1,
@@ -82,4 +89,28 @@ export const seedPosts: IPost[] = [
     comments: [],
     likes: 9,
   },
+];
+
+export const seedMessages = [
+  { id: 1, content: "First", user: seedUsers[0] },
+  { id: 2, content: "Second", user: seedUsers[1] },
+  { id: 3, content: "Third", user: seedUsers[0] },
+  {
+    id: 4,
+    content:
+      "This is a really long message to test how it will flex and maybe go to other row",
+    user: seedUsers[0],
+  },
+  { id: 5, content: "Third", user: seedUsers[0] },
+  { id: 6, content: "Third", user: seedUsers[0] },
+  { id: 7, content: "Third", user: seedUsers[0] },
+  { id: 8, content: "Third", user: seedUsers[0] },
+  { id: 9, content: "Third", user: seedUsers[0] },
+  { id: 10, content: "Third", user: seedUsers[0] },
+  { id: 11, content: "Third", user: seedUsers[0] },
+  { id: 12, content: "Third", user: seedUsers[0] },
+  { id: 13, content: "Third", user: seedUsers[0] },
+  { id: 14, content: "Third", user: seedUsers[0] },
+  { id: 15, content: "Third", user: seedUsers[0] },
+  { id: 16, content: "Third", user: seedUsers[0] },
 ];

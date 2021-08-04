@@ -37,9 +37,10 @@ const Badge: FC<BadgeProps> = ({
   children,
   content,
   className,
+  onClick,
 }: BadgeProps) => {
   return (
-    <BadgeContainer className={className}>
+    <BadgeContainer className={className} onClick={onClick}>
       {children}
       <Circle>{content}</Circle>
     </BadgeContainer>

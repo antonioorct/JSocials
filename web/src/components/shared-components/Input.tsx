@@ -21,6 +21,7 @@ const InputStyling = css<InputProps>`
 
   width: 100%;
   margin-bottom: 1.5rem;
+  padding: 0;
   padding-bottom: 0.6rem;
 
   border: none;
@@ -32,11 +33,6 @@ const InputStyling = css<InputProps>`
 
   &:focus {
     outline: none;
-  }
-
-  ${theme.mediaQueries.mobile} {
-    padding: 0.25rem;
-    padding-bottom: 0.6rem;
   }
 `;
 
@@ -70,11 +66,13 @@ const Input: FC<InputProps> = ({
   error,
   className,
   label,
+  value,
 }: InputProps) => {
   return (
     <Container>
       {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
       <InputField
+        value={value}
         className={className}
         placeholder={placeholder}
         name={name}
