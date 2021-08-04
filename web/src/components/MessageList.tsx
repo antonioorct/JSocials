@@ -19,12 +19,13 @@ const Container = styled.div`
   gap: 0.4rem;
 
   display: flex;
+
+  overflow: auto;
+
   height: 100%;
   box-sizing: border-box;
   padding: 0 0.5rem 0.8rem;
   margin-top: 0.8rem;
-
-  overflow: auto;
 
   color: ${theme.palette.white};
 `;
@@ -33,11 +34,13 @@ const ScrollButton = styled(Badge)`
   position: absolute;
   right: 7rem;
   bottom: 4.5rem;
+
   cursor: pointer;
 
   & > div {
-    font-size: 1.3rem;
     padding: 1rem;
+
+    font-size: 1.3rem;
   }
 
   ${theme.mediaQueries.mobile} {
@@ -47,13 +50,16 @@ const ScrollButton = styled(Badge)`
 `;
 
 const Header = styled.div`
-  background-color: ${theme.palette.white};
-  display: flex;
   justify-content: center;
-  padding: 0.7rem 0;
+
+  display: flex;
+
   width: 95%;
+  padding: 0.7rem 0;
   margin: 0 auto;
   border-radius: 0 0 0.5rem 0.5rem;
+
+  background-color: ${theme.palette.white};
 `;
 
 const MessageList: FC<MessageListProps> = ({ user, messages, onScrollTop }) => {
@@ -66,9 +72,10 @@ const MessageList: FC<MessageListProps> = ({ user, messages, onScrollTop }) => {
     });
 
   useEffect(() => {
+    // addEventListener is used because without it, the scrollToBottom
+    // function is executed before all the children are rendered so the
+    // element scrolls only part of the way
     window.addEventListener("load", scrollToBottom);
-
-    scrollToBottom();
   }, []);
 
   useEffect(scrollToBottom, [messages]);
