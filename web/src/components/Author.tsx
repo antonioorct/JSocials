@@ -13,6 +13,7 @@ interface AuthorProps extends HTMLAttributes<HTMLDivElement> {
   onCancelRequest?(user: IUser): void;
   onAcceptRequest?(user: IUser): void;
   onDeclineRequest?(user: IUser): void;
+  onClickUser?(user: IUser): void;
 }
 
 const Container = styled.div<{ big?: boolean }>`
@@ -61,28 +62,40 @@ const Author: FC<AuthorProps> = ({
   onCancelRequest,
   onAcceptRequest,
   onDeclineRequest,
+  onClickUser,
 }: AuthorProps) => {
   const handleCancelRequest = () => onCancelRequest && onCancelRequest(user);
 
   const handleDeclineRequest = () => onDeclineRequest && onDeclineRequest(user);
   const handleAcceptRequest = () => onAcceptRequest && onAcceptRequest(user);
+  const handleClickUser = () => onClickUser && onClickUser(user);
+
+  const renderAuthor = () => {
+    const authorComponent = (
+      <Container big={big}>
+        <AuthorImage src={user.image} alt="" big={big} />
+        {big ? (
+          <BigAuthorName>
+            {user.firstName} {user.lastName}
+          </BigAuthorName>
+        ) : (
+          <AuthorName>
+            {user.firstName} {user.lastName}
+          </AuthorName>
+        )}
+      </Container>
+    );
+
+    return onClickUser ? (
+      authorComponent
+    ) : (
+      <Anchor to={`/user/${user.id}`}>{authorComponent}</Anchor>
+    );
+  };
 
   return (
-    <OuterContainer className={className}>
-      <Anchor to={`/user/${user.id}`}>
-        <Container big={big}>
-          <AuthorImage src={user.image} alt="" big={big} />
-          {big ? (
-            <BigAuthorName>
-              {user.firstName} {user.lastName}
-            </BigAuthorName>
-          ) : (
-            <AuthorName>
-              {user.firstName} {user.lastName}
-            </AuthorName>
-          )}
-        </Container>
-      </Anchor>
+    <OuterContainer className={className} onClick={handleClickUser}>
+      {renderAuthor()}
 
       {(onAcceptRequest || onDeclineRequest || onCancelRequest) && (
         <ButtonContainer>

@@ -24,8 +24,16 @@ const Container = styled.div<{ alignment: Alignment }>`
   border-radius: 0.5rem;
 `;
 
-const Message: FC<MessageProps> = ({ alignment, content }: MessageProps) => {
-  return <Container alignment={alignment}>{content}</Container>;
+const Message: FC<MessageProps> = ({
+  alignment,
+  content,
+  onLoad,
+}: MessageProps) => {
+  return (
+    <Container alignment={alignment} onLoad={onLoad}>
+      {content}
+    </Container>
+  );
 };
 
 export default Message;

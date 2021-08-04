@@ -101,7 +101,7 @@ const MobileBackground = styled.div<{ $topOfPage: boolean }>`
 
   ${theme.mediaQueries.mobile} {
     display: block;
-    z-index: 251;
+    z-index: 50000;
     position: absolute;
     top: 0;
     right: 0;
@@ -132,7 +132,7 @@ const Burger = styled.label<{ $topOfPage: boolean }>`
       width: 1.55rem;
       height: 0.16rem;
       background: ${(props) =>
-    props.$topOfPage ? theme.palette.white : theme.palette.primary};
+        props.$topOfPage ? theme.palette.white : theme.palette.primary};
       border-radius: 0.7rem;
       transition: transform 0.3s linear, width 0.3s linear;
       transform-origin: 1px;
@@ -166,7 +166,7 @@ const LinkBar = styled.div<{ $topOfPage: boolean }>`
   }
 
   ${theme.mediaQueries.mobile} {
-    z-index: 252;
+    z-index: 50001;
     pointer-events: none;
     position: fixed;
     top: 7rem;

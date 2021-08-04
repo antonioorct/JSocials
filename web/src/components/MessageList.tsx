@@ -1,77 +1,110 @@
 import { FC, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { IMessage } from "../constants/models";
+import { IMessage, IUser } from "../constants/models";
 import Message from "../Message";
-import Button from "./shared-components/Button";
+import { theme } from "../theme/theme.config";
+import Author from "./Author";
+import Badge from "./shared-components/Badge";
 
 interface MessageListProps {
   messages: IMessage[];
+  user: IUser;
+
+  onScrollTop(): void;
 }
 
 const Container = styled.div`
-  height: 100%;
-  display: flex;
+  position: relative;
   flex-direction: column;
   gap: 0.4rem;
-  padding: 0 0.5rem;
+
+  display: flex;
+  height: 100%;
   box-sizing: border-box;
+  padding: 0 0.5rem 0.8rem;
+  margin-top: 0.8rem;
 
   overflow: auto;
+
+  color: ${theme.palette.white};
 `;
 
-const ScrollButton = styled(Button)`
+const ScrollButton = styled(Badge)`
   position: absolute;
-  right: 5rem;
-  bottom: 3.5rem;
+  right: 7rem;
+  bottom: 4.5rem;
+  cursor: pointer;
+
+  & > div {
+    font-size: 1.3rem;
+    padding: 1rem;
+  }
+
+  ${theme.mediaQueries.mobile} {
+    right: 1.5rem;
+    bottom: 4rem;
+  }
 `;
 
-const MessageList: FC<MessageListProps> = ({ messages }) => {
+const Header = styled.div`
+  background-color: ${theme.palette.white};
+  display: flex;
+  justify-content: center;
+  padding: 0.7rem 0;
+  width: 95%;
+  margin: 0 auto;
+  border-radius: 0 0 0.5rem 0.5rem;
+`;
+
+const MessageList: FC<MessageListProps> = ({ user, messages, onScrollTop }) => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messageContainer = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log("scrollTop: " + messageContainer.current?.scrollTop);
-    console.log("scrollHeight: " + messageContainer.current?.scrollHeight);
-    console.log("clientHeight: " + messageContainer.current?.clientHeight);
-    if (messageContainer.current)
-      messageContainer.current.scrollTop =
-        messageContainer.current.scrollHeight;
-  }, [messages]);
+  const scrollToBottom = () =>
+    messageContainer.current?.scrollTo({
+      top: messageContainer.current?.scrollHeight,
+    });
 
-  const handleClickScrollButton = () => {
-    if (messageContainer.current)
-      messageContainer.current.scrollTop =
-        messageContainer.current.scrollHeight;
-  };
+  useEffect(() => {
+    window.addEventListener("load", scrollToBottom);
+
+    scrollToBottom();
+  }, []);
+
+  useEffect(scrollToBottom, [messages]);
 
   const handleScroll = () => {
-    console.log("scrollTop: " + messageContainer.current?.scrollTop);
-    console.log("scrollHeight: " + messageContainer.current?.scrollHeight);
-    console.log("clientHeight: " + messageContainer.current?.clientHeight);
+    const el = messageContainer.current;
 
-    if (messageContainer.current) setShowScrollButton(true);
+    if (!el) return;
+    const isOnBottom = el.scrollHeight - el.offsetHeight !== el.scrollTop;
+    const isOnTop = el.scrollTop === 0;
+
+    setShowScrollButton(isOnBottom);
+
+    isOnTop && onScrollTop();
   };
 
   return (
     <>
-      <Container ref={messageContainer} onScroll={handleScroll}>
-        {messages.map((message) => (
-          <Message
-            key={message.id}
-            alignment={message.user.id === 1 ? "left" : "right"}
-            content={message.content}
-          />
-        ))}
+      <Header>
+        <Author user={user} />
+      </Header>
+
+      <Container onScroll={handleScroll} ref={messageContainer}>
+        {messages.map((message) => {
+          return (
+            <Message
+              key={message.id}
+              alignment={message.user.id === 1 ? "left" : "right"}
+              content={message.content}
+            />
+          );
+        })}
       </Container>
 
-      {showScrollButton ? (
-        <ScrollButton
-          onClick={handleClickScrollButton}
-          label="Scroll"
-          color="primary"
-        />
-      ) : (
-        <div />
+      {showScrollButton && (
+        <ScrollButton onClick={scrollToBottom} content="v" />
       )}
     </>
   );
