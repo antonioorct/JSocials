@@ -16,6 +16,10 @@ const Title = styled.h1`
 const FriendRequestsContainer = styled.div`
   display: flex;
   gap: 3rem;
+
+  & > * {
+    flex-grow: 1;
+  }
 `;
 
 const FriendRequests: FC = () => {

@@ -51,7 +51,7 @@ const Modal: FC<ModalProps> = ({
   ...props
 }: ModalProps) => {
   const handleClickBackground = (e: MouseEvent) =>
-    e.currentTarget !== e.target && onClickCancel && onClickCancel();
+    e.currentTarget === e.target && onClickCancel && onClickCancel();
 
   return show ? (
     <Container onClick={handleClickBackground}>
