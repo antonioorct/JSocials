@@ -1,6 +1,9 @@
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import routes from "../constants/routes";
 import { theme } from "../theme/theme.config";
+import LocalStorage from "../utils/LocalStorage";
 import Anchor from "./shared-components/Anchor";
 import Badge from "./shared-components/Badge";
 import Button from "./shared-components/Button";
@@ -229,6 +232,8 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
     transparent ? window.scrollY === 0 : false
   );
 
+  const history = useHistory();
+
   const handleScroll = useCallback(() => {
     // Remove bg from header if scroll is on top of page
     // And transparent prop is set to true
@@ -252,6 +257,12 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [handleScroll]);
+
+  const handleClickLogout = () => {
+    LocalStorage.removeUserToken();
+
+    history.push(routes.login.href);
+  };
 
   return (
     <Container $hide={hide} $topOfPage={topOfPage}>
@@ -287,7 +298,7 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
             <Anchor to="/friend-requests" label="Friend Requests" underline />
           </Badge>
           <Anchor to="/profile" label="Profile" underline />
-          <Button label="Log out" color="primary" />
+          <Button label="Log out" color="primary" onClick={handleClickLogout} />
         </LinkBar>
 
         <Burger htmlFor="header-toggle" $topOfPage={topOfPage}>
