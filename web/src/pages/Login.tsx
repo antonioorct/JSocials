@@ -4,6 +4,11 @@ import LoginFormComponent from "../components/forms/LoginForm";
 import { ILoginForm } from "../constants/formTypes";
 import ContainerComponent from "../components/shared-components/Container";
 import { theme } from "../theme/theme.config";
+import LocalStorage from "../utils/LocalStorage";
+import { sendLoginInfo } from "../services/authServices";
+import { useHistory } from "react-router-dom";
+import handleError from "../utils/errorHandler";
+import routes from "../constants/routes";
 
 const Container = styled(ContainerComponent)`
   background: linear-gradient(
@@ -58,8 +63,18 @@ const initialLoginForm: ILoginForm = {
 const Login: FC = () => {
   const [form, setForm] = useState(initialLoginForm);
 
-  const onSubmit = () => {
-    setForm(initialLoginForm);
+  const history = useHistory();
+
+  const onSubmit = async () => {
+    try {
+      const token = await sendLoginInfo(form);
+
+      LocalStorage.setUserToken(token);
+
+      history.push(routes.home.href);
+    } catch (err) {
+      handleError(err);
+    }
   };
 
   const onChangeInput = ({

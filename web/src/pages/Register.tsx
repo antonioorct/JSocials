@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 import styled from "styled-components";
 import RegisterFormComponent from "../components/forms/RegisterForm";
 import { IRegisterForm } from "../constants/formTypes";
