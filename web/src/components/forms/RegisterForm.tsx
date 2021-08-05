@@ -4,6 +4,7 @@ import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
 import { IRegisterForm } from "../../constants/formTypes";
 import { theme } from "../../theme/theme.config";
+import Anchor from "../shared-components/Anchor";
 import Button from "../shared-components/Button";
 import FormRow from "../shared-components/FormRow";
 import Input from "../shared-components/Input";
@@ -28,7 +29,8 @@ const ErrorMessage = styled.div`
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const validation = {
@@ -42,8 +44,8 @@ const validation = {
     return email === ""
       ? "E-mail is required"
       : !email.includes("@")
-        ? "E-mail must be valid"
-        : undefined;
+      ? "E-mail must be valid"
+      : undefined;
   },
   username: (username: string): string | undefined => {
     return username === "" ? "Username is required" : undefined;
@@ -58,12 +60,12 @@ const validation = {
     return repeatPassword === ""
       ? "Confirm password is required"
       : state.password !== repeatPassword
-        ? "Passwords must match"
-        : undefined;
+      ? "Passwords must match"
+      : undefined;
   },
 };
 
-const LoginForm: FC<RegisterFormProps> = ({
+const RegisterForm: FC<RegisterFormProps> = ({
   handleSubmit,
   handleChangeInput,
   state,
@@ -81,7 +83,11 @@ const LoginForm: FC<RegisterFormProps> = ({
       if (error) break;
     }
 
-    error ? setError(error) : handleSubmit();
+    if (error) setError(error);
+    else {
+      setError(undefined);
+      handleSubmit();
+    }
   };
 
   return (
@@ -98,7 +104,7 @@ const LoginForm: FC<RegisterFormProps> = ({
 
         <Input
           label="Last name"
-          value={state.username}
+          value={state.lastName}
           id="lastName"
           name="lastName"
           onChange={handleChangeInput}
@@ -124,6 +130,7 @@ const LoginForm: FC<RegisterFormProps> = ({
       />
 
       <Input
+        type="password"
         label="Password"
         value={state.password}
         id="password"
@@ -133,6 +140,7 @@ const LoginForm: FC<RegisterFormProps> = ({
       />
 
       <Input
+        type="password"
         label="Confirm password"
         value={state.repeatPassword}
         id="repeatPassword"
@@ -142,6 +150,7 @@ const LoginForm: FC<RegisterFormProps> = ({
       />
 
       <ButtonContainer>
+        <Anchor to="/login" label="Back to login" />
         <Button label="Register" type="submit" color="primary" />
       </ButtonContainer>
 
@@ -154,4 +163,4 @@ const LoginForm: FC<RegisterFormProps> = ({
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

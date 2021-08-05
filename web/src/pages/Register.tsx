@@ -1,9 +1,12 @@
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import RegisterFormComponent from "../components/forms/RegisterForm";
 import { IRegisterForm } from "../constants/formTypes";
 import ContainerComponent from "../components/shared-components/Container";
 import { theme } from "../theme/theme.config";
+import { createUser } from "../services/userServices";
+import toast from "../components/Toast";
+import handleError from "../utils/errorHandler";
 
 const Container = styled(ContainerComponent)`
   background: linear-gradient(
@@ -62,8 +65,15 @@ const initialRegisterForm: IRegisterForm = {
 const Register: FC = () => {
   const [form, setForm] = useState(initialRegisterForm);
 
-  const onSubmit = () => {
-    setForm(initialRegisterForm);
+  const onSubmit = async () => {
+    try {
+      await createUser(form);
+
+      toast("Registration successful!", "success");
+      setForm(initialRegisterForm);
+    } catch (err) {
+      handleError(err);
+    }
   };
 
   const onChangeInput = ({

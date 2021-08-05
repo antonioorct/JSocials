@@ -1,6 +1,6 @@
 import { FC } from "react";
 import styled from "styled-components";
-import { theme } from "./theme/theme.config";
+import { theme } from "../theme/theme.config";
 
 type Alignment = "left" | "right";
 

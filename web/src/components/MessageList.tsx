@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { IMessage, IUser } from "../constants/models";
-import Message from "../Message";
+import Message from "./Message";
 import { theme } from "../theme/theme.config";
 import Author from "./Author";
 import Badge from "./shared-components/Badge";

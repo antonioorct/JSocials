@@ -78,6 +78,7 @@ const LoginForm: FC<LoginFormProps> = ({
       />
 
       <Input
+        type="password"
         label="Password"
         value={state.password}
         id="password"
@@ -88,9 +89,7 @@ const LoginForm: FC<LoginFormProps> = ({
 
       <ButtonsContainer>
         <Button label="Login" type="submit" color="primary" />
-        <Anchor to="/register">
-          <RegisterButton label="Register" type="submit" color="link" />
-        </Anchor>
+        <Anchor to="/register" label="Register" />
       </ButtonsContainer>
 
       {error && (
