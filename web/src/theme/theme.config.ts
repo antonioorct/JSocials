@@ -28,7 +28,7 @@ interface IFonts {
   heading: string;
 }
 
-interface IPalette {
+export interface IPalette {
   primary: string;
   secondary: string;
 
