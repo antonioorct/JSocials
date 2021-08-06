@@ -6,6 +6,19 @@ import GlobalStyle from "./theme/GlobalStyle";
 import Header from "./components/Header";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "./components/Toast";
+import axios, { AxiosRequestConfig } from "axios";
+import { API_URL } from "./constants/apiRoutes";
+import LocalStorage from "./utils/LocalStorage";
+
+axios.interceptors.request.use(
+  (config: AxiosRequestConfig) => {
+    if (config.url?.startsWith(API_URL) && LocalStorage.getUserToken())
+      config.headers["Authorization"] = LocalStorage.getUserToken();
+
+    return config;
+  },
+  (err) => Promise.reject(err)
+);
 
 const getRoutes = (): React.ReactElement[] =>
   Object.keys(ROUTES).map((key, index) => {

@@ -1,11 +1,13 @@
 import { FC, HTMLAttributes, MouseEvent, useState } from "react";
 import styled from "styled-components";
+import { getAssetUrl } from "../constants/apiRoutes";
 import { IPost } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import Author from "./Author";
 import ReplyForm from "./forms/ReplyForm";
 import PostList from "./PostList";
 import Button from "./shared-components/Button";
+import Tooltip from "rc-tooltip";
 
 interface PostProps extends HTMLAttributes<HTMLDivElement> {
   post: IPost;
@@ -107,11 +109,23 @@ const Post: FC<PostProps> = ({
       : setReplyContent("");
 
   const handleSubmitReply = () => {
-    onReply && replyContent && onReply(post, replyContent);
-    setReplyContent(undefined);
+    if (onReply && replyContent && replyContent !== "") {
+      onReply(post, replyContent);
+
+      setReplyContent(undefined);
+    }
   };
 
   const handleChangeReplyInput = (value: string) => setReplyContent(value);
+
+  const getLikeTooltip = () =>
+    post.likes.join(", ") +
+    (post.likes.length === 1
+      ? " has"
+      : post.likes.length > 5
+      ? ",... have"
+      : " have") +
+    " liked this post.";
 
   return (
     <Container>
@@ -131,14 +145,18 @@ const Post: FC<PostProps> = ({
           <p>{post.content}</p>
 
           {post.attachment && (
-            <Image src={post.attachment} alt={post.attachment} />
+            <Image src={getAssetUrl(post.attachment)} alt={post.attachment} />
           )}
         </Content>
 
         <ActionsContainer>
           <div>
-            <div>{post.likes} likes</div>
-            {post.comments && <div>{post.comments?.length} comments</div>}
+            <Tooltip overlay={<span>{getLikeTooltip()}</span>} placement="top">
+              <div>{post.numLikes} likes</div>
+            </Tooltip>
+            {post.numComments !== 0 && (
+              <div>{post.comments?.length} comments</div>
+            )}
           </div>
 
           <ButtonsContainer>

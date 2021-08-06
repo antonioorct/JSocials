@@ -1,5 +1,6 @@
 import {
   createGlobalStyle,
+  css,
   DefaultTheme,
   GlobalStyleComponent,
 } from "styled-components";
@@ -8,6 +9,44 @@ import { IDefaultTheme, theme } from "./theme.config";
 interface ITheme {
   theme: IDefaultTheme;
 }
+
+const Tooltip = css`
+  .rc-tooltip-inner {
+    border-radius: ${theme.components.tooltip.borderRadius};
+    min-height: unset;
+    max-width: 8rem;
+
+    cursor: default;
+
+    background: ${theme.components.tooltip.background};
+
+    color: ${theme.components.tooltip.color};
+    font-weight: ${theme.components.tooltip.fontWeight};
+    font-size: 0.8rem;
+    line-height: 0.9rem;
+    text-align: center;
+  }
+  .rc-tooltip-placement-top .rc-tooltip-arrow,
+  .rc-tooltip-placement-topLeft .rc-tooltip-arrow,
+  .rc-tooltip-placement-topRight .rc-tooltip-arrow {
+    border-top-color: ${theme.components.tooltip.background};
+  }
+  .rc-tooltip-placement-left .rc-tooltip-arrow,
+  .rc-tooltip-placement-leftTop .rc-tooltip-arrow,
+  .rc-tooltip-placement-leftBottom .rc-tooltip-arrow {
+    border-left-color: ${theme.components.tooltip.background};
+  }
+  .rc-tooltip-placement-bottom .rc-tooltip-arrow,
+  .rc-tooltip-placement-bottomLeft .rc-tooltip-arrow,
+  .rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
+    border-bottom-color: ${theme.components.tooltip.background};
+  }
+  .rc-tooltip-placement-right .rc-tooltip-arrow,
+  .rc-tooltip-placement-rightTop .rc-tooltip-arrow,
+  .rc-tooltip-placement-rightBottom .rc-tooltip-arrow {
+    border-right-color: ${theme.components.tooltip.background};
+  }
+`;
 
 const GlobalStyle: GlobalStyleComponent<
   ITheme,
@@ -62,6 +101,8 @@ const GlobalStyle: GlobalStyleComponent<
     font-family: "Patua one";
     src: url("/fonts/PatuaOne-Regular.otf") format("opentype");
   }
+
+  ${Tooltip}
 `;
 
 export default GlobalStyle;

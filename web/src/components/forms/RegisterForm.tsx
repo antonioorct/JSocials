@@ -94,6 +94,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
     <form onSubmit={onSubmit} className={className}>
       <FormRow>
         <Input
+          autoFocus
           label="First name"
           value={state.firstName}
           id="firstName"

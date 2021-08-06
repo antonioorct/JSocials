@@ -21,6 +21,7 @@ interface IComponents {
     link: IStyling;
   };
   anchor: IStyling;
+  tooltip: IStyling;
 }
 
 interface IFonts {
@@ -151,6 +152,12 @@ export const theme: IDefaultTheme = {
     anchor: {
       color: colors.black,
       hover: "#333",
+      fontWeight: "bold",
+    },
+    tooltip: {
+      color: colors.white,
+      background: colors.lightGray,
+      borderRadius: "0.35rem",
       fontWeight: "bold",
     },
   },

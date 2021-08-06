@@ -10,7 +10,7 @@ import Button from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import Tabs, { Tab } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
-import { IPost, seedPosts, seedUsers } from "../constants/models";
+import { IPost, seedUsers } from "../constants/models";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -57,7 +57,7 @@ const PageContainer = styled.div`
 `;
 
 const Profile: FC = () => {
-  const [posts] = useState(seedPosts);
+  const [posts] = useState<IPost[]>([]);
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
 
   const handleClickOpenModal = (post: IPost) => setPostModal(post);

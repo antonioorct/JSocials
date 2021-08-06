@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import NewPostForm from "../components/forms/NewPostForm";
 import Modal from "../components/Modal";
@@ -6,7 +6,16 @@ import Post from "../components/Post";
 import PostList from "../components/PostList";
 import ContainerComponent from "../components/shared-components/Container";
 import { INewPostForm } from "../constants/formTypes";
-import { IPost, seedPosts } from "../constants/models";
+import { IPost } from "../constants/models";
+import {
+  deletePost,
+  getAllPosts,
+  isComment,
+  likePost,
+  newComment,
+  newPost,
+} from "../services/postServices";
+import handleError from "../utils/errorHandler";
 
 const Container = styled(ContainerComponent)`
   padding: 7rem 0 3rem;
@@ -26,35 +35,107 @@ const Divider = styled.hr`
 
 const initialNewPostForm: INewPostForm = {
   content: "",
-  attachment: "",
+  attachment: undefined,
   private: false,
 };
 
 const Home: FC = () => {
   const [newPostForm, setNewPostForm] = useState(initialNewPostForm);
-  const [posts, setPosts] = useState<IPost[]>(seedPosts);
+  const [posts, setPosts] = useState<IPost[]>([]);
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
 
-  const handleSubmitNewPost = () => {
-    setNewPostForm(initialNewPostForm);
+  useEffect(() => {
+    (async () => {
+      const posts = await getAllPosts();
+
+      setPosts(posts);
+    })();
+  }, []);
+
+  const handleSubmitNewPost = async () => {
+    if (newPostForm.content === "") return;
+
+    const sendFormData = new FormData();
+
+    newPostForm.attachment &&
+      sendFormData.append("attachment", newPostForm.attachment);
+
+    sendFormData.append("private", newPostForm.private.toString());
+    sendFormData.append("content", newPostForm.content);
+
+    try {
+      const post = await newPost(sendFormData);
+
+      setPosts([post, ...posts]);
+      setNewPostForm(initialNewPostForm);
+    } catch (err) {
+      handleError(err);
+    }
   };
 
   const handleChangeNewPostInput = ({
-    currentTarget: { type, value, name, checked },
-  }: ChangeEvent<HTMLInputElement>) =>
-    type === "checkbox"
-      ? setNewPostForm({ ...newPostForm, [name]: checked })
-      : setNewPostForm({ ...newPostForm, [name]: value });
+    currentTarget: { type, value, name, checked, files },
+  }: ChangeEvent<HTMLInputElement>) => {
+    switch (type) {
+      case "checkbox":
+        setNewPostForm({ ...newPostForm, [name]: checked });
+        break;
+      case "file":
+        setNewPostForm({
+          ...newPostForm,
+          attachment: files ? files[0] : undefined,
+        });
+        break;
+      default:
+        setNewPostForm({ ...newPostForm, [name]: value });
+    }
+  };
 
-  const handleClickLike = (post: IPost) => {};
+  const handleClickLike = async (post: IPost) => {
+    await likePost(post);
+  };
+
   const handleClickUnlike = (post: IPost) => {};
-  const handleClickDelete = (post: IPost) => {};
+
+  const handleClickDelete = async (post: IPost) => {
+    await deletePost(post);
+
+    let tempPosts = [...posts];
+
+    if (isComment(post)) {
+      const postIndex = tempPosts.findIndex((el) => el.id === post.postId);
+
+      const tempComments = tempPosts[postIndex].comments.filter(
+        (comment) => comment.id !== post.id
+      );
+
+      tempPosts[postIndex].comments = tempComments;
+    } else tempPosts = tempPosts.filter((el) => el.id !== post.id);
+
+    setPosts(tempPosts);
+  };
 
   const handleClickOpenModal = (post: IPost) => setPostModal(post);
   const handleClickCloseModal = () => setPostModal(undefined);
+  const handleClickDeleteModalPost = (post: IPost) => {
+    setPostModal(undefined);
 
-  const handleReply = (post: IPost, content: string) => {
-    setPosts(posts);
+    handleClickDelete(post);
+  };
+
+  const handleReply = async (post: IPost, content: string) => {
+    const tempComment = await newComment(post, content);
+
+    const tempPosts = [...posts];
+
+    const postIndex = tempPosts.findIndex((el) => el.id === post.id);
+
+    tempPosts[postIndex].comments = [
+      tempComment,
+      ...tempPosts[postIndex].comments,
+    ];
+
+    setPosts(tempPosts);
   };
 
   return (
@@ -64,7 +145,7 @@ const Home: FC = () => {
         component={Post}
         post={postModal}
         onClickCancel={handleClickCloseModal}
-        onClickDelete={handleClickDelete}
+        onClickDelete={handleClickDeleteModalPost}
         onClickLike={handleClickLike}
         onClickUnlike={handleClickUnlike}
         onReply={handleReply}
