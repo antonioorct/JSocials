@@ -1,11 +1,15 @@
 import { FC, HTMLAttributes, MouseEvent, useState } from "react";
 import styled from "styled-components";
+import { getAssetUrl } from "../constants/apiRoutes";
 import { IPost } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import Author from "./Author";
 import ReplyForm from "./forms/ReplyForm";
 import PostList from "./PostList";
 import Button from "./shared-components/Button";
+import Tooltip from "rc-tooltip";
+import { getUserId, isUserOwner } from "../services/authServices";
+import { format } from "timeago.js";
 
 interface PostProps extends HTMLAttributes<HTMLDivElement> {
   post: IPost;
@@ -69,6 +73,7 @@ const ButtonsContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 2rem;
+  height: 2.375rem;
 `;
 
 const ActionsContainer = styled.div`
@@ -76,6 +81,11 @@ const ActionsContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 1rem;
+`;
+
+const DateLabel = styled.div`
+  font-size: 0.8rem;
+  color: ${theme.palette.lightGray};
 `;
 
 const Post: FC<PostProps> = ({
@@ -93,6 +103,8 @@ const Post: FC<PostProps> = ({
 
   const handleClickLikeButton = () => onClickLike(post);
 
+  const handleClickUnlikeButton = () => onClickUnlike(post);
+
   const handleClickDelete = () => onClickDelete(post);
 
   const handleClickPost = (e: MouseEvent) => {
@@ -107,11 +119,26 @@ const Post: FC<PostProps> = ({
       : setReplyContent("");
 
   const handleSubmitReply = () => {
-    onReply && replyContent && onReply(post, replyContent);
-    setReplyContent(undefined);
+    if (onReply && replyContent && replyContent !== "") {
+      onReply(post, replyContent);
+
+      setReplyContent(undefined);
+    }
   };
 
   const handleChangeReplyInput = (value: string) => setReplyContent(value);
+
+  const isLikedByOwner = () =>
+    post.likes.some((user) => user.id === getUserId()?.sub);
+
+  const getLikeTooltip = () =>
+    post.likes.map((user) => `${user.firstName} ${user.lastName}`).join(", ") +
+    (post.likes.length === 1
+      ? " has"
+      : post.likes.length > 5
+      ? ",... have"
+      : " have") +
+    " liked this post.";
 
   return (
     <Container>
@@ -119,7 +146,9 @@ const Post: FC<PostProps> = ({
         <Header>
           <Author user={post.user} />
           <ButtonsContainer>
-            <Button label="Delete" color="link" onClick={handleClickDelete} />
+            {isUserOwner(post.user) && (
+              <Button label="Delete" color="link" onClick={handleClickDelete} />
+            )}
 
             {onClickCancel && (
               <CloseButton onClick={onClickCancel}>&#215;</CloseButton>
@@ -127,35 +156,60 @@ const Post: FC<PostProps> = ({
           </ButtonsContainer>
         </Header>
 
+        <DateLabel title={new Date(post.createdAt).toLocaleString()}>
+          {format(post.createdAt)}
+        </DateLabel>
+
         <Content onClick={handleClickPost} hasModal={onClickPost !== undefined}>
           <p>{post.content}</p>
 
           {post.attachment && (
-            <Image src={post.attachment} alt={post.attachment} />
+            <Image src={getAssetUrl(post.attachment)} alt={post.attachment} />
           )}
         </Content>
 
         <ActionsContainer>
           <div>
-            <div>{post.likes} likes</div>
-            {post.comments && <div>{post.comments?.length} comments</div>}
+            <Tooltip
+              overlay={<span>{getLikeTooltip()}</span>}
+              trigger={post.likes.length !== 0 ? "hover" : ""}
+              placement="top"
+              destroyTooltipOnHide={{ keepParent: false }}
+            >
+              <div>{post.numLikes} likes</div>
+            </Tooltip>
+            {post.numComments !== 0 && (
+              <div>{post.comments?.length} comments</div>
+            )}
           </div>
 
           <ButtonsContainer>
-            <Button label="Like" color="link" onClick={handleClickLikeButton} />
+            {!isLikedByOwner() ? (
+              <Button
+                label="Like"
+                color="link"
+                onClick={handleClickLikeButton}
+              />
+            ) : (
+              <Button
+                label="Unlike"
+                color="link"
+                onClick={handleClickUnlikeButton}
+              />
+            )}
 
             {onReply && (
               <Button label="Reply" color="link" onClick={handleClickReply} />
             )}
-          </ButtonsContainer>
 
-          {onReply && replyContent !== undefined && (
-            <ReplyForm
-              handleSubmit={handleSubmitReply}
-              handleChangeInput={handleChangeReplyInput}
-              state={replyContent}
-            />
-          )}
+            {onReply && replyContent !== undefined && (
+              <ReplyForm
+                handleSubmit={handleSubmitReply}
+                handleChangeInput={handleChangeReplyInput}
+                state={replyContent}
+              />
+            )}
+          </ButtonsContainer>
         </ActionsContainer>
       </div>
 

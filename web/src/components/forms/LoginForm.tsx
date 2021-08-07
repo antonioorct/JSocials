@@ -32,10 +32,6 @@ const ErrorMessage = styled.div`
   }
 `;
 
-const RegisterButton = styled(Button)`
-  padding: 0;
-`;
-
 const validation = {
   username: (username: string): string | undefined => {
     return username === "" ? "Username is required" : undefined;
@@ -69,6 +65,7 @@ const LoginForm: FC<LoginFormProps> = ({
   return (
     <form onSubmit={onSubmit} className={className}>
       <Input
+        autoFocus
         label="Username"
         value={state.username}
         id="username"

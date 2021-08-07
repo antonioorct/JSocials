@@ -21,6 +21,7 @@ web/build
 
 # misc
 server/*.log
+server/uploads
 web/.DS_Store
 .env
 .env.local

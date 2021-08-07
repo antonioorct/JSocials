@@ -73,7 +73,11 @@ const Author: FC<AuthorProps> = ({
   const renderAuthor = () => {
     const authorComponent = (
       <Container big={big}>
-        <AuthorImage src={user.image} alt="" big={big} />
+        <AuthorImage
+          src={user.image ? user.image : "/logo512.png"}
+          alt=""
+          big={big}
+        />
         {big ? (
           <BigAuthorName>
             {user.firstName} {user.lastName}

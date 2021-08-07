@@ -51,7 +51,7 @@ const NewPostForm: FC<NewPostFormProps> = ({
   };
 
   return (
-    <form onSubmit={onSubmit} className={className}>
+    <form onSubmit={onSubmit} className={className} encType="multipart/form">
       <TextArea
         value={state.content}
         placeholder="Start writing..."
@@ -64,7 +64,6 @@ const NewPostForm: FC<NewPostFormProps> = ({
         <OptionsContainer>
           <FileInput
             type="file"
-            value={state.attachment}
             id="attachment"
             name="attachment"
             onChange={handleChangeInput}

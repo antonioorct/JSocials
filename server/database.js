@@ -2,6 +2,9 @@ const { Sequelize, ValidationError } = require("sequelize");
 const logger = require("./logger");
 const path = require("path");
 const fs = require("fs");
+const bcrypt = require("bcrypt");
+
+const BCRYPT_SALT_ROUNDS = 10;
 
 const MODELS_FOLDER = "models";
 
@@ -23,11 +26,91 @@ function initModels() {
   models.forEach((model) => model.init(sequelize));
 }
 
+function initAssociations() {
+  sequelize.models.post.belongsTo(sequelize.models.user);
+
+  sequelize.models.post.hasMany(sequelize.models.post, {
+    as: "comments",
+    foreignKey: "postId",
+  });
+
+  sequelize.models.post.belongsToMany(sequelize.models.user, {
+    through: "user_post_likes",
+    as: "likes",
+  });
+}
+
+async function seedDatabase() {
+  if (process.env.NODE_ENV === "production") return;
+
+  const isDatabaseSeeded = await sequelize.models.user.findByPk(1);
+  if (isDatabaseSeeded) return;
+
+  await sequelize.models.user.bulkCreate([
+    {
+      firstName: "Antonio",
+      lastName: "Orct",
+      username: "a",
+      email: "antonio.orct@hotmail.com",
+      image: "/logo512.png",
+      password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
+      bio: "This is all about me",
+      details: {
+        gender: "Male",
+        relationshipStatus: "Single",
+        website: "www.website.com",
+      },
+    },
+    {
+      firstName: "Antonio",
+      lastName: "Orct",
+      username: "b",
+      email: "bntonio.orct@hotmail.com",
+      image: "/logo512.png",
+      password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
+      bio: "This is all about me",
+      details: {
+        gender: "Male",
+        relationshipStatus: "Single",
+        website: "www.website.com",
+      },
+    },
+  ]);
+
+  await sequelize.models.post.bulkCreate([
+    {
+      content: "First",
+      userId: 1,
+      private: false,
+    },
+    {
+      content: "Second",
+      attachment: "uploads/Focal-Fossa_WP_1920x1080_1628183702963.png",
+      userId: 2,
+      private: false,
+    },
+    {
+      content: "Third with comments",
+      userId: 1,
+      private: false,
+    },
+    {
+      content: "First comment",
+      userId: 1,
+      private: false,
+      postId: 3,
+    },
+  ]);
+}
+
 async function init() {
   try {
     initModels();
+    initAssociations();
 
     await sequelize.sync({ alter: true });
+
+    seedDatabase();
 
     logger.info("Database initialized");
   } catch (err) {

@@ -1,5 +1,14 @@
-export const API_URL = `http://localhost:${process.env.REACT_APP_SERVER_PORT}/api`;
+export const BACKEND_URL = `http://localhost:${process.env.REACT_APP_SERVER_PORT}`;
+
+export const API_URL = `${BACKEND_URL}/api`;
 
 export const USERS_URL = API_URL + "/users";
 
 export const AUTH_URL = API_URL + "/auth";
+
+export const POSTS_URL = API_URL + "/posts";
+export const POST_URL = (postId: number) => `${POSTS_URL}/${postId}`;
+
+export const LIKE_POST_URL = (postId: number) => `${POST_URL(postId)}/like`;
+
+export const getAssetUrl = (url: string) => `${BACKEND_URL}/${url}`;

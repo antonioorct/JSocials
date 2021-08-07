@@ -12,6 +12,10 @@ app.use(cors());
 database.init();
 router.init(app);
 
+app.get(`/${process.env.ASSETS_SAVE_LOCATION}/*`, (req, res) => {
+  res.sendFile(require("path").join(__dirname, req.path));
+});
+
 app.all("*", (req, res) => {
   res.status(404).send(`${req.originalUrl} not found.`);
 });

@@ -14,6 +14,6 @@ export interface IRegisterForm {
 
 export interface INewPostForm {
   content: string;
-  attachment: string;
+  attachment?: File;
   private: boolean;
 }
