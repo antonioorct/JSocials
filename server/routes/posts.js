@@ -63,17 +63,14 @@ router.post("/posts", [authenticate, attachment], async (req, res) => {
     const newPost = await sequelize.models.post.create({
       ...req.body,
       attachment: req.file
-        ? process.env.ASSETS_SAVE_LOCATION + "/" + req.file.filename
+        ? `${process.env.ASSETS_SAVE_LOCATION}/${req.file.filename}`
         : undefined,
       userId: req.userId,
     });
 
-    const newReturnPost = await sequelize.models.post.findByPk(
-      newPost.id,
-      POST_OPTIONS
-    );
+    const post = await sequelize.models.post.findByPk(newPost.id, POST_OPTIONS);
 
-    return res.send(newReturnPost);
+    return res.send(post);
   } catch (err) {
     logger.error(err);
 
@@ -93,12 +90,12 @@ router.post("/posts/:postId", authenticate, async (req, res) => {
       postId,
     });
 
-    const newReturnComment = await sequelize.models.post.findByPk(
+    const comment = await sequelize.models.post.findByPk(
       newComment.id,
       COMMENT_OPTIONS
     );
 
-    return res.send(newReturnComment);
+    return res.send(comment);
   } catch (err) {
     logger.error(err);
 

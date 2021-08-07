@@ -12,8 +12,10 @@ import LocalStorage from "./utils/LocalStorage";
 
 axios.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    if (config.url?.startsWith(API_URL) && LocalStorage.getUserToken())
-      config.headers["Authorization"] = LocalStorage.getUserToken();
+    const token = LocalStorage.getUserToken();
+
+    if (config.url?.startsWith(API_URL) && token)
+      config.headers["Authorization"] = token;
 
     return config;
   },

@@ -65,7 +65,6 @@ const LoginForm: FC<LoginFormProps> = ({
   return (
     <form onSubmit={onSubmit} className={className}>
       <Input
-        autoFocus
         label="Username"
         value={state.username}
         id="username"
