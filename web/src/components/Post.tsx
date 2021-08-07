@@ -8,6 +8,8 @@ import ReplyForm from "./forms/ReplyForm";
 import PostList from "./PostList";
 import Button from "./shared-components/Button";
 import Tooltip from "rc-tooltip";
+import { getUserId, isUserOwner } from "../services/authServices";
+import { format } from "timeago.js";
 
 interface PostProps extends HTMLAttributes<HTMLDivElement> {
   post: IPost;
@@ -71,6 +73,7 @@ const ButtonsContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 2rem;
+  height: 2.375rem;
 `;
 
 const ActionsContainer = styled.div`
@@ -78,6 +81,11 @@ const ActionsContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 1rem;
+`;
+
+const DateLabel = styled.div`
+  font-size: 0.8rem;
+  color: ${theme.palette.lightGray};
 `;
 
 const Post: FC<PostProps> = ({
@@ -94,6 +102,8 @@ const Post: FC<PostProps> = ({
   );
 
   const handleClickLikeButton = () => onClickLike(post);
+
+  const handleClickUnlikeButton = () => onClickUnlike(post);
 
   const handleClickDelete = () => onClickDelete(post);
 
@@ -118,8 +128,11 @@ const Post: FC<PostProps> = ({
 
   const handleChangeReplyInput = (value: string) => setReplyContent(value);
 
+  const isLikedByOwner = () =>
+    post.likes.some((user) => user.id === getUserId()?.sub);
+
   const getLikeTooltip = () =>
-    post.likes.join(", ") +
+    post.likes.map((user) => `${user.firstName} ${user.lastName}`).join(", ") +
     (post.likes.length === 1
       ? " has"
       : post.likes.length > 5
@@ -133,13 +146,19 @@ const Post: FC<PostProps> = ({
         <Header>
           <Author user={post.user} />
           <ButtonsContainer>
-            <Button label="Delete" color="link" onClick={handleClickDelete} />
+            {isUserOwner(post.user) && (
+              <Button label="Delete" color="link" onClick={handleClickDelete} />
+            )}
 
             {onClickCancel && (
               <CloseButton onClick={onClickCancel}>&#215;</CloseButton>
             )}
           </ButtonsContainer>
         </Header>
+
+        <DateLabel title={new Date(post.createdAt).toLocaleString()}>
+          {format(post.createdAt)}
+        </DateLabel>
 
         <Content onClick={handleClickPost} hasModal={onClickPost !== undefined}>
           <p>{post.content}</p>
@@ -151,7 +170,12 @@ const Post: FC<PostProps> = ({
 
         <ActionsContainer>
           <div>
-            <Tooltip overlay={<span>{getLikeTooltip()}</span>} placement="top">
+            <Tooltip
+              overlay={<span>{getLikeTooltip()}</span>}
+              trigger={post.likes.length !== 0 ? "hover" : ""}
+              placement="top"
+              destroyTooltipOnHide={{ keepParent: false }}
+            >
               <div>{post.numLikes} likes</div>
             </Tooltip>
             {post.numComments !== 0 && (
@@ -160,20 +184,32 @@ const Post: FC<PostProps> = ({
           </div>
 
           <ButtonsContainer>
-            <Button label="Like" color="link" onClick={handleClickLikeButton} />
+            {!isLikedByOwner() ? (
+              <Button
+                label="Like"
+                color="link"
+                onClick={handleClickLikeButton}
+              />
+            ) : (
+              <Button
+                label="Unlike"
+                color="link"
+                onClick={handleClickUnlikeButton}
+              />
+            )}
 
             {onReply && (
               <Button label="Reply" color="link" onClick={handleClickReply} />
             )}
-          </ButtonsContainer>
 
-          {onReply && replyContent !== undefined && (
-            <ReplyForm
-              handleSubmit={handleSubmitReply}
-              handleChangeInput={handleChangeReplyInput}
-              state={replyContent}
-            />
-          )}
+            {onReply && replyContent !== undefined && (
+              <ReplyForm
+                handleSubmit={handleSubmitReply}
+                handleChangeInput={handleChangeReplyInput}
+                state={replyContent}
+              />
+            )}
+          </ButtonsContainer>
         </ActionsContainer>
       </div>
 

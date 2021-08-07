@@ -43,20 +43,39 @@ function initAssociations() {
 async function seedDatabase() {
   if (process.env.NODE_ENV === "production") return;
 
-  await sequelize.models.user.create({
-    firstName: "Antonio",
-    lastName: "Orct",
-    username: "a",
-    email: "antonio.orct@hotmail.com",
-    image: "/logo512.png",
-    password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
-    bio: "This is all about me",
-    details: {
-      gender: "Male",
-      relationshipStatus: "Single",
-      website: "www.website.com",
+  const isDatabaseSeeded = await sequelize.models.user.findByPk(1);
+  if (isDatabaseSeeded) return;
+
+  await sequelize.models.user.bulkCreate([
+    {
+      firstName: "Antonio",
+      lastName: "Orct",
+      username: "a",
+      email: "antonio.orct@hotmail.com",
+      image: "/logo512.png",
+      password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
+      bio: "This is all about me",
+      details: {
+        gender: "Male",
+        relationshipStatus: "Single",
+        website: "www.website.com",
+      },
     },
-  });
+    {
+      firstName: "Antonio",
+      lastName: "Orct",
+      username: "b",
+      email: "bntonio.orct@hotmail.com",
+      image: "/logo512.png",
+      password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
+      bio: "This is all about me",
+      details: {
+        gender: "Male",
+        relationshipStatus: "Single",
+        website: "www.website.com",
+      },
+    },
+  ]);
 
   await sequelize.models.post.bulkCreate([
     {
@@ -67,7 +86,7 @@ async function seedDatabase() {
     {
       content: "Second",
       attachment: "uploads/Focal-Fossa_WP_1920x1080_1628183702963.png",
-      userId: 1,
+      userId: 2,
       private: false,
     },
     {
@@ -91,7 +110,7 @@ async function init() {
 
     await sequelize.sync({ alter: true });
 
-    // seedDatabase();
+    seedDatabase();
 
     logger.info("Database initialized");
   } catch (err) {

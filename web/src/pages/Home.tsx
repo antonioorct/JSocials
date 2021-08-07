@@ -1,3 +1,4 @@
+import Tooltip from "rc-tooltip";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import NewPostForm from "../components/forms/NewPostForm";
@@ -8,12 +9,18 @@ import ContainerComponent from "../components/shared-components/Container";
 import { INewPostForm } from "../constants/formTypes";
 import { IPost } from "../constants/models";
 import {
+  addComment,
   deletePost,
   getAllPosts,
   isComment,
   likePost,
   newComment,
   newPost,
+  removeComment,
+  removePost,
+  unlikePost,
+  updateComment,
+  updatePost,
 } from "../services/postServices";
 import handleError from "../utils/errorHandler";
 
@@ -92,27 +99,33 @@ const Home: FC = () => {
   };
 
   const handleClickLike = async (post: IPost) => {
-    await likePost(post);
+    const newPost = await likePost(post);
+
+    const newPosts = isComment(post)
+      ? updateComment(posts, newPost)
+      : updatePost(posts, newPost);
+
+    setPosts(newPosts);
   };
 
-  const handleClickUnlike = (post: IPost) => {};
+  const handleClickUnlike = async (post: IPost) => {
+    const newPost = await unlikePost(post);
+
+    const newPosts = isComment(post)
+      ? updateComment(posts, newPost)
+      : updatePost(posts, newPost);
+
+    setPosts(newPosts);
+  };
 
   const handleClickDelete = async (post: IPost) => {
     await deletePost(post);
 
-    let tempPosts = [...posts];
+    const newPosts = isComment(post)
+      ? removeComment(posts, post)
+      : removePost(posts, post);
 
-    if (isComment(post)) {
-      const postIndex = tempPosts.findIndex((el) => el.id === post.postId);
-
-      const tempComments = tempPosts[postIndex].comments.filter(
-        (comment) => comment.id !== post.id
-      );
-
-      tempPosts[postIndex].comments = tempComments;
-    } else tempPosts = tempPosts.filter((el) => el.id !== post.id);
-
-    setPosts(tempPosts);
+    setPosts(newPosts);
   };
 
   const handleClickOpenModal = (post: IPost) => setPostModal(post);
@@ -124,18 +137,11 @@ const Home: FC = () => {
   };
 
   const handleReply = async (post: IPost, content: string) => {
-    const tempComment = await newComment(post, content);
+    const comment = await newComment(post, content);
 
-    const tempPosts = [...posts];
+    const newPosts = addComment(posts, comment);
 
-    const postIndex = tempPosts.findIndex((el) => el.id === post.id);
-
-    tempPosts[postIndex].comments = [
-      tempComment,
-      ...tempPosts[postIndex].comments,
-    ];
-
-    setPosts(tempPosts);
+    setPosts(newPosts);
   };
 
   return (

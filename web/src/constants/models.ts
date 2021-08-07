@@ -8,6 +8,7 @@ export interface IPost {
   likes: IUser[];
   numLikes: number;
   numComments: number;
+  createdAt: Date;
 }
 
 export interface IUser {
@@ -35,6 +36,10 @@ export interface IMessage {
   content: string;
   user: IUser;
   sentAt?: Date;
+}
+
+export interface IUserJWT {
+  sub: number;
 }
 
 export const seedUsers: IUser[] = [
