@@ -1,5 +1,6 @@
 import { FC, HTMLAttributes } from "react";
 import styled from "styled-components";
+import { DEFAULT_USER_IMAGE } from "../constants/constants";
 import { IUser } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import AnchorComponent from "./shared-components/Anchor";
@@ -74,7 +75,7 @@ const Author: FC<AuthorProps> = ({
     const authorComponent = (
       <Container big={big}>
         <AuthorImage
-          src={user.image ? user.image : "/logo512.png"}
+          src={user.image ? user.image : DEFAULT_USER_IMAGE}
           alt=""
           big={big}
         />

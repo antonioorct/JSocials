@@ -19,7 +19,7 @@ export const getUserId = (): IUserJWT | null => {
   return null;
 };
 
-export const isUserOwner = (user: IUser) => {
+export const isUserOwnerOfObject = (user: IUser) => {
   const t = getUserId();
 
   return t?.sub === user.id;

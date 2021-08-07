@@ -8,7 +8,7 @@ import ReplyForm from "./forms/ReplyForm";
 import PostList from "./PostList";
 import Button from "./shared-components/Button";
 import Tooltip from "rc-tooltip";
-import { getUserId, isUserOwner } from "../services/authServices";
+import { getUserId, isUserOwnerOfObject } from "../services/authServices";
 import { format } from "timeago.js";
 
 interface PostProps extends HTMLAttributes<HTMLDivElement> {
@@ -132,13 +132,16 @@ const Post: FC<PostProps> = ({
     post.likes.some((user) => user.id === getUserId()?.sub);
 
   const getLikeTooltip = () =>
-    post.likes.map((user) => `${user.firstName} ${user.lastName}`).join(", ") +
-    (post.likes.length === 1
-      ? " has"
-      : post.likes.length > 5
-      ? ",... have"
-      : " have") +
-    " liked this post.";
+    `${post.likes
+      .slice(0, 5)
+      .map((user) => `${user.firstName} ${user.lastName}`)
+      .join(", ")} ${
+      post.likes.length === 1
+        ? " has"
+        : post.likes.length <= 5
+        ? " have"
+        : ",... have"
+    } liked this post.`;
 
   return (
     <Container>
@@ -146,7 +149,7 @@ const Post: FC<PostProps> = ({
         <Header>
           <Author user={post.user} />
           <ButtonsContainer>
-            {isUserOwner(post.user) && (
+            {isUserOwnerOfObject(post.user) && (
               <Button label="Delete" color="link" onClick={handleClickDelete} />
             )}
 
@@ -178,6 +181,7 @@ const Post: FC<PostProps> = ({
             >
               <div>{post.numLikes} likes</div>
             </Tooltip>
+
             {post.numComments !== 0 && (
               <div>{post.comments?.length} comments</div>
             )}

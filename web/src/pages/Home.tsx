@@ -66,7 +66,6 @@ const Home: FC = () => {
 
     newPostForm.attachment &&
       sendFormData.append("attachment", newPostForm.attachment);
-
     sendFormData.append("private", newPostForm.private.toString());
     sendFormData.append("content", newPostForm.content);
 

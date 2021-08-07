@@ -1,5 +1,4 @@
 const multer = require("multer");
-
 const path = require("path");
 
 const MULTER_SAVE_LOCATION = path.join(
@@ -19,6 +18,6 @@ const storage = multer.diskStorage({
     ),
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 module.exports = { attachment: upload.single("attachment") };
