@@ -9,14 +9,11 @@ const Chat = function (app, socket) {
 };
 
 const message = (_, socket, message) => {
-  console.log(message.userId);
   socket.to(message.userId).emit(message.content);
-  console.log("Message: " + message.content);
 };
 
 const chat = (_, socket, userId) => {
   socket.join(userId);
-  console.log(`User with id ${userId} joined.`);
 };
 
 module.exports = Chat;

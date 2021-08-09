@@ -12,7 +12,7 @@ services:
     build: ./server
     ports:
       - "${REACT_APP_SERVER_PORT}:${REACT_APP_SERVER_PORT}"
-      - "${SOCKET_PORT}:${SOCKET_PORT}"
+      - "${REACT_APP_SOCKET_PORT}:${REACT_APP_SOCKET_PORT}"
     depends_on:
       - mysql
     volumes:

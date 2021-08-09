@@ -1,13 +1,12 @@
 import { FC, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { IChat } from "../constants/models";
+import { IMessage } from "../constants/models";
 import Message from "./Message";
 import { theme } from "../theme/theme.config";
-import Author from "./Author";
 import Badge from "./shared-components/Badge";
 
 interface MessageListProps {
-  chat: IChat;
+  messages: IMessage[];
 
   onScrollTop(): void;
 }
@@ -52,20 +51,7 @@ const ScrollButton = styled(Badge)`
   }
 `;
 
-const Header = styled.div`
-  justify-content: center;
-
-  display: flex;
-
-  width: 95%;
-  padding: 0.7rem 0;
-  margin: 0 auto;
-  border-radius: 0 0 0.5rem 0.5rem;
-
-  background-color: ${theme.palette.white};
-`;
-
-const MessageList: FC<MessageListProps> = ({ chat, onScrollTop }) => {
+const MessageList: FC<MessageListProps> = ({ messages, onScrollTop }) => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messageContainer = useRef<HTMLDivElement>(null);
 
@@ -81,7 +67,7 @@ const MessageList: FC<MessageListProps> = ({ chat, onScrollTop }) => {
     window.addEventListener("load", scrollToBottom);
   }, []);
 
-  useEffect(scrollToBottom, [chat, chat.messages]);
+  useEffect(scrollToBottom, [messages]);
 
   const handleScroll = () => {
     const el = messageContainer.current;
@@ -97,12 +83,8 @@ const MessageList: FC<MessageListProps> = ({ chat, onScrollTop }) => {
 
   return (
     <>
-      <Header>
-        <Author user={chat.recepient} />
-      </Header>
-
       <Container onScroll={handleScroll} ref={messageContainer}>
-        {chat.messages.map((message) => (
+        {messages.map((message) => (
           <Message key={message.id} message={message} />
         ))}
       </Container>

@@ -9,7 +9,6 @@ import PostList from "./PostList";
 import Button from "./shared-components/Button";
 import Tooltip from "rc-tooltip";
 import { getUserId, isUserOwnerOfObject } from "../services/authServices";
-import { format } from "timeago.js";
 import DateLabel from "./DateLabel";
 
 interface PostProps extends HTMLAttributes<HTMLDivElement> {

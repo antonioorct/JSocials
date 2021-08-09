@@ -2,6 +2,8 @@ export const BACKEND_URL = `http://localhost:${process.env.REACT_APP_SERVER_PORT
 
 export const API_URL = `${BACKEND_URL}/api`;
 
+export const SOCKET_URL = `http://localhost:${process.env.REACT_APP_SOCKET_PORT}`;
+
 export const USERS_URL = API_URL + "/users";
 
 export const AUTH_URL = API_URL + "/auth";

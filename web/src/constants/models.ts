@@ -39,6 +39,10 @@ export interface IMessage {
   createdAt: string;
 }
 
+export interface IUserMessage extends IUser {
+  message: { content: string; createdAt: string };
+}
+
 export interface IChat {
   id: number;
   name?: string;

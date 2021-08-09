@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const { sequelize } = require("../database");
+const logger = require("../logger");
 const { io } = require("../socket");
 const { authenticate } = require("../utils/jwt");
 
@@ -21,7 +22,7 @@ const CHAT_OPTIONS = {
 };
 
 const MESSAGE_OPTIONS = {
-  include: [sequelize.models.user],
+  include: sequelize.models.user,
 };
 
 router.get("/chats", authenticate, async (req, res) => {
@@ -34,7 +35,7 @@ router.get("/chats", authenticate, async (req, res) => {
 
     return res.send(chats);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err.message);
   }
@@ -42,26 +43,23 @@ router.get("/chats", authenticate, async (req, res) => {
 
 router.post("/chats", authenticate, async (req, res) => {
   try {
-    const { content, chatId, userId } = req.body;
+    const { content, userId } = req.body;
 
-    let newChat = undefined;
-    if (!chatId) {
-      newChat = await sequelize.models.chat.create();
-      await sequelize.models.chat_user.bulkCreate([
-        {
-          chatId: newChat.getDataValue("id"),
-          userId: req.userId,
-        },
-        {
-          chatId: newChat.getDataValue("id"),
-          userId,
-        },
-      ]);
-    }
+    const newChat = await sequelize.models.chat.create();
+    await sequelize.models.chat_user.bulkCreate([
+      {
+        chatId: newChat.getDataValue("id"),
+        userId: req.userId,
+      },
+      {
+        chatId: newChat.getDataValue("id"),
+        userId,
+      },
+    ]);
 
     const message = await sequelize.models.message.create({
       userId: req.userId,
-      chatId: chatId || newChat?.getDataValue("id"),
+      chatId: newChat.getDataValue("id"),
       content,
     });
 
@@ -88,7 +86,7 @@ router.post("/chats", authenticate, async (req, res) => {
 
     return res.send(chat);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err.message);
   }
@@ -124,7 +122,7 @@ router.post("/chats/:chatId", authenticate, async (req, res) => {
 
     return res.send(newMessage);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err.message);
   }

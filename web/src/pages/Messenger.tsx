@@ -1,13 +1,14 @@
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import styled from "styled-components";
+import Author from "../components/Author";
 import ReplyFormComponent from "../components/forms/ReplyForm";
-import FriendList, { UserList } from "../components/FriendList";
+import { UserList } from "../components/FriendList";
 import MessageList from "../components/MessageList";
 import Modal from "../components/Modal";
 import ContainerComponent from "../components/shared-components/Container";
-import Input from "../components/shared-components/Input";
-import { IChat, IMessage, IUser } from "../constants/models";
+import { SOCKET_URL } from "../constants/apiRoutes";
+import { IChat, IMessage, IUser, IUserMessage } from "../constants/models";
 import { getUserId } from "../services/authServices";
 import {
   addMessage,
@@ -75,7 +76,27 @@ const ReplyForm = styled(ReplyFormComponent)`
   box-sizing: border-box;
 `;
 
-const socket = io("http://localhost:3001");
+const UserListModal = styled(UserList)`
+  padding: 3rem 4rem;
+  border-radius: 0.8rem;
+
+  background-color: ${theme.palette.white};
+`;
+
+const AuthorHeader = styled.div`
+  justify-content: center;
+
+  display: flex;
+
+  width: 95%;
+  padding: 0.7rem 0;
+  margin: 0 auto;
+  border-radius: 0 0 0.5rem 0.5rem;
+
+  background-color: ${theme.palette.white};
+`;
+
+const socket = io(SOCKET_URL);
 
 const Messenger: FC = () => {
   const [reply, setReply] = useState("");
@@ -84,6 +105,8 @@ const Messenger: FC = () => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    socket.emit("chat", getUserId()?.sub);
+
     (async () => {
       const chats = await getAllChats();
 
@@ -92,13 +115,10 @@ const Messenger: FC = () => {
   }, []);
 
   useEffect(() => {
-    socket.emit("chat", getUserId()?.sub);
-  }, [socket]);
-
-  useEffect(() => {
     socket.off("message");
 
     socket.on("message", (message: IMessage) => newMessage(message));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats]);
 
   const handleChangeReplyInput = (value: string) => setReply(value);
@@ -107,8 +127,6 @@ const Messenger: FC = () => {
     if (reply === "" || currentChat === undefined) return;
 
     if (currentChat.id === -1) {
-      console.log(currentChat.recepient);
-
       const newChat = await createChat(reply, currentChat.recepient);
 
       setChats([newChat, ...chats]);
@@ -129,12 +147,6 @@ const Messenger: FC = () => {
   };
 
   const handleScrollToTop = () => console.log("Scrolled to top");
-
-  const getAllUsers = () =>
-    chats.map((chat) => ({
-      ...chat.recepient,
-      message: { ...chat.messages[chat.messages.length - 1] },
-    }));
 
   const getChatWithUser = (user: IUser) =>
     chats.find((chat) => chat.recepient.id === user.id);
@@ -163,11 +175,18 @@ const Messenger: FC = () => {
       });
   };
 
+  const getAllUsers = (): IUserMessage[] =>
+    chats.map((chat) => ({
+      ...chat.recepient,
+      message: chat.messages[chat.messages.length - 1],
+    }));
+
   return (
     <>
       <Modal
         show={showModal}
-        component={UserList}
+        component={UserListModal}
+        // TODO: replace with friends
         users={[
           ...getAllUsers(),
           {
@@ -199,9 +218,16 @@ const Messenger: FC = () => {
         />
 
         <ChatContainer>
-          {currentChat !== undefined && (
+          {currentChat && (
             <>
-              <MessageList chat={currentChat} onScrollTop={handleScrollToTop} />
+              <AuthorHeader>
+                <Author user={currentChat.recepient} />
+              </AuthorHeader>
+
+              <MessageList
+                messages={currentChat.messages}
+                onScrollTop={handleScrollToTop}
+              />
 
               <ReplyForm
                 handleSubmit={handleSubmitReply}

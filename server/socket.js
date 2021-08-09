@@ -1,10 +1,11 @@
 const path = require("path");
 const fs = require("fs");
+const http = require("http");
+const socketIo = require("socket.io");
 
 const SOCKETS_FOLDER = "sockets";
 
 let io;
-const allSockets = [];
 
 function initSockets(app) {
   io.sockets.on("connection", function (socket) {
@@ -17,7 +18,6 @@ function initSockets(app) {
 
     const eventHandlers = sockets.map((Socket) => new Socket(app, socket));
 
-    // Bind events to handlers
     for (const category in eventHandlers) {
       const handler = eventHandlers[category].handler;
 
@@ -25,18 +25,15 @@ function initSockets(app) {
         socket.on(event, handler[event]);
       }
     }
-
-    // Keep track of the socket
-    allSockets.push(socket);
   });
 }
 
 function init(app) {
-  const http = require("http").Server(app);
+  const httpServer = http.Server(app);
 
-  io = require("socket.io")(http, { cors: { origin: "*" } });
+  io = socketIo(httpServer, { cors: { origin: "*" } });
 
-  io.listen(3001);
+  io.listen(process.env.REACT_APP_SOCKET_PORT);
 
   initSockets(app);
 }

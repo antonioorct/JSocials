@@ -1,11 +1,9 @@
 import { FC, HTMLAttributes } from "react";
 import styled from "styled-components";
-import { format } from "timeago.js";
 import { DEFAULT_USER_IMAGE } from "../constants/constants";
-import { IMessage, IUser } from "../constants/models";
+import { IUser, IUserMessage } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import DateLabel from "./DateLabel";
-import { IUserMessage } from "./FriendList";
 import AnchorComponent from "./shared-components/Anchor";
 import Button from "./shared-components/Button";
 
@@ -69,17 +67,11 @@ const AuthorNameContainer = styled.div`
   flex: 1 0 auto;
 `;
 
-const SubTextContainer = styled.div`
-  /* display: flex; */
-  justify-content: space-between;
-  align-items: center;
-  /* box-sizing: border-box; */
-
-  & span {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
+const SubTextMessage = styled.div`
+  width: 16vw;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
 const Author: FC<AuthorProps> = ({
@@ -118,10 +110,10 @@ const Author: FC<AuthorProps> = ({
           )}
 
           {subText && subText.message && (
-            <SubTextContainer>
-              <span>{subText.message.content}</span>
+            <div>
+              <SubTextMessage>{subText.message.content}</SubTextMessage>
               <DateLabel date={subText.message.createdAt} />
-            </SubTextContainer>
+            </div>
           )}
         </AuthorNameContainer>
       </Container>

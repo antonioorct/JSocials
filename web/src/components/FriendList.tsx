@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, HTMLAttributes, useState } from "react";
 import styled from "styled-components";
-import { IChat, IMessage, IUser } from "../constants/models";
+import { IUser, IUserMessage } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import Author from "./Author";
 import Button from "./shared-components/Button";
@@ -122,16 +122,7 @@ const UserListContainer = styled.div`
   gap: 1rem;
 
   display: flex;
-
-  padding: 3rem 4rem;
-  border-radius: 0.8rem;
-
-  background-color: ${theme.palette.white};
 `;
-
-export interface IUserMessage extends IUser {
-  message: { content: string; createdAt: string };
-}
 
 interface UserListProps extends FriendListProps {
   users: IUserMessage[];
@@ -154,11 +145,13 @@ export const UserList: FC<UserListProps> = ({
   }: ChangeEvent<HTMLInputElement>) => setFilterUserQuery(value);
 
   const getFilteredUsers = (): IUserMessage[] =>
-    users.filter((user: IUserMessage) =>
-      `${user.firstName} ${user.lastName}`
-        .toLowerCase()
-        .includes(filterUserQuery.toLowerCase())
-    );
+    filterUserQuery === ""
+      ? users
+      : users.filter((user: IUserMessage) =>
+          `${user.firstName} ${user.lastName}`
+            .toLowerCase()
+            .includes(filterUserQuery.toLowerCase())
+        );
 
   return (
     <UserListContainer className={className}>
@@ -168,6 +161,7 @@ export const UserList: FC<UserListProps> = ({
           onChange={handleFilterQueryChange}
           placeholder="Search users..."
         />
+
         {onClickCancel ? (
           <Button label="Cancel" color="link" onClick={onClickCancel} />
         ) : (
