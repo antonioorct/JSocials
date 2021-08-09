@@ -2,6 +2,7 @@ import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import routes from "../constants/routes";
+import { getFriendRequestCount } from "../services/friendRequestServices";
 import { theme } from "../theme/theme.config";
 import LocalStorage from "../utils/LocalStorage";
 import Anchor from "./shared-components/Anchor";
@@ -232,7 +233,19 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
     transparent ? window.scrollY === 0 : false
   );
 
+  const [friendRequestCount, setFriendRequestCount] = useState<
+    number | undefined
+  >();
+
   const history = useHistory();
+
+  useEffect(() => {
+    (async () => {
+      const friendRequestCount = await getFriendRequestCount();
+
+      setFriendRequestCount(friendRequestCount);
+    })();
+  }, []);
 
   const handleScroll = useCallback(() => {
     // Remove bg from header if scroll is on top of page
@@ -294,9 +307,13 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
         <LinkBar $topOfPage={topOfPage}>
           <Anchor to="/messenger" label="Messenger" underline />
           <Anchor to="/friends" label="Friends" underline />
-          <Badge content="2">
+          {friendRequestCount ? (
+            <Badge content={friendRequestCount}>
+              <Anchor to="/friend-requests" label="Friend Requests" underline />
+            </Badge>
+          ) : (
             <Anchor to="/friend-requests" label="Friend Requests" underline />
-          </Badge>
+          )}
           <Anchor to="/profile" label="Profile" underline />
           <Button label="Log out" color="primary" onClick={handleClickLogout} />
         </LinkBar>

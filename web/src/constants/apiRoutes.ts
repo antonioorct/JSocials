@@ -19,3 +19,8 @@ export const CHAT_URL = (chatId: number) => `${CHATS_URL}/${chatId}`;
 
 export const FRIENDS_URL = API_URL + "/friends";
 export const FRIEND_URL = (friendId: number) => `${FRIENDS_URL}/${friendId}`;
+
+export const FRIEND_REQUESTS_URL = API_URL + "/friend-requests";
+export const FRIEND_REQUESTS_COUNT_URL = `${FRIEND_REQUESTS_URL}/count`;
+export const FRIEND_REQUEST_URL = (userId: number) =>
+  `${FRIEND_REQUESTS_URL}/${userId}`;

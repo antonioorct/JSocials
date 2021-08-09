@@ -51,6 +51,11 @@ export interface IChat {
   messages: IMessage[];
 }
 
+export interface IFriendRequests {
+  incoming: IUser[];
+  outgoing: IUser[];
+}
+
 export interface IUserJWT {
   sub: number;
 }
