@@ -14,6 +14,7 @@ interface FriendListProps extends HTMLAttributes<HTMLDivElement> {
   fullWidth?: boolean;
 
   onCancelRequest?(user: IUser): void;
+  onRemoveFriend?(user: IUser): void;
   onAcceptRequest?(user: IUser): void;
   onDeclineRequest?(user: IUser): void;
   onClickUser?(user: IUser): void;
@@ -66,6 +67,7 @@ const FriendList: FC<FriendListProps> = ({
   onAcceptRequest,
   onDeclineRequest,
   onCancelRequest,
+  onRemoveFriend,
   onClickUser,
   className,
 }: FriendListProps) => (
@@ -78,6 +80,7 @@ const FriendList: FC<FriendListProps> = ({
         onAcceptRequest={onAcceptRequest}
         onDeclineRequest={onDeclineRequest}
         onCancelRequest={onCancelRequest}
+        onRemoveFriend={onRemoveFriend}
         onClickUser={onClickUser}
       />
     ))}

@@ -15,7 +15,7 @@ router.post("/users", async (req, res) => {
 
     await sequelize.models.user.create(req.body);
 
-    res.send();
+    return res.send();
   } catch (err) {
     logger.error(err);
 

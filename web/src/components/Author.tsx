@@ -15,6 +15,7 @@ interface AuthorProps extends HTMLAttributes<HTMLDivElement> {
   big?: boolean;
 
   onCancelRequest?(user: IUser): void;
+  onRemoveFriend?(user: IUser): void;
   onAcceptRequest?(user: IUser): void;
   onDeclineRequest?(user: IUser): void;
   onClickUser?(user: IUser): void;
@@ -80,11 +81,13 @@ const Author: FC<AuthorProps> = ({
   className,
   big,
   onCancelRequest,
+  onRemoveFriend,
   onAcceptRequest,
   onDeclineRequest,
   onClickUser,
 }: AuthorProps) => {
   const handleCancelRequest = () => onCancelRequest && onCancelRequest(user);
+  const handleRemoveFriend = () => onRemoveFriend && onRemoveFriend(user);
 
   const handleDeclineRequest = () => onDeclineRequest && onDeclineRequest(user);
   const handleAcceptRequest = () => onAcceptRequest && onAcceptRequest(user);
@@ -130,7 +133,10 @@ const Author: FC<AuthorProps> = ({
     <OuterContainer className={className} onClick={handleClickUser}>
       {renderAuthor()}
 
-      {(onAcceptRequest || onDeclineRequest || onCancelRequest) && (
+      {(onAcceptRequest ||
+        onDeclineRequest ||
+        onCancelRequest ||
+        onRemoveFriend) && (
         <ButtonContainer>
           {onAcceptRequest && (
             <Button
@@ -151,6 +157,13 @@ const Author: FC<AuthorProps> = ({
               label="Cancel"
               color="primary"
               onClick={handleCancelRequest}
+            />
+          )}
+          {onRemoveFriend && (
+            <Button
+              label="Remove"
+              color="primary"
+              onClick={handleRemoveFriend}
             />
           )}
         </ButtonContainer>
