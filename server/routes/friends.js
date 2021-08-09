@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { Op } = require("sequelize");
 const { sequelize } = require("../database");
 const { authenticate } = require("../utils/jwt");
+const logger = require("../logger");
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.get("/friends", authenticate, async (req, res) => {
 
     return res.send(friends);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }
@@ -43,7 +44,7 @@ router.delete("/friends/:friendId", authenticate, async (req, res) => {
 
     return res.send();
   } catch (err) {
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err.message);
   }
