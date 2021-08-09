@@ -51,6 +51,18 @@ function initAssociations() {
     as: "friends",
     through: "friend",
   });
+
+  sequelize.models.user.belongsToMany(sequelize.models.user, {
+    as: "outgoing_users",
+    foreignKey: "incoming_user_id",
+    through: "friend_request",
+  });
+
+  sequelize.models.user.belongsToMany(sequelize.models.user, {
+    as: "incoming_users",
+    foreignKey: "outgoing_user_id",
+    through: "friend_request",
+  });
 }
 
 async function seedDatabase() {
@@ -222,6 +234,18 @@ async function seedDatabase() {
     {
       userId: 3,
       friendId: 2,
+    },
+  ]);
+
+  await sequelize.models.friend_request.bulkCreate([
+    {
+      incoming_user_id: 1,
+      outgoing_user_id: 2,
+    },
+
+    {
+      incoming_user_id: 3,
+      outgoing_user_id: 1,
     },
   ]);
 }

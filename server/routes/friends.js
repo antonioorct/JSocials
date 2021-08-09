@@ -28,6 +28,28 @@ router.get("/friends", authenticate, async (req, res) => {
   }
 });
 
+router.post("/friends/:outgoing_user_id", authenticate, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { outgoing_user_id } = req.params;
+
+    await sequelize.models.friend_request.destroy({
+      where: { outgoing_user_id },
+    });
+
+    await sequelize.models.friend.bulkCreate([
+      { userId, friendId: outgoing_user_id },
+      { userId: outgoing_user_id, friendId: userId },
+    ]);
+
+    return res.send();
+  } catch (err) {
+    logger.error(err);
+
+    return res.status(500).send(err);
+  }
+});
+
 router.delete("/friends/:friendId", authenticate, async (req, res) => {
   try {
     const userId = req.userId;

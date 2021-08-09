@@ -1,8 +1,14 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import FriendList from "../components/FriendList";
 import ContainerComponent from "../components/shared-components/Container";
-import { IUser } from "../constants/models";
+import { IFriendRequests, IUser } from "../constants/models";
+import {
+  acceptFriendRequest,
+  cancelFriendRequest,
+  declineFriendRequest,
+  getAllFriendRequests,
+} from "../services/friendRequestServices";
 
 const Container = styled(ContainerComponent)`
   padding: 6rem 0 3rem;
@@ -23,10 +29,58 @@ const FriendRequestsContainer = styled.div`
 `;
 
 const FriendRequests: FC = () => {
-  const handleAcceptRequest = (user: IUser) => {};
-  const handleDeclineRequest = (user: IUser) => {};
+  const [friendRequests, setFriendRequests] = useState<IFriendRequests>({
+    incoming: [],
+    outgoing: [],
+  });
 
-  const handleCancelRequest = (user: IUser) => {};
+  useEffect(() => {
+    (async () => {
+      const friendRequests = await getAllFriendRequests();
+
+      setFriendRequests(friendRequests);
+    })();
+  }, []);
+
+  const removeIncomingFriendRequest = (user: IUser) => {
+    const newIncomingFriendRequests = friendRequests.incoming.filter(
+      (friend) => friend.id !== user.id
+    );
+
+    setFriendRequests({
+      ...friendRequests,
+      incoming: newIncomingFriendRequests,
+    });
+  };
+
+  const removeOutgoingFriendRequest = (user: IUser) => {
+    const newOutgoingFriendRequests = friendRequests.incoming.filter(
+      (friend) => friend.id !== user.id
+    );
+
+    setFriendRequests({
+      ...friendRequests,
+      outgoing: newOutgoingFriendRequests,
+    });
+  };
+
+  const handleAcceptRequest = async (user: IUser) => {
+    await acceptFriendRequest(user);
+
+    removeIncomingFriendRequest(user);
+  };
+
+  const handleDeclineRequest = async (user: IUser) => {
+    await declineFriendRequest(user);
+
+    removeIncomingFriendRequest(user);
+  };
+
+  const handleCancelRequest = async (user: IUser) => {
+    await cancelFriendRequest(user);
+
+    removeOutgoingFriendRequest(user);
+  };
 
   return (
     <Container>
@@ -35,8 +89,9 @@ const FriendRequests: FC = () => {
       <FriendRequestsContainer>
         <div>
           <h2>Incoming</h2>
+
           <FriendList
-            users={[]}
+            users={friendRequests.incoming}
             onAcceptRequest={handleAcceptRequest}
             onDeclineRequest={handleDeclineRequest}
             fullWidth
@@ -45,8 +100,9 @@ const FriendRequests: FC = () => {
 
         <div>
           <h2>Outgoing</h2>
+
           <FriendList
-            users={[]}
+            users={friendRequests.outgoing}
             onCancelRequest={handleCancelRequest}
             fullWidth
           />
