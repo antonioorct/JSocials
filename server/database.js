@@ -46,6 +46,11 @@ function initAssociations() {
 
   sequelize.models.message.belongsTo(sequelize.models.user);
   sequelize.models.chat.hasMany(sequelize.models.message);
+
+  sequelize.models.user.belongsToMany(sequelize.models.user, {
+    as: "friends",
+    through: "friend",
+  });
 }
 
 async function seedDatabase() {
@@ -191,6 +196,33 @@ async function seedDatabase() {
     { chatId: 2, userId: 1, content: "First" },
     { chatId: 3, userId: 2, content: "First" },
     { chatId: 4, userId: 1, content: "First" },
+  ]);
+
+  await sequelize.models.friend.bulkCreate([
+    {
+      userId: 1,
+      friendId: 2,
+    },
+    {
+      userId: 2,
+      friendId: 1,
+    },
+    {
+      userId: 3,
+      friendId: 1,
+    },
+    {
+      userId: 1,
+      friendId: 3,
+    },
+    {
+      userId: 2,
+      friendId: 3,
+    },
+    {
+      userId: 3,
+      friendId: 2,
+    },
   ]);
 }
 
