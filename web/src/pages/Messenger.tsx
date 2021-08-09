@@ -1,11 +1,20 @@
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import styled from "styled-components";
 import ReplyFormComponent from "../components/forms/ReplyForm";
-import FriendList from "../components/FriendList";
+import FriendList, { UserList } from "../components/FriendList";
 import MessageList from "../components/MessageList";
+import Modal from "../components/Modal";
 import ContainerComponent from "../components/shared-components/Container";
 import Input from "../components/shared-components/Input";
-import { IUser, seedMessages, seedUsers } from "../constants/models";
+import { IChat, IMessage, IUser } from "../constants/models";
+import { getUserId } from "../services/authServices";
+import {
+  addMessage,
+  createChat,
+  getAllChats,
+  sendMessage,
+} from "../services/messagingServices";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -14,22 +23,20 @@ const Container = styled(ContainerComponent)`
   & > div {
     display: flex;
 
-    height: calc(${window.innerHeight}px - 70px);
+    height: calc(100vh - 70px);
 
     ${theme.mediaQueries.mobile} {
       flex-direction: column;
+
+      height: calc(${window.innerHeight}px - 70px);
 
       width: 100%;
     }
   }
 `;
 
-const UsersContainer = styled.div`
+const UsersContainer = styled(UserList)`
   flex-basis: 30%;
-  flex-direction: column;
-  justify-content: flex-start;
-
-  display: flex;
 
   box-sizing: border-box;
   padding: 1rem 1rem 0;
@@ -44,31 +51,6 @@ const UsersContainer = styled.div`
 
     padding: 0;
     margin-bottom: 1rem;
-  }
-`;
-
-const UserQueryInput = styled(Input)`
-  ${theme.mediaQueries.mobile} {
-    display: block;
-
-    width: 90%;
-    margin: 0 auto 1rem;
-  }
-`;
-
-const UserList = styled(FriendList)`
-  overflow: auto;
-  padding-bottom: 1rem;
-
-  ${theme.mediaQueries.mobile} {
-    flex-direction: row;
-    flex-wrap: nowrap;
-
-    padding: 0 1rem 1rem;
-
-    & > * {
-      flex: 0 0 45% !important;
-    }
   }
 `;
 
@@ -93,76 +75,144 @@ const ReplyForm = styled(ReplyFormComponent)`
   box-sizing: border-box;
 `;
 
+const socket = io("http://localhost:3001");
+
 const Messenger: FC = () => {
   const [reply, setReply] = useState("");
-  const [messages, setMessages] = useState(seedMessages);
-  const [users] = useState(seedUsers);
-  const [filterUserQuery, setFilterUserQuery] = useState("");
+  const [chats, setChats] = useState<IChat[]>([]);
+  const [currentChat, setCurrentChat] = useState<IChat | undefined>(undefined);
+  const [showModal, setShowModal] = useState(false);
 
-  const handleSubmitReply = () => {
-    if (reply === "") return;
+  useEffect(() => {
+    (async () => {
+      const chats = await getAllChats();
 
-    setMessages([
-      ...messages,
-      {
-        id: messages[messages.length - 1].id + 1,
-        content: reply,
-        user: seedUsers[1],
-      },
-    ]);
+      setChats(chats);
+    })();
+  }, []);
+
+  useEffect(() => {
+    socket.emit("chat", getUserId()?.sub);
+  }, [socket]);
+
+  useEffect(() => {
+    socket.off("message");
+
+    socket.on("message", (message: IMessage) => newMessage(message));
+  }, [chats]);
+
+  const handleChangeReplyInput = (value: string) => setReply(value);
+
+  const handleSubmitReply = async () => {
+    if (reply === "" || currentChat === undefined) return;
+
+    if (currentChat.id === -1) {
+      console.log(currentChat.recepient);
+
+      const newChat = await createChat(reply, currentChat.recepient);
+
+      setChats([newChat, ...chats]);
+      setCurrentChat(newChat);
+    } else {
+      const message = await sendMessage(currentChat.id, reply);
+
+      newMessage(message);
+    }
 
     setReply("");
   };
-  const handleChangeReplyInput = (value: string) => setReply(value);
+
+  const newMessage = (message: IMessage) => {
+    const newChats = addMessage(chats, message);
+
+    setChats(newChats);
+  };
+
+  const handleScrollToTop = () => console.log("Scrolled to top");
+
+  const getAllUsers = () =>
+    chats.map((chat) => ({
+      ...chat.recepient,
+      message: { ...chat.messages[chat.messages.length - 1] },
+    }));
+
+  const getChatWithUser = (user: IUser) =>
+    chats.find((chat) => chat.recepient.id === user.id);
 
   const handleClickUser = (user: IUser) => {
-    console.log("New user! " + user.firstName);
+    const chat = getChatWithUser(user);
+
+    setCurrentChat(chat);
   };
 
-  const handleScrollToTop = () => {
-    console.log("Scrolled to top");
+  const handleClickOpenModal = () => setShowModal(true);
+  const handleClickCloseModal = () => setShowModal(false);
+
+  const handleClickNewChat = (user: IUser) => {
+    handleClickCloseModal();
+
+    const existingChat = chats.find((chat) => chat.recepient.id === user.id);
+
+    if (existingChat) setCurrentChat(existingChat);
+    else
+      setCurrentChat({
+        id: -1,
+        messages: [],
+        users: [user],
+        recepient: user,
+      });
   };
-
-  const handleFilterQueryChange = ({
-    currentTarget: { value },
-  }: ChangeEvent<HTMLInputElement>) => setFilterUserQuery(value);
-
-  const getFilteredUsers = (): IUser[] =>
-    users.filter((user) =>
-      `${user.firstName} ${user.lastName}`
-        .toLowerCase()
-        .includes(filterUserQuery.toLowerCase())
-    );
 
   return (
-    <Container>
-      <UsersContainer>
-        <UserQueryInput
-          value={filterUserQuery}
-          onChange={handleFilterQueryChange}
-          placeholder="Search users..."
-        />
-        <UserList
-          users={getFilteredUsers()}
+    <>
+      <Modal
+        show={showModal}
+        component={UserList}
+        users={[
+          ...getAllUsers(),
+          {
+            id: 4,
+            firstName: "Cetvrti",
+            lastName: "Peric",
+            username: "d",
+            email: "dntonio.orct@hotmail.com",
+            image: "/logo512.png",
+            password: "s",
+            bio: "This is all about me",
+            details: {
+              gender: "Male",
+              relationshipStatus: "Single",
+              website: "www.website.com",
+            },
+          },
+        ]}
+        chats={chats}
+        onClickCancel={handleClickCloseModal}
+        onClickUser={handleClickNewChat}
+      />
+
+      <Container>
+        <UsersContainer
+          users={getAllUsers()}
           onClickUser={handleClickUser}
-          fullWidth
-        />
-      </UsersContainer>
-
-      <ChatContainer>
-        <MessageList
-          user={seedUsers[0]}
-          messages={messages}
-          onScrollTop={handleScrollToTop}
+          onClickNew={handleClickOpenModal}
         />
 
-        <ReplyForm
-          handleSubmit={handleSubmitReply}
-          handleChangeInput={handleChangeReplyInput}
-          state={reply}
-        />
-      </ChatContainer>
-    </Container>
+        <ChatContainer>
+          {currentChat !== undefined && (
+            <>
+              <MessageList chat={currentChat} onScrollTop={handleScrollToTop} />
+
+              <ReplyForm
+                handleSubmit={handleSubmitReply}
+                handleChangeInput={handleChangeReplyInput}
+                state={reply}
+              />
+            </>
+          )}
+        </ChatContainer>
+      </Container>
+    </>
   );
 };
 

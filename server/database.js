@@ -38,6 +38,14 @@ function initAssociations() {
     through: "user_post_likes",
     as: "likes",
   });
+
+  sequelize.models.chat.belongsToMany(sequelize.models.user, {
+    through: "chat_user",
+    as: "users",
+  });
+
+  sequelize.models.message.belongsTo(sequelize.models.user);
+  sequelize.models.chat.hasMany(sequelize.models.message);
 }
 
 async function seedDatabase() {
@@ -48,7 +56,7 @@ async function seedDatabase() {
 
   await sequelize.models.user.bulkCreate([
     {
-      firstName: "Antonio",
+      firstName: "Prvi",
       lastName: "Orct",
       username: "a",
       email: "antonio.orct@hotmail.com",
@@ -62,10 +70,38 @@ async function seedDatabase() {
       },
     },
     {
-      firstName: "Antonio",
-      lastName: "Orct",
+      firstName: "Drugi",
+      lastName: "Antic",
       username: "b",
       email: "bntonio.orct@hotmail.com",
+      image: "/logo512.png",
+      password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
+      bio: "This is all about me",
+      details: {
+        gender: "Male",
+        relationshipStatus: "Single",
+        website: "www.website.com",
+      },
+    },
+    {
+      firstName: "Treci",
+      lastName: "Horvat",
+      username: "c",
+      email: "cntonio.orct@hotmail.com",
+      image: "/logo512.png",
+      password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
+      bio: "This is all about me",
+      details: {
+        gender: "Male",
+        relationshipStatus: "Single",
+        website: "www.website.com",
+      },
+    },
+    {
+      firstName: "Cetvrti",
+      lastName: "Peric",
+      username: "d",
+      email: "dntonio.orct@hotmail.com",
       image: "/logo512.png",
       password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
       bio: "This is all about me",
@@ -100,6 +136,61 @@ async function seedDatabase() {
       private: false,
       postId: 3,
     },
+  ]);
+
+  await sequelize.models.chat.bulkCreate([
+    {
+      id: 1,
+    },
+    { id: 2, name: "First name" },
+    {
+      id: 3,
+    },
+    {
+      id: 4,
+    },
+  ]);
+
+  await sequelize.models.chat_user.bulkCreate([
+    { chatId: 1, userId: 1 },
+    { chatId: 1, userId: 2 },
+    { chatId: 2, userId: 1 },
+    { chatId: 2, userId: 3 },
+    { chatId: 3, userId: 2 },
+    { chatId: 3, userId: 3 },
+    { chatId: 4, userId: 1 },
+    { chatId: 4, userId: 4 },
+  ]);
+
+  await sequelize.models.message.bulkCreate([
+    { chatId: 1, userId: 1, content: "First" },
+    { chatId: 1, userId: 1, content: "Second" },
+    { chatId: 1, userId: 2, content: "Third" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 1, userId: 1, content: "Fourth" },
+    { chatId: 2, userId: 1, content: "First" },
+    { chatId: 3, userId: 2, content: "First" },
+    { chatId: 4, userId: 1, content: "First" },
   ]);
 }
 
