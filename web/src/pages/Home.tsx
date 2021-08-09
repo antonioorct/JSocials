@@ -1,4 +1,3 @@
-import Tooltip from "rc-tooltip";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import NewPostForm from "../components/forms/NewPostForm";

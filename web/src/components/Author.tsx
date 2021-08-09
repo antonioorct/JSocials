@@ -1,13 +1,16 @@
 import { FC, HTMLAttributes } from "react";
 import styled from "styled-components";
 import { DEFAULT_USER_IMAGE } from "../constants/constants";
-import { IUser } from "../constants/models";
+import { IUser, IUserMessage } from "../constants/models";
 import { theme } from "../theme/theme.config";
+import DateLabel from "./DateLabel";
 import AnchorComponent from "./shared-components/Anchor";
 import Button from "./shared-components/Button";
 
 interface AuthorProps extends HTMLAttributes<HTMLDivElement> {
   user: IUser;
+
+  subText?: IUserMessage;
 
   big?: boolean;
 
@@ -21,6 +24,8 @@ const Container = styled.div<{ big?: boolean }>`
   display: flex;
   gap: 1rem;
   align-items: center;
+
+  width: 100%;
 
   ${theme.mediaQueries.mobile} {
     ${(props) => props.big && "flex-direction: column;"}
@@ -56,8 +61,22 @@ const AuthorName = styled.h3`
   margin: 0;
 `;
 
+const AuthorNameContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+`;
+
+const SubTextMessage = styled.div`
+  width: 16vw;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;
+
 const Author: FC<AuthorProps> = ({
   user,
+  subText,
   className,
   big,
   onCancelRequest,
@@ -79,15 +98,24 @@ const Author: FC<AuthorProps> = ({
           alt=""
           big={big}
         />
-        {big ? (
-          <BigAuthorName>
-            {user.firstName} {user.lastName}
-          </BigAuthorName>
-        ) : (
-          <AuthorName>
-            {user.firstName} {user.lastName}
-          </AuthorName>
-        )}
+        <AuthorNameContainer>
+          {big ? (
+            <BigAuthorName>
+              {user.firstName} {user.lastName}
+            </BigAuthorName>
+          ) : (
+            <AuthorName>
+              {user.firstName} {user.lastName}
+            </AuthorName>
+          )}
+
+          {subText && subText.message && (
+            <div>
+              <SubTextMessage>{subText.message.content}</SubTextMessage>
+              <DateLabel date={subText.message.createdAt} />
+            </div>
+          )}
+        </AuthorNameContainer>
       </Container>
     );
 

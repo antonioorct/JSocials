@@ -10,7 +10,7 @@ import Button from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import Tabs, { Tab } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
-import { IPost, seedUsers } from "../constants/models";
+import { IPost } from "../constants/models";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -117,9 +117,7 @@ const Profile: FC = () => {
         </Tab>
 
         <Tab eventkey="Friends">
-          <FriendList
-            users={[...seedUsers, ...seedUsers, ...seedUsers, seedUsers[0]]}
-          />
+          <FriendList users={[]} />
         </Tab>
       </Tabs>
     </PageContainer>

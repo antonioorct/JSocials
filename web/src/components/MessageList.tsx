@@ -1,14 +1,12 @@
 import { FC, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { IMessage, IUser } from "../constants/models";
+import { IMessage } from "../constants/models";
 import Message from "./Message";
 import { theme } from "../theme/theme.config";
-import Author from "./Author";
 import Badge from "./shared-components/Badge";
 
 interface MessageListProps {
   messages: IMessage[];
-  user: IUser;
 
   onScrollTop(): void;
 }
@@ -16,7 +14,7 @@ interface MessageListProps {
 const Container = styled.div`
   position: relative;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.8rem;
 
   display: flex;
 
@@ -40,6 +38,10 @@ const ScrollButton = styled(Badge)`
   & > div {
     padding: 1rem;
 
+    border: 1px solid ${theme.palette.lightBlack};
+
+    background-color: ${theme.palette.darkGray};
+
     font-size: 1.3rem;
   }
 
@@ -49,20 +51,7 @@ const ScrollButton = styled(Badge)`
   }
 `;
 
-const Header = styled.div`
-  justify-content: center;
-
-  display: flex;
-
-  width: 95%;
-  padding: 0.7rem 0;
-  margin: 0 auto;
-  border-radius: 0 0 0.5rem 0.5rem;
-
-  background-color: ${theme.palette.white};
-`;
-
-const MessageList: FC<MessageListProps> = ({ user, messages, onScrollTop }) => {
+const MessageList: FC<MessageListProps> = ({ messages, onScrollTop }) => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messageContainer = useRef<HTMLDivElement>(null);
 
@@ -94,20 +83,10 @@ const MessageList: FC<MessageListProps> = ({ user, messages, onScrollTop }) => {
 
   return (
     <>
-      <Header>
-        <Author user={user} />
-      </Header>
-
       <Container onScroll={handleScroll} ref={messageContainer}>
-        {messages.map((message) => {
-          return (
-            <Message
-              key={message.id}
-              alignment={message.user.id === 1 ? "left" : "right"}
-              content={message.content}
-            />
-          );
-        })}
+        {messages.map((message) => (
+          <Message key={message.id} message={message} />
+        ))}
       </Container>
 
       {showScrollButton && (

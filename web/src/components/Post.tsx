@@ -9,7 +9,7 @@ import PostList from "./PostList";
 import Button from "./shared-components/Button";
 import Tooltip from "rc-tooltip";
 import { getUserId, isUserOwnerOfObject } from "../services/authServices";
-import { format } from "timeago.js";
+import DateLabel from "./DateLabel";
 
 interface PostProps extends HTMLAttributes<HTMLDivElement> {
   post: IPost;
@@ -83,11 +83,6 @@ const ActionsContainer = styled.div`
   gap: 1rem;
 `;
 
-const DateLabel = styled.div`
-  font-size: 0.8rem;
-  color: ${theme.palette.lightGray};
-`;
-
 const Post: FC<PostProps> = ({
   post,
   onClickLike,
@@ -159,9 +154,7 @@ const Post: FC<PostProps> = ({
           </ButtonsContainer>
         </Header>
 
-        <DateLabel title={new Date(post.createdAt).toLocaleString()}>
-          {format(post.createdAt)}
-        </DateLabel>
+        <DateLabel date={post.createdAt} />
 
         <Content onClick={handleClickPost} hasModal={onClickPost !== undefined}>
           <p>{post.content}</p>

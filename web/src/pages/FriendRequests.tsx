@@ -2,7 +2,7 @@ import { FC } from "react";
 import styled from "styled-components";
 import FriendList from "../components/FriendList";
 import ContainerComponent from "../components/shared-components/Container";
-import { IUser, seedUsers } from "../constants/models";
+import { IUser } from "../constants/models";
 
 const Container = styled(ContainerComponent)`
   padding: 6rem 0 3rem;
@@ -36,7 +36,7 @@ const FriendRequests: FC = () => {
         <div>
           <h2>Incoming</h2>
           <FriendList
-            users={seedUsers}
+            users={[]}
             onAcceptRequest={handleAcceptRequest}
             onDeclineRequest={handleDeclineRequest}
             fullWidth
@@ -46,7 +46,7 @@ const FriendRequests: FC = () => {
         <div>
           <h2>Outgoing</h2>
           <FriendList
-            users={seedUsers}
+            users={[]}
             onCancelRequest={handleCancelRequest}
             fullWidth
           />
