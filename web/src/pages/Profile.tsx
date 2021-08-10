@@ -1,4 +1,5 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Author from "../components/Author";
 import FriendList from "../components/FriendList";
@@ -10,7 +11,10 @@ import Button from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import Tabs, { Tab } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
-import { IPost } from "../constants/models";
+import { IPost, IUserProfile } from "../constants/models";
+import { getUserId } from "../services/authServices";
+import { getAllPosts } from "../services/postServices";
+import { getUserProfile } from "../services/userServices";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -57,7 +61,9 @@ const PageContainer = styled.div`
 `;
 
 const Profile: FC = () => {
-  const [posts] = useState<IPost[]>([]);
+  const { id } = useParams<{ id: string }>();
+
+  const [userProfile, setUserProfile] = useState<IUserProfile>();
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
 
   const handleClickOpenModal = (post: IPost) => setPostModal(post);
@@ -69,8 +75,20 @@ const Profile: FC = () => {
 
   const handleReply = (post: IPost, content: string) => {};
 
+  useEffect(() => {
+    (async () => {
+      let user;
+      const userId = getUserId();
+      if (id === undefined && userId !== undefined)
+        user = await getUserProfile(userId.sub);
+      else user = await getUserProfile(+id);
+
+      setUserProfile(user);
+    })();
+  }, []);
+
   return (
-    <PageContainer>
+    <>
       <Modal
         show={postModal !== undefined}
         component={Post}
@@ -82,45 +100,51 @@ const Profile: FC = () => {
         onReply={handleReply}
       />
 
-      <Container>
-        <Author user={posts[0].user} big />
+      {userProfile && (
+        <PageContainer>
+          <Container>
+            <Author user={userProfile} big />
 
-        <ButtonContainer>
-          <Button label="Send friend request" color="primary" />
-          <Button label="Message" color="primary" />
-        </ButtonContainer>
-      </Container>
+            <ButtonContainer>
+              <Button label="Send friend request" color="primary" />
+              <Button label="Message" color="primary" />
+            </ButtonContainer>
+          </Container>
 
-      <Divider />
+          <Divider />
 
-      <Tabs>
-        <Tab eventkey="About">
-          <UserDetails user={posts[0].user} />
-        </Tab>
+          <Tabs>
+            <Tab eventkey="About">
+              <UserDetails userDetails={userProfile.userDetails} />
+            </Tab>
 
-        <Tab eventkey="Posts">
-          <PostList
-            posts={posts}
-            onClickLike={handleClickLike}
-            onClickUnlike={handleClickUnlike}
-            onClickDelete={handleClickDelete}
-            onClickPost={handleClickOpenModal}
-            onReply={handleReply}
-          />
-        </Tab>
+            <Tab eventkey="Posts">
+              <PostList
+                posts={userProfile.posts}
+                onClickLike={handleClickLike}
+                onClickUnlike={handleClickUnlike}
+                onClickDelete={handleClickDelete}
+                onClickPost={handleClickOpenModal}
+                onReply={handleReply}
+              />
+            </Tab>
 
-        <Tab eventkey="Photos">
-          <ImageList
-            posts={[posts[0], posts[0], posts[0], posts[0]]}
-            onClickImage={handleClickOpenModal}
-          />
-        </Tab>
+            <Tab eventkey="Photos">
+              <ImageList
+                posts={userProfile.posts.filter(
+                  (post) => post.attachment !== null
+                )}
+                onClickImage={handleClickOpenModal}
+              />
+            </Tab>
 
-        <Tab eventkey="Friends">
-          <FriendList users={[]} />
-        </Tab>
-      </Tabs>
-    </PageContainer>
+            <Tab eventkey="Friends">
+              <FriendList users={userProfile.friends} />
+            </Tab>
+          </Tabs>
+        </PageContainer>
+      )}
+    </>
   );
 };
 

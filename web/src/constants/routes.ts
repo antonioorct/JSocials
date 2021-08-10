@@ -47,7 +47,7 @@ const routes: IRoutes = {
   },
   profile: {
     name: "Profile",
-    href: "/profile",
+    href: "/profile/:id",
     component: Profile,
     protected: true,
   },

@@ -27,6 +27,12 @@ function initModels() {
 }
 
 function initAssociations() {
+  sequelize.models.user.hasOne(sequelize.models.userDetails, {
+    foreignKey: "userId",
+    as: "userDetails",
+  });
+
+  sequelize.models.user.hasMany(sequelize.models.post);
   sequelize.models.post.belongsTo(sequelize.models.user);
 
   sequelize.models.post.hasMany(sequelize.models.post, {
@@ -122,11 +128,15 @@ async function seedDatabase() {
       image: "/logo512.png",
       password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
       bio: "This is all about me",
-      details: {
-        gender: "Male",
-        relationshipStatus: "Single",
-        website: "www.website.com",
-      },
+    },
+  ]);
+
+  await sequelize.models.userDetails.bulkCreate([
+    {
+      userId: 1,
+      gender: "Male",
+      relationshipStatus: "Single",
+      website: "www.website.com",
     },
   ]);
 

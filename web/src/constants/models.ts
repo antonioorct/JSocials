@@ -18,17 +18,21 @@ export interface IUser {
   username: string;
   email: string;
   image?: string;
-
-  bio?: string;
-  details: IUserDetails;
 }
 
-interface IUserDetails {
+export interface IUserDetails {
+  bio?: string;
   relationshipStatus?: string;
   gender?: string;
   location?: string;
   website?: string;
   phone?: string;
+}
+
+export interface IUserProfile extends IUser {
+  userDetails: IUserDetails;
+  friends: IUser[];
+  posts: IPost[];
 }
 
 export interface IMessage {

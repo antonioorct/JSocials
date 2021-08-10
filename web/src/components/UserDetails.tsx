@@ -1,11 +1,11 @@
 import { FC } from "react";
 import styled from "styled-components";
-import { IUser } from "../constants/models";
+import { IUser, IUserDetails } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import { toTitleCase } from "../utils/stringUtils";
 
 interface UserDetailsProps {
-  user: IUser;
+  userDetails: IUserDetails;
 }
 
 const Title = styled.p`
@@ -52,11 +52,15 @@ const DetailsContainer = styled.div`
   }
 `;
 
-const UserDetails: FC<UserDetailsProps> = ({ user }: UserDetailsProps) => {
+const UserDetails: FC<UserDetailsProps> = ({
+  userDetails: { bio, ...details },
+}: UserDetailsProps) => {
   const getUserDetails = () => {
     const arr = [];
 
-    for (const [key, value] of Object.entries(user.details)) {
+    for (const [key, value] of Object.entries(details)) {
+      if (value === null || value === undefined || value === "") continue;
+
       arr.push(
         <div key={key}>
           <strong>{toTitleCase(key)}</strong>
@@ -72,9 +76,7 @@ const UserDetails: FC<UserDetailsProps> = ({ user }: UserDetailsProps) => {
   return (
     <>
       <Title>Bio</Title>
-      <BioContainer>
-        {user.bio ? user.bio : "There's nothing here..."}
-      </BioContainer>
+      <BioContainer>{bio ? bio : "There's nothing here..."}</BioContainer>
 
       <DetailsContainer>{getUserDetails()}</DetailsContainer>
     </>

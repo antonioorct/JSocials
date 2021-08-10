@@ -45,7 +45,7 @@ router.get("/friend-requests", authenticate, async (req, res) => {
 
 router.get("/friend-requests/count", authenticate, async (req, res) => {
   try {
-    const friendRequestCount = await sequelize.models.user.findAll(
+    const friendRequestCount = await sequelize.models.user.count(
       INCOMING_REQUEST_OPTIONS(req.userId)
     );
 

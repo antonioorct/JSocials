@@ -1,5 +1,6 @@
 import { FC } from "react";
 import styled from "styled-components";
+import { getAssetUrl } from "../constants/apiRoutes";
 import { IPost } from "../constants/models";
 import { theme } from "../theme/theme.config";
 
@@ -42,7 +43,7 @@ const ImageList: FC<ImageListProps> = ({
           post.attachment && (
             <img
               key={post.id}
-              src={post.attachment}
+              src={getAssetUrl(post.attachment)}
               alt=""
               onClick={() => onClickImage(post)}
             />
