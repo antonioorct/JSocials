@@ -1,15 +1,17 @@
 import { FC, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import styled from "styled-components";
 import Author from "../components/Author";
 import ReplyFormComponent from "../components/forms/ReplyForm";
-import { UserList } from "../components/FriendList";
+import { SearchUserList } from "../components/UserList";
 import MessageList from "../components/MessageList";
 import Modal from "../components/Modal";
 import ContainerComponent from "../components/shared-components/Container";
 import { SOCKET_URL } from "../constants/apiRoutes";
 import { IChat, IMessage, IUser, IUserMessage } from "../constants/models";
 import { getUserId } from "../services/authServices";
+import { getAllFriends } from "../services/friendServices";
 import {
   addMessage,
   createChat,
@@ -17,6 +19,7 @@ import {
   sendMessage,
 } from "../services/messagingServices";
 import { theme } from "../theme/theme.config";
+import { getUserName } from "../utils/stringUtils";
 
 const Container = styled(ContainerComponent)`
   margin-top: 70px;
@@ -36,7 +39,7 @@ const Container = styled(ContainerComponent)`
   }
 `;
 
-const UsersContainer = styled(UserList)`
+const UsersContainer = styled(SearchUserList)`
   flex-basis: 30%;
 
   box-sizing: border-box;
@@ -76,7 +79,7 @@ const ReplyForm = styled(ReplyFormComponent)`
   box-sizing: border-box;
 `;
 
-const UserListModal = styled(UserList)`
+const UserListModal = styled(SearchUserList)`
   padding: 3rem 4rem;
   border-radius: 0.8rem;
 
@@ -99,10 +102,14 @@ const AuthorHeader = styled.div`
 const socket = io(SOCKET_URL);
 
 const Messenger: FC = () => {
-  const [reply, setReply] = useState("");
   const [chats, setChats] = useState<IChat[]>([]);
   const [currentChat, setCurrentChat] = useState<IChat | undefined>(undefined);
+  const [userList, setUserList] = useState<IUserMessage[]>([]);
+  const [reply, setReply] = useState("");
+
   const [showModal, setShowModal] = useState(false);
+
+  const { state } = useLocation<{ user: IUser }>();
 
   useEffect(() => {
     socket.emit("chat", getUserId()?.sub);
@@ -111,15 +118,38 @@ const Messenger: FC = () => {
       const chats = await getAllChats();
 
       setChats(chats);
+
+      if (state !== undefined) openChat(chats, state.user);
     })();
-  }, []);
+  }, [state]);
 
   useEffect(() => {
     socket.off("message");
-
     socket.on("message", (message: IMessage) => newMessage(message));
+
+    populateUserList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats]);
+
+  const populateUserList = async () => {
+    let friends = await getAllFriends();
+    const existingChats = getAllChatUsers();
+
+    friends = friends.filter((friend) => {
+      const friendExists = existingChats.some(
+        (chat: IUserMessage) => chat.id === friend.id
+      );
+
+      return !friendExists;
+    });
+
+    const users = [...friends, ...existingChats];
+    users.sort((firstUser, secondUser) =>
+      getUserName(firstUser).localeCompare(getUserName(secondUser))
+    );
+
+    setUserList(users);
+  };
 
   const handleChangeReplyInput = (value: string) => setReply(value);
 
@@ -148,11 +178,8 @@ const Messenger: FC = () => {
 
   const handleScrollToTop = () => console.log("Scrolled to top");
 
-  const getChatWithUser = (user: IUser) =>
-    chats.find((chat) => chat.recepient.id === user.id);
-
   const handleClickUser = (user: IUser) => {
-    const chat = getChatWithUser(user);
+    const chat = chats.find((chat) => chat.recepient.id === user.id);
 
     setCurrentChat(chat);
   };
@@ -163,6 +190,10 @@ const Messenger: FC = () => {
   const handleClickNewChat = (user: IUser) => {
     handleClickCloseModal();
 
+    openChat(chats, user);
+  };
+
+  const openChat = (chats: IChat[], user: IUser) => {
     const existingChat = chats.find((chat) => chat.recepient.id === user.id);
 
     if (existingChat) setCurrentChat(existingChat);
@@ -175,7 +206,7 @@ const Messenger: FC = () => {
       });
   };
 
-  const getAllUsers = (): IUserMessage[] =>
+  const getAllChatUsers = (): IUserMessage[] =>
     chats.map((chat) => ({
       ...chat.recepient,
       message: chat.messages[chat.messages.length - 1],
@@ -186,25 +217,7 @@ const Messenger: FC = () => {
       <Modal
         show={showModal}
         component={UserListModal}
-        // TODO: replace with friends
-        users={[
-          ...getAllUsers(),
-          {
-            id: 4,
-            firstName: "Cetvrti",
-            lastName: "Peric",
-            username: "d",
-            email: "dntonio.orct@hotmail.com",
-            image: "/logo512.png",
-            password: "s",
-            bio: "This is all about me",
-            details: {
-              gender: "Male",
-              relationshipStatus: "Single",
-              website: "www.website.com",
-            },
-          },
-        ]}
+        users={userList}
         chats={chats}
         onClickCancel={handleClickCloseModal}
         onClickUser={handleClickNewChat}
@@ -212,7 +225,7 @@ const Messenger: FC = () => {
 
       <Container>
         <UsersContainer
-          users={getAllUsers()}
+          users={getAllChatUsers()}
           onClickUser={handleClickUser}
           onClickNew={handleClickOpenModal}
         />

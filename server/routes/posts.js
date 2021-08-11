@@ -9,7 +9,7 @@ const path = require("path");
 
 const router = Router();
 
-const POST_OPTIONS = {
+router.POST_OPTIONS = {
   order: [
     ["createdAt", "DESC"],
     [{ model: sequelize.models.post, as: "comments" }, "createdAt", "DESC"],
@@ -49,7 +49,7 @@ const COMMENT_OPTIONS = {
 
 router.get("/posts", authenticate, async (req, res) => {
   const posts = await sequelize.models.post.findAll({
-    ...POST_OPTIONS,
+    ...router.POST_OPTIONS,
     where: {
       postId: { [Op.eq]: null },
     },
@@ -68,7 +68,10 @@ router.post("/posts", [authenticate, attachment], async (req, res) => {
       userId: req.userId,
     });
 
-    const post = await sequelize.models.post.findByPk(newPost.id, POST_OPTIONS);
+    const post = await sequelize.models.post.findByPk(
+      newPost.id,
+      router.POST_OPTIONS
+    );
 
     return res.send(post);
   } catch (err) {
@@ -138,11 +141,14 @@ router.post("/posts/:postId/like", authenticate, async (req, res) => {
       postId,
     });
 
-    const post = await sequelize.models.post.findByPk(+postId, POST_OPTIONS);
+    const post = await sequelize.models.post.findByPk(
+      +postId,
+      router.POST_OPTIONS
+    );
 
     await post.increment("numLikes");
 
-    await post.reload(POST_OPTIONS);
+    await post.reload(router.POST_OPTIONS);
 
     return res.send(post);
   } catch (err) {
@@ -160,11 +166,14 @@ router.delete("/posts/:postId/like", authenticate, async (req, res) => {
       where: { userId: { [Op.eq]: req.userId } },
     });
 
-    const post = await sequelize.models.post.findByPk(+postId, POST_OPTIONS);
+    const post = await sequelize.models.post.findByPk(
+      +postId,
+      router.POST_OPTIONS
+    );
 
     await post.decrement("numLikes");
 
-    await post.reload(POST_OPTIONS);
+    await post.reload(router.POST_OPTIONS);
 
     return res.send(post);
   } catch (err) {

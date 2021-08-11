@@ -104,6 +104,7 @@ const Home: FC = () => {
       : updatePost(posts, newPost);
 
     setPosts(newPosts);
+    !isComment(newPost) && postModal && setPostModal(newPost);
   };
 
   const handleClickUnlike = async (post: IPost) => {
@@ -114,6 +115,7 @@ const Home: FC = () => {
       : updatePost(posts, newPost);
 
     setPosts(newPosts);
+    !isComment(newPost) && postModal && setPostModal(newPost);
   };
 
   const handleClickDelete = async (post: IPost) => {
@@ -123,16 +125,12 @@ const Home: FC = () => {
       ? removeComment(posts, post)
       : removePost(posts, post);
 
+    setPostModal(undefined);
     setPosts(newPosts);
   };
 
   const handleClickOpenModal = (post: IPost) => setPostModal(post);
   const handleClickCloseModal = () => setPostModal(undefined);
-  const handleClickDeleteModalPost = (post: IPost) => {
-    setPostModal(undefined);
-
-    handleClickDelete(post);
-  };
 
   const handleReply = async (post: IPost, content: string) => {
     const comment = await newComment(post, content);
@@ -149,7 +147,7 @@ const Home: FC = () => {
         component={Post}
         post={postModal}
         onClickCancel={handleClickCloseModal}
-        onClickDelete={handleClickDeleteModalPost}
+        onClickDelete={handleClickDelete}
         onClickLike={handleClickLike}
         onClickUnlike={handleClickUnlike}
         onReply={handleReply}

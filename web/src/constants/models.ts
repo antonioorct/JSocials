@@ -18,17 +18,21 @@ export interface IUser {
   username: string;
   email: string;
   image?: string;
-
-  bio?: string;
-  details: IUserDetails;
 }
 
-interface IUserDetails {
+export interface IUserDetails {
+  bio?: string;
   relationshipStatus?: string;
   gender?: string;
   location?: string;
   website?: string;
   phone?: string;
+}
+
+export interface IUserProfile extends IUser {
+  userDetails: IUserDetails;
+  friends: IUser[];
+  posts: IPost[];
 }
 
 export interface IMessage {
@@ -40,7 +44,7 @@ export interface IMessage {
 }
 
 export interface IUserMessage extends IUser {
-  message: { content: string; createdAt: string };
+  message?: { content: string; createdAt: string };
 }
 
 export interface IChat {
@@ -55,6 +59,8 @@ export interface IFriendRequests {
   incoming: IUser[];
   outgoing: IUser[];
 }
+
+export type FriendStatus = "friends" | "incoming" | "outgoing" | "none";
 
 export interface IUserJWT {
   sub: number;

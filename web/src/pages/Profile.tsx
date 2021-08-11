@@ -1,7 +1,9 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Author from "../components/Author";
-import FriendList from "../components/FriendList";
+import UserList from "../components/UserList";
+import FriendRequest from "../components/FriendRequest";
 import ImageList from "../components/ImageList";
 import Modal from "../components/Modal";
 import Post from "../components/Post";
@@ -10,7 +12,29 @@ import Button from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import Tabs, { Tab } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
-import { IPost } from "../constants/models";
+import { IPost, IUser, IUserDetails, IUserProfile } from "../constants/models";
+import routes from "../constants/routes";
+import { getUserId, isUserOwnerOfObject } from "../services/authServices";
+import {
+  acceptFriendRequest,
+  cancelFriendRequest,
+  declineFriendRequest,
+  sendFriendRequest,
+} from "../services/friendRequestServices";
+import { removeFriend } from "../services/friendServices";
+import {
+  addComment,
+  deletePost,
+  isComment,
+  likePost,
+  newComment,
+  removeComment,
+  removePost,
+  unlikePost,
+  updateComment,
+  updatePost,
+} from "../services/postServices";
+import { getUserProfile, updateUserProfile } from "../services/userServices";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -31,21 +55,6 @@ const Container = styled(ContainerComponent)`
   }
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-
-  ${theme.mediaQueries.mobile} {
-    flex-direction: row;
-    width: 100%;
-
-    & > * {
-      flex-basis: 100%;
-    }
-  }
-`;
-
 const Divider = styled.hr`
   margin-top: 1rem;
   margin-bottom: 4rem;
@@ -57,70 +66,202 @@ const PageContainer = styled.div`
 `;
 
 const Profile: FC = () => {
-  const [posts] = useState<IPost[]>([]);
+  const { id } = useParams<{ id: string }>();
+  const history = useHistory();
+
+  const [userProfile, setUserProfile] = useState<IUserProfile>();
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
 
-  const handleClickOpenModal = (post: IPost) => setPostModal(post);
-  const handleClickCloseModal = () => setPostModal(undefined);
+  const handleOpenModal = (post: IPost) => setPostModal(post);
+  const handleCloseModal = () => setPostModal(undefined);
 
-  const handleClickLike = (post: IPost) => {};
-  const handleClickUnlike = (post: IPost) => {};
-  const handleClickDelete = (post: IPost) => {};
+  useEffect(() => {
+    (async () => {
+      let user;
+      const userId = getUserId();
 
-  const handleReply = (post: IPost, content: string) => {};
+      if (id !== undefined) user = await getUserProfile(+id);
+      if (id === undefined && userId !== undefined)
+        user = await getUserProfile(userId.sub);
+
+      setUserProfile(user);
+    })();
+  }, [id]);
+
+  const handleLikePost = async (post: IPost) => {
+    if (!userProfile) return;
+
+    const newPost = await likePost(post);
+
+    const posts = isComment(post)
+      ? updateComment(userProfile.posts, newPost)
+      : updatePost(userProfile.posts, newPost);
+
+    setUserProfile({ ...userProfile, posts });
+    !isComment(newPost) && postModal && setPostModal(newPost);
+  };
+
+  const handleUnlikePost = async (post: IPost) => {
+    if (!userProfile) return;
+
+    const newPost = await unlikePost(post);
+
+    const posts = isComment(post)
+      ? updateComment(userProfile.posts, newPost)
+      : updatePost(userProfile.posts, newPost);
+
+    setUserProfile({ ...userProfile, posts });
+    !isComment(newPost) && postModal && setPostModal(newPost);
+  };
+
+  const handleDeletePost = async (post: IPost) => {
+    if (!userProfile) return;
+
+    await deletePost(post);
+
+    const posts = isComment(post)
+      ? removeComment(userProfile.posts, post)
+      : removePost(userProfile.posts, post);
+
+    setPostModal(undefined);
+    setUserProfile({ ...userProfile, posts });
+  };
+
+  const handleReplyPost = async (post: IPost, content: string) => {
+    if (!userProfile) return;
+
+    const comment = await newComment(post, content);
+
+    const posts = addComment(userProfile.posts, comment);
+
+    setUserProfile({ ...userProfile, posts });
+  };
+
+  const handleSendRequest = async () => {
+    if (!userProfile) return;
+
+    await sendFriendRequest(userProfile);
+  };
+
+  const handleChangeDetails = async (userDetails: IUserDetails) => {
+    if (!userProfile) return;
+
+    await updateUserProfile(userDetails);
+
+    setUserProfile({ ...userProfile, userDetails });
+  };
+
+  const handleSendMessage = async () => {
+    if (!userProfile) return;
+
+    history.push(routes.messenger.href, { user: userProfile });
+  };
+
+  const handleAcceptRequest = async (user: IUser) =>
+    await acceptFriendRequest(user);
+
+  const handleDeclineRequest = async (user: IUser) =>
+    await declineFriendRequest(user);
+
+  const handleCancelRequest = async (user: IUser) =>
+    await cancelFriendRequest(user);
+
+  const handleRemoveFriend = async (user: IUser) => {
+    if (!userProfile) return;
+    await removeFriend(user.id);
+
+    const friends = userProfile.friends.filter(
+      (friend) => friend.id !== user.id
+    );
+
+    setUserProfile({ ...userProfile, friends });
+  };
 
   return (
-    <PageContainer>
+    <>
       <Modal
         show={postModal !== undefined}
         component={Post}
         post={postModal}
-        onClickCancel={handleClickCloseModal}
-        onClickDelete={handleClickDelete}
-        onClickLike={handleClickLike}
-        onClickUnlike={handleClickUnlike}
-        onReply={handleReply}
+        onClickCancel={handleCloseModal}
+        onClickDelete={handleDeletePost}
+        onClickLike={handleLikePost}
+        onClickUnlike={handleUnlikePost}
+        onReply={handleReplyPost}
       />
 
-      <Container>
-        <Author user={posts[0].user} big />
+      {userProfile ? (
+        <PageContainer>
+          <Container>
+            <Author user={userProfile} big />
 
-        <ButtonContainer>
-          <Button label="Send friend request" color="primary" />
-          <Button label="Message" color="primary" />
-        </ButtonContainer>
-      </Container>
+            {isUserOwnerOfObject(userProfile) ? (
+              <Button label="Settings" color="primary" />
+            ) : (
+              <FriendRequest
+                user={userProfile}
+                onClickSendRequest={handleSendRequest}
+                onClickAcceptRequest={handleAcceptRequest}
+                onClickCancelRequest={handleCancelRequest}
+                onClickDeclineRequest={handleDeclineRequest}
+                onClickRemoveFriend={handleRemoveFriend}
+                onClickSendMessage={handleSendMessage}
+              />
+            )}
+          </Container>
 
-      <Divider />
+          <Divider />
 
-      <Tabs>
-        <Tab eventkey="About">
-          <UserDetails user={posts[0].user} />
-        </Tab>
+          <Tabs>
+            <Tab eventkey="About">
+              <UserDetails
+                userDetails={userProfile.userDetails}
+                onClickConfirm={
+                  isUserOwnerOfObject(userProfile)
+                    ? handleChangeDetails
+                    : undefined
+                }
+              />
+            </Tab>
 
-        <Tab eventkey="Posts">
-          <PostList
-            posts={posts}
-            onClickLike={handleClickLike}
-            onClickUnlike={handleClickUnlike}
-            onClickDelete={handleClickDelete}
-            onClickPost={handleClickOpenModal}
-            onReply={handleReply}
-          />
-        </Tab>
+            <Tab eventkey="Posts">
+              <PostList
+                posts={userProfile.posts}
+                onClickLike={handleLikePost}
+                onClickUnlike={handleUnlikePost}
+                onClickDelete={handleDeletePost}
+                onClickPost={handleOpenModal}
+                onReply={handleReplyPost}
+              />
+            </Tab>
 
-        <Tab eventkey="Photos">
-          <ImageList
-            posts={[posts[0], posts[0], posts[0], posts[0]]}
-            onClickImage={handleClickOpenModal}
-          />
-        </Tab>
+            <Tab eventkey="Photos">
+              <ImageList
+                posts={userProfile.posts.filter(
+                  (post) => post.attachment !== null
+                )}
+                onClickImage={handleOpenModal}
+              />
+            </Tab>
 
-        <Tab eventkey="Friends">
-          <FriendList users={[]} />
-        </Tab>
-      </Tabs>
-    </PageContainer>
+            <Tab eventkey="Friends">
+              <UserList
+                users={userProfile.friends}
+                onRemoveFriend={
+                  isUserOwnerOfObject(userProfile)
+                    ? handleRemoveFriend
+                    : undefined
+                }
+              />
+            </Tab>
+          </Tabs>
+        </PageContainer>
+      ) : (
+        <Container>
+          <h1>User not found</h1>
+        </Container>
+      )}
+    </>
   );
 };
 

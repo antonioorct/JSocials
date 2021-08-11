@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
-import FriendList from "../components/FriendList";
+import UserList from "../components/UserList";
 import ContainerComponent from "../components/shared-components/Container";
 import { IUser } from "../constants/models";
 import { getAllFriends, removeFriend } from "../services/friendServices";
@@ -38,7 +38,7 @@ const Friends: FC = () => {
     <Container>
       <h1>Friends</h1>
 
-      <FriendList users={friends} onRemoveFriend={handleRemoveFriend} />
+      <UserList users={friends} onRemoveFriend={handleRemoveFriend} />
     </Container>
   );
 };

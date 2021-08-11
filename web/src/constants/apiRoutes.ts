@@ -7,6 +7,7 @@ export const SOCKET_URL = `http://localhost:${process.env.REACT_APP_SOCKET_PORT}
 export const getAssetUrl = (url: string) => `${BACKEND_URL}/${url}`;
 
 export const USERS_URL = API_URL + "/users";
+export const PROFILE_URL = (userId: number) => `${API_URL}/profile/${userId}`;
 
 export const AUTH_URL = API_URL + "/auth";
 

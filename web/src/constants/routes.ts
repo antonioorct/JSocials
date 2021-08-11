@@ -21,6 +21,7 @@ interface IRoutes {
   friendRequests: IRoute;
   login: IRoute;
   home: IRoute;
+  userProfile: IRoute;
   profile: IRoute;
   register: IRoute;
   messenger: IRoute;
@@ -48,6 +49,12 @@ const routes: IRoutes = {
   profile: {
     name: "Profile",
     href: "/profile",
+    component: Profile,
+    protected: true,
+  },
+  userProfile: {
+    name: "User profile",
+    href: "/user/:id",
     component: Profile,
     protected: true,
   },

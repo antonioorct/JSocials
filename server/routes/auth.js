@@ -12,6 +12,7 @@ router.post("/auth", async (req, res) => {
 
     const user = await sequelize.models.user.findOne({
       where: { username },
+      attributes: { include: "password" },
     });
 
     if (!user) return res.status(400).send("Invalid email and/or password.");
