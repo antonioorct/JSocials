@@ -1,0 +1,20 @@
+build:
+  docker:
+    server:
+      build: ./server/Dockerfile.prod
+      config:
+        REACT_APP_SERVER_PORT: ${REACT_APP_SERVER_PORT}
+        REACT_APP_SOCKET_PORT: ${REACT_APP_SOCKET_PORT}
+
+    web:
+      build: ./web/Dockerfile.prod
+      config:
+        PORT: ${PORT}
+
+run:
+  server:
+    config:
+        REACT_APP_SERVER_PORT: ${REACT_APP_SERVER_PORT}
+        REACT_APP_SOCKET_PORT: ${REACT_APP_SOCKET_PORT}
+        JWT_SECRET: ${JWT_SECRET}
+        ASSETS_SAVE_LOCATION: ${ASSETS_SAVE_LOCATION}
