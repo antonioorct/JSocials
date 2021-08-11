@@ -28,6 +28,7 @@ const PROFILE_OPTIONS = {
     {
       model: sequelize.models.post,
       ...POST_OPTIONS,
+      required: false,
       where: {
         postId: { [Op.eq]: null },
       },
@@ -40,7 +41,7 @@ router.get("/profile/:userId", authenticate, async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await sequelize.models.user.findByPk(userId, PROFILE_OPTIONS);
+    const user = await sequelize.models.user.findByPk(+userId, PROFILE_OPTIONS);
 
     return res.send(user);
   } catch (err) {

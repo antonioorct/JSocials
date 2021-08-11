@@ -44,7 +44,7 @@ export interface IMessage {
 }
 
 export interface IUserMessage extends IUser {
-  message: { content: string; createdAt: string };
+  message?: { content: string; createdAt: string };
 }
 
 export interface IChat {
@@ -59,6 +59,8 @@ export interface IFriendRequests {
   incoming: IUser[];
   outgoing: IUser[];
 }
+
+export type FriendStatus = "friends" | "incoming" | "outgoing" | "none";
 
 export interface IUserJWT {
   sub: number;

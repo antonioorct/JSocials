@@ -1,5 +1,5 @@
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import routes from "../constants/routes";
 import { getFriendRequestCount } from "../services/friendRequestServices";
@@ -238,6 +238,7 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
   >();
 
   const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     (async () => {
@@ -245,7 +246,7 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
 
       setFriendRequestCount(friendRequestCount);
     })();
-  }, []);
+  }, [location]);
 
   const handleScroll = useCallback(() => {
     // Remove bg from header if scroll is on top of page

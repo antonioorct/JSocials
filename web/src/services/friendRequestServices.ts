@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   FRIEND_REQUESTS_COUNT_URL,
   FRIEND_REQUESTS_URL,
+  FRIEND_REQUEST_URL,
   FRIEND_URL,
 } from "../constants/apiRoutes";
 import { IFriendRequests, IUser } from "../constants/models";
@@ -17,6 +18,9 @@ export const getFriendRequestCount = async (): Promise<number> => {
 
   return data;
 };
+
+export const sendFriendRequest = async (user: IUser): Promise<void> =>
+  await axios.post(FRIEND_REQUEST_URL(user.id));
 
 export const cancelFriendRequest = async (friend: IUser): Promise<void> =>
   await axios.put(FRIEND_REQUESTS_URL, {

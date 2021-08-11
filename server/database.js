@@ -134,6 +134,12 @@ async function seedDatabase() {
       relationshipStatus: "Single",
       website: "www.website.com",
     },
+    {
+      userId: 4,
+      gender: "Male",
+      relationshipStatus: "Single",
+      website: "www.website.com",
+    },
   ]);
 
   await sequelize.models.post.bulkCreate([

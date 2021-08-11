@@ -1,8 +1,9 @@
 import { FC, useDebugValue, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Author from "../components/Author";
 import FriendList from "../components/FriendList";
+import FriendRequest from "../components/FriendRequest";
 import ImageList from "../components/ImageList";
 import Modal from "../components/Modal";
 import Post from "../components/Post";
@@ -12,8 +13,15 @@ import ContainerComponent from "../components/shared-components/Container";
 import Tabs, { Tab } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
 import { IPost, IUser, IUserDetails, IUserProfile } from "../constants/models";
+import routes from "../constants/routes";
 import { getUserId, isUserOwnerOfObject } from "../services/authServices";
-import { removeFriend } from "../services/friendServices";
+import {
+  acceptFriendRequest,
+  cancelFriendRequest,
+  declineFriendRequest,
+  sendFriendRequest,
+} from "../services/friendRequestServices";
+import { getFriendStatus, removeFriend } from "../services/friendServices";
 import {
   addComment,
   deletePost,
@@ -28,6 +36,7 @@ import {
 } from "../services/postServices";
 import { getUserProfile, updateUserProfile } from "../services/userServices";
 import { theme } from "../theme/theme.config";
+import FriendRequests from "./FriendRequests";
 
 const Container = styled(ContainerComponent)`
   padding-top: 7rem;
@@ -47,21 +56,6 @@ const Container = styled(ContainerComponent)`
   }
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-
-  ${theme.mediaQueries.mobile} {
-    flex-direction: row;
-    width: 100%;
-
-    & > * {
-      flex-basis: 100%;
-    }
-  }
-`;
-
 const Divider = styled.hr`
   margin-top: 1rem;
   margin-bottom: 4rem;
@@ -74,6 +68,7 @@ const PageContainer = styled.div`
 
 const Profile: FC = () => {
   const { id } = useParams<{ id: string }>();
+  const history = useHistory();
 
   const [userProfile, setUserProfile] = useState<IUserProfile>();
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
@@ -85,9 +80,12 @@ const Profile: FC = () => {
     (async () => {
       let user;
       const userId = getUserId();
+
+      if (id !== undefined) user = await getUserProfile(+id);
       if (id === undefined && userId !== undefined)
         user = await getUserProfile(userId.sub);
-      else user = await getUserProfile(+id);
+
+      console.log(await getFriendStatus(user as IUserProfile));
 
       setUserProfile(user);
     })();
@@ -98,12 +96,9 @@ const Profile: FC = () => {
 
     const newPost = await likePost(post);
 
-    console.log(isComment(post));
-
     const posts = isComment(post)
       ? updateComment(userProfile.posts, newPost)
       : updatePost(userProfile.posts, newPost);
-    console.log(newPost);
 
     setUserProfile({ ...userProfile, posts });
     !isComment(newPost) && postModal && setPostModal(newPost);
@@ -145,6 +140,35 @@ const Profile: FC = () => {
     setUserProfile({ ...userProfile, posts });
   };
 
+  const handleClickSendRequest = async () => {
+    if (!userProfile) return;
+
+    await sendFriendRequest(userProfile);
+  };
+
+  const handleChangeDetails = async (userDetails: IUserDetails) => {
+    if (!userProfile) return;
+
+    await updateUserProfile(userDetails);
+
+    setUserProfile({ ...userProfile, userDetails });
+  };
+
+  const handleClickSendMessage = async () => {
+    if (!userProfile) return;
+
+    history.push(routes.messenger.href, { user: userProfile });
+  };
+
+  const handleAcceptRequest = async (user: IUser) =>
+    await acceptFriendRequest(user);
+
+  const handleDeclineRequest = async (user: IUser) =>
+    await declineFriendRequest(user);
+
+  const handleCancelRequest = async (user: IUser) =>
+    await cancelFriendRequest(user);
+
   const handleClickRemoveFriend = async (user: IUser) => {
     if (!userProfile) return;
     await removeFriend(user.id);
@@ -154,14 +178,6 @@ const Profile: FC = () => {
     );
 
     setUserProfile({ ...userProfile, friends });
-  };
-
-  const handleChangeDetails = async (userDetails: IUserDetails) => {
-    if (!userProfile) return;
-
-    await updateUserProfile(userDetails);
-
-    setUserProfile({ ...userProfile, userDetails });
   };
 
   return (
@@ -182,10 +198,19 @@ const Profile: FC = () => {
           <Container>
             <Author user={userProfile} big />
 
-            <ButtonContainer>
-              <Button label="Send friend request" color="primary" />
-              <Button label="Message" color="primary" />
-            </ButtonContainer>
+            {isUserOwnerOfObject(userProfile) ? (
+              <Button label="Settings" color="primary" />
+            ) : (
+              <FriendRequest
+                user={userProfile}
+                onClickSendRequest={handleClickSendRequest}
+                onClickAcceptRequest={handleAcceptRequest}
+                onClickCancelRequest={handleCancelRequest}
+                onClickDeclineRequest={handleDeclineRequest}
+                onClickRemoveFriend={handleClickRemoveFriend}
+                onClickSendMessage={handleClickSendMessage}
+              />
+            )}
           </Container>
 
           <Divider />

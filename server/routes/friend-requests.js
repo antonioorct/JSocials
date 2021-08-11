@@ -57,6 +57,24 @@ router.get("/friend-requests/count", authenticate, async (req, res) => {
   }
 });
 
+router.post("/friend-requests/:friendId", authenticate, async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    const { userId } = req;
+
+    await sequelize.models.friend_request.create({
+      incoming_user_id: friendId,
+      outgoing_user_id: userId,
+    });
+
+    return res.send();
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).send(err);
+  }
+});
+
 router.put("/friend-requests", authenticate, async (req, res) => {
   try {
     const { userId } = req;

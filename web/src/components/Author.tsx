@@ -38,15 +38,17 @@ const Anchor = styled(AnchorComponent)`
 `;
 
 const OuterContainer = styled.div`
-  display: flex;
   justify-content: space-between;
   align-items: center;
+
+  display: flex;
 `;
 
 const ButtonContainer = styled.div`
-  display: flex;
   flex-direction: column;
   gap: 0.5rem;
+
+  display: flex;
 `;
 
 const AuthorImage = styled.img<{ big?: boolean }>`
@@ -63,9 +65,13 @@ const AuthorName = styled.h3`
 `;
 
 const AuthorNameContainer = styled.div`
-  display: flex;
   flex-direction: column;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
+
+  display: flex;
+
+  box-sizing: border-box;
+  padding-right: 0.5rem;
 `;
 
 const SubTextMessage = styled.div`

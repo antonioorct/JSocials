@@ -134,6 +134,7 @@ interface UserListProps extends FriendListProps {
   onClickCancel?(): void;
 }
 
+// TODO: rename to search user list
 export const UserList: FC<UserListProps> = ({
   users,
   onClickUser,

@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import styled from "styled-components";
 import Author from "../components/Author";
@@ -10,6 +11,7 @@ import ContainerComponent from "../components/shared-components/Container";
 import { SOCKET_URL } from "../constants/apiRoutes";
 import { IChat, IMessage, IUser, IUserMessage } from "../constants/models";
 import { getUserId } from "../services/authServices";
+import { getAllFriends } from "../services/friendServices";
 import {
   addMessage,
   createChat,
@@ -103,6 +105,9 @@ const Messenger: FC = () => {
   const [chats, setChats] = useState<IChat[]>([]);
   const [currentChat, setCurrentChat] = useState<IChat | undefined>(undefined);
   const [showModal, setShowModal] = useState(false);
+  const [friends, setFriends] = useState<IUserMessage[]>([]);
+
+  const { state } = useLocation<{ user: IUser }>();
 
   useEffect(() => {
     socket.emit("chat", getUserId()?.sub);
@@ -111,6 +116,8 @@ const Messenger: FC = () => {
       const chats = await getAllChats();
 
       setChats(chats);
+
+      if (state !== undefined) openChat(chats, state.user);
     })();
   }, []);
 
@@ -118,6 +125,27 @@ const Messenger: FC = () => {
     socket.off("message");
 
     socket.on("message", (message: IMessage) => newMessage(message));
+    (async () => {
+      let friends = await getAllFriends();
+      const existingChats = getAllChatUsers();
+
+      friends = friends.filter((friend) => {
+        const friendExists = existingChats.some(
+          (chat: IUserMessage) => chat.id === friend.id
+        );
+
+        return !friendExists;
+      });
+
+      const users = [...friends, ...existingChats];
+      users.sort((first, second) =>
+        `${first.firstName} ${first.lastName}`.localeCompare(
+          `${second.firstName} ${second.lastName}`
+        )
+      );
+
+      setFriends(users);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats]);
 
@@ -163,6 +191,10 @@ const Messenger: FC = () => {
   const handleClickNewChat = (user: IUser) => {
     handleClickCloseModal();
 
+    openChat(chats, user);
+  };
+
+  const openChat = (chats: IChat[], user: IUser) => {
     const existingChat = chats.find((chat) => chat.recepient.id === user.id);
 
     if (existingChat) setCurrentChat(existingChat);
@@ -175,7 +207,7 @@ const Messenger: FC = () => {
       });
   };
 
-  const getAllUsers = (): IUserMessage[] =>
+  const getAllChatUsers = (): IUserMessage[] =>
     chats.map((chat) => ({
       ...chat.recepient,
       message: chat.messages[chat.messages.length - 1],
@@ -186,25 +218,7 @@ const Messenger: FC = () => {
       <Modal
         show={showModal}
         component={UserListModal}
-        // TODO: replace with friends
-        users={[
-          ...getAllUsers(),
-          {
-            id: 4,
-            firstName: "Cetvrti",
-            lastName: "Peric",
-            username: "d",
-            email: "dntonio.orct@hotmail.com",
-            image: "/logo512.png",
-            password: "s",
-            bio: "This is all about me",
-            details: {
-              gender: "Male",
-              relationshipStatus: "Single",
-              website: "www.website.com",
-            },
-          },
-        ]}
+        users={friends}
         chats={chats}
         onClickCancel={handleClickCloseModal}
         onClickUser={handleClickNewChat}
@@ -212,7 +226,7 @@ const Messenger: FC = () => {
 
       <Container>
         <UsersContainer
-          users={getAllUsers()}
+          users={getAllChatUsers()}
           onClickUser={handleClickUser}
           onClickNew={handleClickOpenModal}
         />
