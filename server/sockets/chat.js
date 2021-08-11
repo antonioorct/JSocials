@@ -8,12 +8,9 @@ const Chat = function (app, socket) {
   };
 };
 
-const message = (_, socket, message) => {
+const message = (_, socket, message) =>
   socket.to(message.userId).emit(message.content);
-};
 
-const chat = (_, socket, userId) => {
-  socket.join(userId);
-};
+const chat = (_, socket, userId) => socket.join(userId);
 
 module.exports = Chat;

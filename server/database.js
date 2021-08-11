@@ -86,11 +86,6 @@ async function seedDatabase() {
       image: "/logo512.png",
       password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
       bio: "This is all about me",
-      details: {
-        gender: "Male",
-        relationshipStatus: "Single",
-        website: "www.website.com",
-      },
     },
     {
       firstName: "Drugi",
@@ -100,11 +95,6 @@ async function seedDatabase() {
       image: "/logo512.png",
       password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
       bio: "This is all about me",
-      details: {
-        gender: "Male",
-        relationshipStatus: "Single",
-        website: "www.website.com",
-      },
     },
     {
       firstName: "Treci",
@@ -134,6 +124,12 @@ async function seedDatabase() {
   await sequelize.models.userDetails.bulkCreate([
     {
       userId: 1,
+      gender: "Male",
+      relationshipStatus: "Single",
+      website: "www.website.com",
+    },
+    {
+      userId: 2,
       gender: "Male",
       relationshipStatus: "Single",
       website: "www.website.com",

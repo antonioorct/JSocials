@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { Op } = require("sequelize");
 const { sequelize, getSequelizeErrorMessage } = require("../database");
 const { authenticate } = require("../utils/jwt");
 const logger = require("../logger");
@@ -24,7 +25,13 @@ const PROFILE_OPTIONS = {
       as: "userDetails",
       attributes: { exclude: ["id", "userId", "createdAt", "updatedAt"] },
     },
-    { model: sequelize.models.post, ...POST_OPTIONS },
+    {
+      model: sequelize.models.post,
+      ...POST_OPTIONS,
+      where: {
+        postId: { [Op.eq]: null },
+      },
+    },
     { model: sequelize.models.user, as: "friends" },
   ],
 };
@@ -62,6 +69,21 @@ router.post("/users", async (req, res) => {
     const msg = getSequelizeErrorMessage(err);
 
     return res.status(500).send(msg);
+  }
+});
+
+router.put("/users", authenticate, async (req, res) => {
+  try {
+    await sequelize.models.userDetails.update(req.body, {
+      where: { userId: +req.userId },
+    });
+
+    return res.send();
+  } catch (err) {
+    // logger.error(err);
+    console.error(err);
+
+    return res.status(500).send(err);
   }
 });
 

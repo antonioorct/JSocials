@@ -1,11 +1,17 @@
-import { FC } from "react";
+import { ChangeEvent, FC, useState } from "react";
 import styled from "styled-components";
-import { IUser, IUserDetails } from "../constants/models";
+import { IUserDetails } from "../constants/models";
+import { isUserOwnerOfObject } from "../services/authServices";
 import { theme } from "../theme/theme.config";
 import { toTitleCase } from "../utils/stringUtils";
+import Button from "./shared-components/Button";
+import InputContainer from "./shared-components/Input";
 
 interface UserDetailsProps {
   userDetails: IUserDetails;
+
+  state?: IUserDetails;
+  onClickConfirm?(state: IUserDetails): void;
 }
 
 const Title = styled.p`
@@ -29,7 +35,7 @@ const DetailsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: flex-start;
   column-gap: 2rem;
   row-gap: 4rem;
 
@@ -52,33 +58,112 @@ const DetailsContainer = styled.div`
   }
 `;
 
+const Input = styled(InputContainer)`
+  border: 1px solid ${theme.palette.darkGray};
+  padding: 3px;
+  margin-bottom: 0;
+
+  background: ${theme.palette.white};
+
+  text-align: center;
+`;
+
+const ButtonContainer = styled.div`
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  display: flex;
+
+  margin-top: 2rem;
+`;
+
 const UserDetails: FC<UserDetailsProps> = ({
   userDetails: { bio, ...details },
+  onClickConfirm,
 }: UserDetailsProps) => {
+  const [state, setState] = useState<IUserDetails>({
+    bio,
+    ...details,
+  });
+  const [editing, setEditing] = useState(false);
+
   const getUserDetails = () => {
     const arr = [];
 
     for (const [key, value] of Object.entries(details)) {
-      if (value === null || value === undefined || value === "") continue;
+      if ((value === null || value === undefined || value === "") && !editing)
+        continue;
 
       arr.push(
-        <div key={key}>
-          <strong>{toTitleCase(key)}</strong>
-          <hr />
-          <div>{value}</div>
-        </div>
+        editing ? (
+          <Input
+            label={toTitleCase(key)}
+            value={state[key as keyof IUserDetails]}
+            name={key}
+            onChange={handleChangeInput}
+          />
+        ) : (
+          <div key={key}>
+            <strong>{toTitleCase(key)}</strong>
+            <hr />
+            <div>{value}</div>
+          </div>
+        )
       );
     }
 
     return arr;
   };
 
+  const handleChangeInput = ({
+    currentTarget: { name, value },
+  }: ChangeEvent<HTMLInputElement>) => setState({ ...state, [name]: value });
+
+  const handleClickEdit = () => {
+    setEditing(true);
+  };
+  const handleClickConfirm = async () => {
+    if (onClickConfirm) await onClickConfirm(state);
+
+    setEditing(false);
+  };
+  const handleClickCancel = () => {
+    setState({ bio, ...details });
+    setEditing(false);
+  };
+
   return (
     <>
       <Title>Bio</Title>
-      <BioContainer>{bio ? bio : "There's nothing here..."}</BioContainer>
+      <BioContainer>
+        {editing ? (
+          <Input value={state.bio} name="bio" onChange={handleChangeInput} />
+        ) : bio ? (
+          bio
+        ) : (
+          "There's nothing here..."
+        )}
+      </BioContainer>
 
       <DetailsContainer>{getUserDetails()}</DetailsContainer>
+
+      {onClickConfirm && (
+        <ButtonContainer>
+          {editing ? (
+            <>
+              <Button
+                label="Confirm"
+                color="primary"
+                onClick={handleClickConfirm}
+              />
+              <Button label="Cancel" color="link" onClick={handleClickCancel} />
+            </>
+          ) : (
+            <Button label="Edit" color="primary" onClick={handleClickEdit} />
+          )}
+        </ButtonContainer>
+      )}
     </>
   );
 };

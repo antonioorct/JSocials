@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useDebugValue, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Author from "../components/Author";
@@ -11,10 +11,22 @@ import Button from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import Tabs, { Tab } from "../components/shared-components/Tabs";
 import UserDetails from "../components/UserDetails";
-import { IPost, IUserProfile } from "../constants/models";
-import { getUserId } from "../services/authServices";
-import { getAllPosts } from "../services/postServices";
-import { getUserProfile } from "../services/userServices";
+import { IPost, IUser, IUserDetails, IUserProfile } from "../constants/models";
+import { getUserId, isUserOwnerOfObject } from "../services/authServices";
+import { removeFriend } from "../services/friendServices";
+import {
+  addComment,
+  deletePost,
+  isComment,
+  likePost,
+  newComment,
+  removeComment,
+  removePost,
+  unlikePost,
+  updateComment,
+  updatePost,
+} from "../services/postServices";
+import { getUserProfile, updateUserProfile } from "../services/userServices";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -69,12 +81,6 @@ const Profile: FC = () => {
   const handleClickOpenModal = (post: IPost) => setPostModal(post);
   const handleClickCloseModal = () => setPostModal(undefined);
 
-  const handleClickLike = (post: IPost) => {};
-  const handleClickUnlike = (post: IPost) => {};
-  const handleClickDelete = (post: IPost) => {};
-
-  const handleReply = (post: IPost, content: string) => {};
-
   useEffect(() => {
     (async () => {
       let user;
@@ -86,6 +92,77 @@ const Profile: FC = () => {
       setUserProfile(user);
     })();
   }, []);
+
+  const handleClickLike = async (post: IPost) => {
+    if (!userProfile) return;
+
+    const newPost = await likePost(post);
+
+    console.log(isComment(post));
+
+    const posts = isComment(post)
+      ? updateComment(userProfile.posts, newPost)
+      : updatePost(userProfile.posts, newPost);
+    console.log(newPost);
+
+    setUserProfile({ ...userProfile, posts });
+    !isComment(newPost) && postModal && setPostModal(newPost);
+  };
+
+  const handleClickUnlike = async (post: IPost) => {
+    if (!userProfile) return;
+
+    const newPost = await unlikePost(post);
+
+    const posts = isComment(post)
+      ? updateComment(userProfile.posts, newPost)
+      : updatePost(userProfile.posts, newPost);
+
+    setUserProfile({ ...userProfile, posts });
+    !isComment(newPost) && postModal && setPostModal(newPost);
+  };
+
+  const handleClickDelete = async (post: IPost) => {
+    if (!userProfile) return;
+
+    await deletePost(post);
+
+    const posts = isComment(post)
+      ? removeComment(userProfile.posts, post)
+      : removePost(userProfile.posts, post);
+
+    setPostModal(undefined);
+    setUserProfile({ ...userProfile, posts });
+  };
+
+  const handleReply = async (post: IPost, content: string) => {
+    if (!userProfile) return;
+
+    const comment = await newComment(post, content);
+
+    const posts = addComment(userProfile.posts, comment);
+
+    setUserProfile({ ...userProfile, posts });
+  };
+
+  const handleClickRemoveFriend = async (user: IUser) => {
+    if (!userProfile) return;
+    await removeFriend(user.id);
+
+    const friends = userProfile.friends.filter(
+      (friend) => friend.id !== user.id
+    );
+
+    setUserProfile({ ...userProfile, friends });
+  };
+
+  const handleChangeDetails = async (userDetails: IUserDetails) => {
+    if (!userProfile) return;
+
+    await updateUserProfile(userDetails);
+
+    setUserProfile({ ...userProfile, userDetails });
+  };
 
   return (
     <>
@@ -115,7 +192,14 @@ const Profile: FC = () => {
 
           <Tabs>
             <Tab eventkey="About">
-              <UserDetails userDetails={userProfile.userDetails} />
+              <UserDetails
+                userDetails={userProfile.userDetails}
+                onClickConfirm={
+                  isUserOwnerOfObject(userProfile)
+                    ? handleChangeDetails
+                    : undefined
+                }
+              />
             </Tab>
 
             <Tab eventkey="Posts">
@@ -139,7 +223,14 @@ const Profile: FC = () => {
             </Tab>
 
             <Tab eventkey="Friends">
-              <FriendList users={userProfile.friends} />
+              <FriendList
+                users={userProfile.friends}
+                onRemoveFriend={
+                  isUserOwnerOfObject(userProfile)
+                    ? handleClickRemoveFriend
+                    : undefined
+                }
+              />
             </Tab>
           </Tabs>
         </PageContainer>
