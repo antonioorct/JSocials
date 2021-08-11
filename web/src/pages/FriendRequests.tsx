@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
-import FriendList from "../components/FriendList";
+import UserList from "../components/UserList";
 import ContainerComponent from "../components/shared-components/Container";
 import { IFriendRequests, IUser } from "../constants/models";
 import {
@@ -90,7 +90,7 @@ const FriendRequests: FC = () => {
         <div>
           <h2>Incoming</h2>
 
-          <FriendList
+          <UserList
             users={friendRequests.incoming}
             onAcceptRequest={handleAcceptRequest}
             onDeclineRequest={handleDeclineRequest}
@@ -101,7 +101,7 @@ const FriendRequests: FC = () => {
         <div>
           <h2>Outgoing</h2>
 
-          <FriendList
+          <UserList
             users={friendRequests.outgoing}
             onCancelRequest={handleCancelRequest}
             fullWidth

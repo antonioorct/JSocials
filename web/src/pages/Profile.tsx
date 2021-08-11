@@ -1,8 +1,8 @@
-import { FC, useDebugValue, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Author from "../components/Author";
-import FriendList from "../components/FriendList";
+import UserList from "../components/UserList";
 import FriendRequest from "../components/FriendRequest";
 import ImageList from "../components/ImageList";
 import Modal from "../components/Modal";
@@ -21,7 +21,7 @@ import {
   declineFriendRequest,
   sendFriendRequest,
 } from "../services/friendRequestServices";
-import { getFriendStatus, removeFriend } from "../services/friendServices";
+import { removeFriend } from "../services/friendServices";
 import {
   addComment,
   deletePost,
@@ -36,7 +36,6 @@ import {
 } from "../services/postServices";
 import { getUserProfile, updateUserProfile } from "../services/userServices";
 import { theme } from "../theme/theme.config";
-import FriendRequests from "./FriendRequests";
 
 const Container = styled(ContainerComponent)`
   padding-top: 7rem;
@@ -73,8 +72,8 @@ const Profile: FC = () => {
   const [userProfile, setUserProfile] = useState<IUserProfile>();
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
 
-  const handleClickOpenModal = (post: IPost) => setPostModal(post);
-  const handleClickCloseModal = () => setPostModal(undefined);
+  const handleOpenModal = (post: IPost) => setPostModal(post);
+  const handleCloseModal = () => setPostModal(undefined);
 
   useEffect(() => {
     (async () => {
@@ -85,13 +84,11 @@ const Profile: FC = () => {
       if (id === undefined && userId !== undefined)
         user = await getUserProfile(userId.sub);
 
-      console.log(await getFriendStatus(user as IUserProfile));
-
       setUserProfile(user);
     })();
-  }, []);
+  }, [id]);
 
-  const handleClickLike = async (post: IPost) => {
+  const handleLikePost = async (post: IPost) => {
     if (!userProfile) return;
 
     const newPost = await likePost(post);
@@ -104,7 +101,7 @@ const Profile: FC = () => {
     !isComment(newPost) && postModal && setPostModal(newPost);
   };
 
-  const handleClickUnlike = async (post: IPost) => {
+  const handleUnlikePost = async (post: IPost) => {
     if (!userProfile) return;
 
     const newPost = await unlikePost(post);
@@ -117,7 +114,7 @@ const Profile: FC = () => {
     !isComment(newPost) && postModal && setPostModal(newPost);
   };
 
-  const handleClickDelete = async (post: IPost) => {
+  const handleDeletePost = async (post: IPost) => {
     if (!userProfile) return;
 
     await deletePost(post);
@@ -130,7 +127,7 @@ const Profile: FC = () => {
     setUserProfile({ ...userProfile, posts });
   };
 
-  const handleReply = async (post: IPost, content: string) => {
+  const handleReplyPost = async (post: IPost, content: string) => {
     if (!userProfile) return;
 
     const comment = await newComment(post, content);
@@ -140,7 +137,7 @@ const Profile: FC = () => {
     setUserProfile({ ...userProfile, posts });
   };
 
-  const handleClickSendRequest = async () => {
+  const handleSendRequest = async () => {
     if (!userProfile) return;
 
     await sendFriendRequest(userProfile);
@@ -154,7 +151,7 @@ const Profile: FC = () => {
     setUserProfile({ ...userProfile, userDetails });
   };
 
-  const handleClickSendMessage = async () => {
+  const handleSendMessage = async () => {
     if (!userProfile) return;
 
     history.push(routes.messenger.href, { user: userProfile });
@@ -169,7 +166,7 @@ const Profile: FC = () => {
   const handleCancelRequest = async (user: IUser) =>
     await cancelFriendRequest(user);
 
-  const handleClickRemoveFriend = async (user: IUser) => {
+  const handleRemoveFriend = async (user: IUser) => {
     if (!userProfile) return;
     await removeFriend(user.id);
 
@@ -186,14 +183,14 @@ const Profile: FC = () => {
         show={postModal !== undefined}
         component={Post}
         post={postModal}
-        onClickCancel={handleClickCloseModal}
-        onClickDelete={handleClickDelete}
-        onClickLike={handleClickLike}
-        onClickUnlike={handleClickUnlike}
-        onReply={handleReply}
+        onClickCancel={handleCloseModal}
+        onClickDelete={handleDeletePost}
+        onClickLike={handleLikePost}
+        onClickUnlike={handleUnlikePost}
+        onReply={handleReplyPost}
       />
 
-      {userProfile && (
+      {userProfile ? (
         <PageContainer>
           <Container>
             <Author user={userProfile} big />
@@ -203,12 +200,12 @@ const Profile: FC = () => {
             ) : (
               <FriendRequest
                 user={userProfile}
-                onClickSendRequest={handleClickSendRequest}
+                onClickSendRequest={handleSendRequest}
                 onClickAcceptRequest={handleAcceptRequest}
                 onClickCancelRequest={handleCancelRequest}
                 onClickDeclineRequest={handleDeclineRequest}
-                onClickRemoveFriend={handleClickRemoveFriend}
-                onClickSendMessage={handleClickSendMessage}
+                onClickRemoveFriend={handleRemoveFriend}
+                onClickSendMessage={handleSendMessage}
               />
             )}
           </Container>
@@ -230,11 +227,11 @@ const Profile: FC = () => {
             <Tab eventkey="Posts">
               <PostList
                 posts={userProfile.posts}
-                onClickLike={handleClickLike}
-                onClickUnlike={handleClickUnlike}
-                onClickDelete={handleClickDelete}
-                onClickPost={handleClickOpenModal}
-                onReply={handleReply}
+                onClickLike={handleLikePost}
+                onClickUnlike={handleUnlikePost}
+                onClickDelete={handleDeletePost}
+                onClickPost={handleOpenModal}
+                onReply={handleReplyPost}
               />
             </Tab>
 
@@ -243,22 +240,26 @@ const Profile: FC = () => {
                 posts={userProfile.posts.filter(
                   (post) => post.attachment !== null
                 )}
-                onClickImage={handleClickOpenModal}
+                onClickImage={handleOpenModal}
               />
             </Tab>
 
             <Tab eventkey="Friends">
-              <FriendList
+              <UserList
                 users={userProfile.friends}
                 onRemoveFriend={
                   isUserOwnerOfObject(userProfile)
-                    ? handleClickRemoveFriend
+                    ? handleRemoveFriend
                     : undefined
                 }
               />
             </Tab>
           </Tabs>
         </PageContainer>
+      ) : (
+        <Container>
+          <h1>User not found</h1>
+        </Container>
       )}
     </>
   );

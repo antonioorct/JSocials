@@ -1,3 +1,5 @@
+import { IUser } from "../constants/models";
+
 export const toTitleCase = (value: string): string => {
   const result = value.replace(/([A-Z])/g, " $1");
 
@@ -5,3 +7,6 @@ export const toTitleCase = (value: string): string => {
 
   return final;
 };
+
+export const getUserName = (user: IUser): string =>
+  `${user.firstName} ${user.lastName}`;

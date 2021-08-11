@@ -48,7 +48,7 @@ const FriendRequest: FC<IFriendRequest> = ({
 
       setFriendStatus(friendStatus);
     })();
-  }, []);
+  }, [user]);
 
   const handleClickSendRequest = async () => {
     await onClickSendRequest(user);

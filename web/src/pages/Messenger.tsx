@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import styled from "styled-components";
 import Author from "../components/Author";
 import ReplyFormComponent from "../components/forms/ReplyForm";
-import { UserList } from "../components/FriendList";
+import { SearchUserList } from "../components/UserList";
 import MessageList from "../components/MessageList";
 import Modal from "../components/Modal";
 import ContainerComponent from "../components/shared-components/Container";
@@ -19,6 +19,7 @@ import {
   sendMessage,
 } from "../services/messagingServices";
 import { theme } from "../theme/theme.config";
+import { getUserName } from "../utils/stringUtils";
 
 const Container = styled(ContainerComponent)`
   margin-top: 70px;
@@ -38,7 +39,7 @@ const Container = styled(ContainerComponent)`
   }
 `;
 
-const UsersContainer = styled(UserList)`
+const UsersContainer = styled(SearchUserList)`
   flex-basis: 30%;
 
   box-sizing: border-box;
@@ -78,7 +79,7 @@ const ReplyForm = styled(ReplyFormComponent)`
   box-sizing: border-box;
 `;
 
-const UserListModal = styled(UserList)`
+const UserListModal = styled(SearchUserList)`
   padding: 3rem 4rem;
   border-radius: 0.8rem;
 
@@ -101,11 +102,12 @@ const AuthorHeader = styled.div`
 const socket = io(SOCKET_URL);
 
 const Messenger: FC = () => {
-  const [reply, setReply] = useState("");
   const [chats, setChats] = useState<IChat[]>([]);
   const [currentChat, setCurrentChat] = useState<IChat | undefined>(undefined);
+  const [userList, setUserList] = useState<IUserMessage[]>([]);
+  const [reply, setReply] = useState("");
+
   const [showModal, setShowModal] = useState(false);
-  const [friends, setFriends] = useState<IUserMessage[]>([]);
 
   const { state } = useLocation<{ user: IUser }>();
 
@@ -119,35 +121,35 @@ const Messenger: FC = () => {
 
       if (state !== undefined) openChat(chats, state.user);
     })();
-  }, []);
+  }, [state]);
 
   useEffect(() => {
     socket.off("message");
-
     socket.on("message", (message: IMessage) => newMessage(message));
-    (async () => {
-      let friends = await getAllFriends();
-      const existingChats = getAllChatUsers();
 
-      friends = friends.filter((friend) => {
-        const friendExists = existingChats.some(
-          (chat: IUserMessage) => chat.id === friend.id
-        );
-
-        return !friendExists;
-      });
-
-      const users = [...friends, ...existingChats];
-      users.sort((first, second) =>
-        `${first.firstName} ${first.lastName}`.localeCompare(
-          `${second.firstName} ${second.lastName}`
-        )
-      );
-
-      setFriends(users);
-    })();
+    populateUserList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats]);
+
+  const populateUserList = async () => {
+    let friends = await getAllFriends();
+    const existingChats = getAllChatUsers();
+
+    friends = friends.filter((friend) => {
+      const friendExists = existingChats.some(
+        (chat: IUserMessage) => chat.id === friend.id
+      );
+
+      return !friendExists;
+    });
+
+    const users = [...friends, ...existingChats];
+    users.sort((firstUser, secondUser) =>
+      getUserName(firstUser).localeCompare(getUserName(secondUser))
+    );
+
+    setUserList(users);
+  };
 
   const handleChangeReplyInput = (value: string) => setReply(value);
 
@@ -176,11 +178,8 @@ const Messenger: FC = () => {
 
   const handleScrollToTop = () => console.log("Scrolled to top");
 
-  const getChatWithUser = (user: IUser) =>
-    chats.find((chat) => chat.recepient.id === user.id);
-
   const handleClickUser = (user: IUser) => {
-    const chat = getChatWithUser(user);
+    const chat = chats.find((chat) => chat.recepient.id === user.id);
 
     setCurrentChat(chat);
   };
@@ -218,7 +217,7 @@ const Messenger: FC = () => {
       <Modal
         show={showModal}
         component={UserListModal}
-        users={friends}
+        users={userList}
         chats={chats}
         onClickCancel={handleClickCloseModal}
         onClickUser={handleClickNewChat}

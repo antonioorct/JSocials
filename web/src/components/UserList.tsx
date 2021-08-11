@@ -6,7 +6,7 @@ import Author from "./Author";
 import Button from "./shared-components/Button";
 import Input from "./shared-components/Input";
 
-interface FriendListProps extends HTMLAttributes<HTMLDivElement> {
+interface UserListProps extends HTMLAttributes<HTMLDivElement> {
   users: IUser[];
 
   subTexts?: IUserMessage[];
@@ -60,7 +60,7 @@ const AuthorCard = styled(Author)`
   }
 `;
 
-const FriendList: FC<FriendListProps> = ({
+const UserList: FC<UserListProps> = ({
   users,
   subTexts,
   fullWidth,
@@ -70,7 +70,7 @@ const FriendList: FC<FriendListProps> = ({
   onRemoveFriend,
   onClickUser,
   className,
-}: FriendListProps) => (
+}: UserListProps) => (
   <Container fullWidth={fullWidth !== undefined} className={className}>
     {users.map((user, index) => (
       <AuthorCard
@@ -87,7 +87,7 @@ const FriendList: FC<FriendListProps> = ({
   </Container>
 );
 
-const StyledUserList = styled(FriendList)`
+const StyledUserList = styled(UserList)`
   overflow: auto;
   padding-bottom: 1rem;
 
@@ -127,15 +127,14 @@ const UserListContainer = styled.div`
   display: flex;
 `;
 
-interface UserListProps extends FriendListProps {
+interface SearchUserListProps extends UserListProps {
   users: IUserMessage[];
 
   onClickNew?(): void;
   onClickCancel?(): void;
 }
 
-// TODO: rename to search user list
-export const UserList: FC<UserListProps> = ({
+export const SearchUserList: FC<SearchUserListProps> = ({
   users,
   onClickUser,
   className,
@@ -183,4 +182,4 @@ export const UserList: FC<UserListProps> = ({
   );
 };
 
-export default FriendList;
+export default UserList;

@@ -41,11 +41,14 @@ router.get("/profile/:userId", authenticate, async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await sequelize.models.user.findByPk(+userId, PROFILE_OPTIONS);
+    const userProfile = await sequelize.models.user.findByPk(
+      +userId,
+      PROFILE_OPTIONS
+    );
 
-    return res.send(user);
+    return res.send(userProfile);
   } catch (err) {
-    console.log(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }
@@ -75,14 +78,15 @@ router.post("/users", async (req, res) => {
 
 router.put("/users", authenticate, async (req, res) => {
   try {
+    const { userId } = req;
+
     await sequelize.models.userDetails.update(req.body, {
-      where: { userId: +req.userId },
+      where: { userId },
     });
 
     return res.send();
   } catch (err) {
-    // logger.error(err);
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }
