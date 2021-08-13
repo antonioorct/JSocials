@@ -1,7 +1,7 @@
 import axios from "axios";
-import { PROFILE_URL, USERS_URL } from "../constants/apiRoutes";
+import { PROFILE_URL, USERS_URL, USER_PHOTO_URL } from "../constants/apiRoutes";
 import { IRegisterForm } from "../constants/formTypes";
-import { IUserDetails, IUserProfile } from "../constants/models";
+import { IUser, IUserDetails, IUserProfile } from "../constants/models";
 
 export const createUser = async ({
   repeatPassword,
@@ -25,3 +25,18 @@ export const updateUserProfile = async (
 
   return data;
 };
+
+export const updateProfilePhoto = async (
+  photoFormData: FormData
+): Promise<IUser> => {
+  const { data } = await axios.put(USER_PHOTO_URL, photoFormData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return data;
+};
+
+export const removeProfilePhoto = async (): Promise<void> =>
+  await axios.delete(USER_PHOTO_URL);

@@ -34,7 +34,12 @@ import {
   updateComment,
   updatePost,
 } from "../services/postServices";
-import { getUserProfile, updateUserProfile } from "../services/userServices";
+import {
+  getUserProfile,
+  removeProfilePhoto,
+  updateProfilePhoto,
+  updateUserProfile,
+} from "../services/userServices";
 import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
@@ -168,6 +173,7 @@ const Profile: FC = () => {
 
   const handleRemoveFriend = async (user: IUser) => {
     if (!userProfile) return;
+
     await removeFriend(user.id);
 
     const friends = userProfile.friends.filter(
@@ -175,6 +181,25 @@ const Profile: FC = () => {
     );
 
     setUserProfile({ ...userProfile, friends });
+  };
+
+  const handleChangePhoto = async (photo: File) => {
+    if (!userProfile) return;
+
+    const formData = new FormData();
+    formData.append("attachment", photo);
+
+    const user = await updateProfilePhoto(formData);
+
+    setUserProfile({ ...userProfile, ...user });
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!userProfile) return;
+
+    await removeProfilePhoto();
+
+    setUserProfile({ ...userProfile, image: undefined });
   };
 
   return (
@@ -193,7 +218,12 @@ const Profile: FC = () => {
       {userProfile ? (
         <PageContainer>
           <Container>
-            <Author user={userProfile} big />
+            <Author
+              user={userProfile}
+              big
+              onClickChangePhoto={handleChangePhoto}
+              onClickRemovePhoto={handleRemovePhoto}
+            />
 
             {isUserOwnerOfObject(userProfile) ? (
               <Button label="Settings" color="primary" />
