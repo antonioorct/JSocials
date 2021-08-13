@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const { sequelize } = require("../database");
 const { authenticate } = require("../utils/jwt");
 const logger = require("../logger");
@@ -21,6 +21,30 @@ router.get("/friends", authenticate, async (req, res) => {
     );
 
     return res.send(friends);
+  } catch (err) {
+    logger.error(err);
+
+    return res.status(500).send(err);
+  }
+});
+
+router.get("/friends/suggestions", authenticate, async (req, res) => {
+  try {
+    const { userId } = req;
+
+    const friends = await sequelize.models.user.findAll({
+      ...FRIEND_OPTIONS(userId),
+    });
+
+    const notFriends = await sequelize.models.user.findAll({
+      limit: 5,
+      order: Sequelize.literal("rand()"),
+      where: {
+        id: { [Op.notIn]: [...friends.map((friend) => friend.id), userId] },
+      },
+    });
+
+    return res.send(notFriends);
   } catch (err) {
     logger.error(err);
 
