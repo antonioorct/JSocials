@@ -1,10 +1,13 @@
 const { Router } = require("express");
-const { Op } = require("sequelize");
+const { Op, SequelizeScopeError } = require("sequelize");
 const { sequelize, getSequelizeErrorMessage } = require("../database");
 const { authenticate } = require("../utils/jwt");
 const logger = require("../logger");
 const bcrypt = require("bcrypt");
 const { POST_OPTIONS } = require("./posts");
+const { attachment } = require("../utils/fileStorage");
+const path = require("path");
+const fs = require("fs");
 const BCRYPT_SALT_ROUNDS = 10;
 
 const router = Router();
@@ -73,6 +76,69 @@ router.post("/users", async (req, res) => {
     const msg = getSequelizeErrorMessage(err);
 
     return res.status(500).send(msg);
+  }
+});
+
+router.put("/users/photo", [authenticate, attachment], async (req, res) => {
+  try {
+    const { userId } = req;
+
+    const user = await await sequelize.models.user.findByPk(userId);
+
+    const userImage = user.getDataValue("image");
+    if (userImage) {
+      const filePath = path.join(__dirname, "..", userImage);
+
+      try {
+        fs.unlinkSync(filePath);
+      } catch (err) {
+        console.error("Failed in deleting file: " + userImage);
+      }
+    }
+
+    await sequelize.models.user.update(
+      {
+        image: `${process.env.ASSETS_SAVE_LOCATION}/${req.file.filename}`,
+      },
+      { where: { id: userId } }
+    );
+
+    await user.reload();
+
+    return res.send(user);
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).send(err);
+  }
+});
+
+router.delete("/users/photo", authenticate, async (req, res) => {
+  try {
+    const { userId } = req;
+
+    const user = await sequelize.models.user.findByPk(userId);
+
+    const filePath = path.join(__dirname, "..", user.image);
+
+    try {
+      fs.unlinkSync(filePath);
+    } catch (err) {
+      console.error("Failed in deleting file: " + user.image);
+    }
+
+    await user.update(
+      {
+        image: null,
+      },
+      { fields: ["image"] }
+    );
+
+    return res.send();
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).send(err);
   }
 });
 

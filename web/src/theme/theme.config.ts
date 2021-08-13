@@ -95,7 +95,7 @@ const colors: IPalette = {
   white: "#fff",
   darkWhite: "#ededed",
   lightGray: "#bbb",
-  darkGray: "#999",
+  darkGray: "#999999",
   lightBlack: "#333",
   black: "#000",
 };

@@ -1,9 +1,9 @@
 import { FC, HTMLAttributes } from "react";
 import styled from "styled-components";
 import { IUser, IUserMessage } from "../constants/models";
-import ProfilePhoto from "../img/ProfilePhoto";
 import { theme } from "../theme/theme.config";
 import DateLabel from "./DateLabel";
+import ProfilePhoto from "./ProfilePhoto";
 import AnchorComponent from "./shared-components/Anchor";
 import Button from "./shared-components/Button";
 
@@ -20,11 +20,14 @@ interface AuthorProps extends HTMLAttributes<HTMLDivElement> {
   onAcceptRequest?(user: IUser): void;
   onDeclineRequest?(user: IUser): void;
   onClickUser?(user: IUser): void;
+
+  onClickRemovePhoto?(): void;
+  onClickChangePhoto?(photo: File): void;
 }
 
 const Container = styled.div<{ big?: boolean }>`
   display: flex;
-  gap: 1rem;
+  gap: ${(props) => (props.big ? "4rem" : "1rem")};
   align-items: center;
 
   width: 100%;
@@ -50,11 +53,6 @@ const ButtonContainer = styled.div`
   gap: 0.5rem;
 
   display: flex;
-`;
-
-const AuthorImage = styled.img<{ big?: boolean }>`
-  border-radius: 50%;
-  max-width: ${(props) => (props.big ? "20rem" : "3rem")};
 `;
 
 const BigAuthorName = styled.h1`
@@ -93,6 +91,8 @@ const Author: FC<AuthorProps> = ({
   onAcceptRequest,
   onDeclineRequest,
   onClickUser,
+  onClickChangePhoto,
+  onClickRemovePhoto,
 }: AuthorProps) => {
   const handleAddFriend = () => onSendRequest && onSendRequest(user);
   const handleCancelRequest = () => onCancelRequest && onCancelRequest(user);
@@ -105,11 +105,13 @@ const Author: FC<AuthorProps> = ({
   const renderAuthor = () => {
     const authorComponent = (
       <Container big={big}>
-        {user.image ? (
-          <AuthorImage src={user.image} alt="" big={big} />
-        ) : (
-          <ProfilePhoto big={big} />
-        )}
+        <ProfilePhoto
+          user={user}
+          big={big}
+          onClickChangePhoto={onClickChangePhoto}
+          onClickRemovePhoto={onClickRemovePhoto}
+        />
+
         <AuthorNameContainer>
           {big ? (
             <BigAuthorName>
@@ -131,7 +133,7 @@ const Author: FC<AuthorProps> = ({
       </Container>
     );
 
-    return onClickUser ? (
+    return onClickUser || (onClickChangePhoto && onClickRemovePhoto) ? (
       authorComponent
     ) : (
       <Anchor to={`/user/${user.id}`}>{authorComponent}</Anchor>
