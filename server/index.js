@@ -13,7 +13,6 @@ const path = require("path");
 
 app.use(express.json());
 app.use(cors());
-if (process.env.NODE_ENV === "production") app.use(express.static("front-end"));
 
 database.init();
 router.init(app);
@@ -23,10 +22,13 @@ app.get(`/${process.env.ASSETS_SAVE_LOCATION}/*`, (req, res) => {
   res.sendFile(require("path").join(__dirname, req.path));
 });
 
-if (process.env.NODE_ENV === "production")
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("front-end"));
+
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "front-end", "index.html"));
   });
+}
 
 app.all("*", (req, res) => {
   res.status(404).send(`${req.originalUrl} not found.`);

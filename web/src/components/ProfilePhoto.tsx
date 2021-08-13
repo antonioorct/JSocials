@@ -4,7 +4,7 @@ import { getAssetUrl } from "../constants/apiRoutes";
 import { IUser } from "../constants/models";
 import CameraIcon from "../img/icons/CameraIcon";
 import CrossIcon from "../img/icons/CrossIcon";
-import DefaultProfilePhoto from "../img/ProfilePhoto";
+import DefaultProfilePhoto from "../img/DefaultProfilePhoto";
 import { theme } from "../theme/theme.config";
 
 interface ProfilePhotoProps {
@@ -26,17 +26,20 @@ const Container = styled.div<{ big?: boolean; editable: boolean }>`
   width: ${(props) => (props.big ? "20rem" : "3rem")};
   height: ${(props) => (props.big ? "20rem" : "3rem")};
 
-  & img {
+  & img,
+  & svg {
     width: 100%;
+    max-height: ${(props) => (props.big ? "20rem" : "3rem")};
   }
 
   ${(props) =>
     props.editable &&
     css`
-      cursor: pointer;
+      overflow: hidden;
+
       transition: filter 0.15s linear;
 
-      overflow: hidden;
+      cursor: pointer;
 
       & img {
         transition: transform 0.15s linear;
@@ -45,6 +48,7 @@ const Container = styled.div<{ big?: boolean; editable: boolean }>`
       &:hover {
         & > div {
           opacity: 1;
+
           pointer-events: all;
         }
 
@@ -56,26 +60,29 @@ const Container = styled.div<{ big?: boolean; editable: boolean }>`
 `;
 
 const Background = styled.div`
-  z-index: 20;
-  opacity: 0;
-  pointer-events: none;
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  z-index: 20;
 
+  opacity: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
 
+  width: 100%;
+  height: 100%;
+
   transition: opacity 0.15s linear;
 
   background-color: ${theme.palette.darkGray}a7;
 
+  pointer-events: none;
+
   & svg:hover {
     fill: ${theme.palette.darkWhite};
+
     transform: scale(1.05);
   }
 `;
@@ -88,44 +95,36 @@ const ProfilePhoto: FC<ProfilePhotoProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleClickPhoto = (e: MouseEvent<HTMLOrSVGElement>) =>
-    onClickRemovePhoto && onClickRemovePhoto();
+  const handleChangePhoto = () => inputRef.current?.click();
 
-  const handleChangePhoto = () => {
-    inputRef.current?.click();
-  };
-
-  const handleChangeFile = ({
+  const handleSelectFile = ({
     currentTarget: { files },
   }: ChangeEvent<HTMLInputElement>) =>
     files && onClickChangePhoto && onClickChangePhoto(files[0]);
 
   const handleRemovePhoto = () => onClickRemovePhoto && onClickRemovePhoto();
 
+  const editable =
+    onClickRemovePhoto !== undefined && onClickChangePhoto !== undefined;
+
   return (
     <>
-      {onClickRemovePhoto && onClickChangePhoto && (
-        <FileInput ref={inputRef} type="file" onChange={handleChangeFile} />
+      {editable && (
+        <FileInput ref={inputRef} type="file" onChange={handleSelectFile} />
       )}
 
-      <Container
-        big={big}
-        editable={
-          onClickRemovePhoto !== undefined && onClickChangePhoto !== undefined
-        }
-      >
-        {onClickRemovePhoto && onClickChangePhoto && (
+      <Container big={big} editable={editable}>
+        {editable && (
           <Background>
             <CameraIcon onClick={handleChangePhoto} />
             {user.image && <CrossIcon onClick={handleRemovePhoto} />}
           </Background>
         )}
+
         {user.image ? (
           <img src={getAssetUrl(user.image)} alt="" />
         ) : (
-          <>
-            <DefaultProfilePhoto big={big} onClick={handleClickPhoto} />
-          </>
+          <DefaultProfilePhoto />
         )}
       </Container>
     </>
