@@ -13,6 +13,7 @@ interface UserListProps extends HTMLAttributes<HTMLDivElement> {
 
   fullWidth?: boolean;
 
+  onSendRequest?(user: IUser): void;
   onCancelRequest?(user: IUser): void;
   onRemoveFriend?(user: IUser): void;
   onAcceptRequest?(user: IUser): void;
@@ -64,6 +65,7 @@ const UserList: FC<UserListProps> = ({
   users,
   subTexts,
   fullWidth,
+  onSendRequest,
   onAcceptRequest,
   onDeclineRequest,
   onCancelRequest,
@@ -77,6 +79,7 @@ const UserList: FC<UserListProps> = ({
         key={user.id}
         user={user}
         subText={subTexts && subTexts[index]}
+        onSendRequest={onSendRequest}
         onAcceptRequest={onAcceptRequest}
         onDeclineRequest={onDeclineRequest}
         onCancelRequest={onCancelRequest}

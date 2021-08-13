@@ -137,12 +137,6 @@ const Profile: FC = () => {
     setUserProfile({ ...userProfile, posts });
   };
 
-  const handleSendRequest = async () => {
-    if (!userProfile) return;
-
-    await sendFriendRequest(userProfile);
-  };
-
   const handleChangeDetails = async (userDetails: IUserDetails) => {
     if (!userProfile) return;
 
@@ -155,6 +149,12 @@ const Profile: FC = () => {
     if (!userProfile) return;
 
     history.push(routes.messenger.href, { user: userProfile });
+  };
+
+  const handleSendRequest = async () => {
+    if (!userProfile) return;
+
+    await sendFriendRequest(userProfile);
   };
 
   const handleAcceptRequest = async (user: IUser) =>

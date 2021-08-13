@@ -14,6 +14,7 @@ interface AuthorProps extends HTMLAttributes<HTMLDivElement> {
 
   big?: boolean;
 
+  onSendRequest?(user: IUser): void;
   onCancelRequest?(user: IUser): void;
   onRemoveFriend?(user: IUser): void;
   onAcceptRequest?(user: IUser): void;
@@ -86,12 +87,14 @@ const Author: FC<AuthorProps> = ({
   subText,
   className,
   big,
+  onSendRequest,
   onCancelRequest,
   onRemoveFriend,
   onAcceptRequest,
   onDeclineRequest,
   onClickUser,
 }: AuthorProps) => {
+  const handleAddFriend = () => onSendRequest && onSendRequest(user);
   const handleCancelRequest = () => onCancelRequest && onCancelRequest(user);
   const handleRemoveFriend = () => onRemoveFriend && onRemoveFriend(user);
 
@@ -142,8 +145,12 @@ const Author: FC<AuthorProps> = ({
       {(onAcceptRequest ||
         onDeclineRequest ||
         onCancelRequest ||
-        onRemoveFriend) && (
+        onRemoveFriend ||
+        onSendRequest) && (
         <ButtonContainer>
+          {onSendRequest && (
+            <Button label="Add" color="primary" onClick={handleAddFriend} />
+          )}
           {onAcceptRequest && (
             <Button
               label="Accept"
