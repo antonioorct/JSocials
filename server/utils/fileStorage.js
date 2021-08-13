@@ -1,3 +1,4 @@
+const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
 
@@ -8,7 +9,11 @@ const MULTER_SAVE_LOCATION = path.join(
 );
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, MULTER_SAVE_LOCATION),
+  destination: (req, file, cb) => {
+    !fs.existsSync(MULTER_SAVE_LOCATION) && fs.mkdirSync(MULTER_SAVE_LOCATION);
+
+    return cb(null, MULTER_SAVE_LOCATION);
+  },
   filename: (req, file, cb) =>
     cb(
       null,
