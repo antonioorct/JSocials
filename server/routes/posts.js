@@ -6,6 +6,7 @@ const { attachment } = require("../utils/fileStorage");
 const { authenticate } = require("../utils/jwt");
 const fs = require("fs");
 const path = require("path");
+const { removeFile, getFilePath } = require("../utils/files");
 
 const router = Router();
 
@@ -62,9 +63,7 @@ router.post("/posts", [authenticate, attachment], async (req, res) => {
   try {
     const newPost = await sequelize.models.post.create({
       ...req.body,
-      attachment: req.file
-        ? `${process.env.ASSETS_SAVE_LOCATION}/${req.file.filename}`
-        : undefined,
+      attachment: req.file ? getFilePath(req.file.filename) : undefined,
       userId: req.userId,
     });
 
@@ -112,15 +111,7 @@ router.delete("/posts/:postId", authenticate, async (req, res) => {
   try {
     const post = await sequelize.models.post.findByPk(+postId);
 
-    if (post.attachment) {
-      const filePath = path.join(__dirname, "..", post.attachment);
-
-      try {
-        fs.unlinkSync(filePath);
-      } catch (err) {
-        console.error("Failed in deleting file: " + post.attachment);
-      }
-    }
+    if (post.attachment) removeFile(post.attachment);
 
     post.destroy();
 

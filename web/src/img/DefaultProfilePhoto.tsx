@@ -1,18 +1,9 @@
-import { FC, SVGAttributes } from "react";
-import styled from "styled-components";
+import { FC, HTMLAttributes } from "react";
 
-interface ProfilePhotoProps extends SVGAttributes<HTMLOrSVGElement> {
-  big?: boolean;
-}
-
-const Photo = styled.svg<ProfilePhotoProps>`
-  max-width: ${(props) => (props.big ? "20rem" : "3rem")};
-  max-height: ${(props) => (props.big ? "20rem" : "3rem")};
-`;
-
-const ProfilePhoto: FC<ProfilePhotoProps> = ({ big, onClick }) => (
-  <Photo
-    big={big}
+const DefaultProfilePhoto: FC<HTMLAttributes<HTMLOrSVGElement>> = ({
+  onClick,
+}) => (
+  <svg
     onClick={onClick}
     id="e59edb86-a3bc-4694-8aac-31e565ca5cfc"
     data-name="Layer 1"
@@ -80,7 +71,7 @@ const ProfilePhoto: FC<ProfilePhotoProps> = ({ big, onClick }) => (
       transform="translate(-262 -112)"
       fill="#2f2e41"
     />
-  </Photo>
+  </svg>
 );
 
-export default ProfilePhoto;
+export default DefaultProfilePhoto;
