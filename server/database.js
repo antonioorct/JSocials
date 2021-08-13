@@ -83,7 +83,6 @@ async function seedDatabase() {
       lastName: "Orct",
       username: "a",
       email: "antonio.orct@hotmail.com",
-      image: "/logo512.png",
       password: await bcrypt.hash("a", BCRYPT_SALT_ROUNDS),
       bio: "This is all about me",
     },
