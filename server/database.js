@@ -12,7 +12,7 @@ const RETRY_TIMEOUT = 5000;
 let retryCounter = 0;
 
 const sequelize = new Sequelize(
-  `mysql://${process.env.MYSQL_USER}:${process.env.MYSQL_PASSWORD}@${process.env.MYSQL_SERVICE_NAME}:${process.env.MYSQL_PORT}/${process.env.MYSQL_DATABASE}`
+  `mysql://${process.env.MYSQL_USER}:${process.env.MYSQL_PASSWORD}@${process.env.MYSQL_HOSTNAME}:${process.env.MYSQL_PORT}/${process.env.MYSQL_DATABASE}`
 );
 
 function initModels() {

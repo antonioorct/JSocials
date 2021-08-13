@@ -6,4 +6,17 @@ A platform for connecting people and creating relationships.
 
 Set all the environment variables in `.env`, then run
 
-`docker-compose up`
+```sh
+docker-compose up
+```
+
+## Deployment
+
+Export all the necessary env variables  
+The app's port is set by the `PORT` variable
+
+```sh
+./build.sh
+cd server
+yarn start
+```

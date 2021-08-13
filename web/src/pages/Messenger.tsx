@@ -8,7 +8,7 @@ import { SearchUserList } from "../components/UserList";
 import MessageList from "../components/MessageList";
 import Modal from "../components/Modal";
 import ContainerComponent from "../components/shared-components/Container";
-import { SOCKET_URL } from "../constants/apiRoutes";
+import { BACKEND_URL } from "../constants/apiRoutes";
 import { IChat, IMessage, IUser, IUserMessage } from "../constants/models";
 import { getUserId } from "../services/authServices";
 import { getAllFriends } from "../services/friendServices";
@@ -99,7 +99,7 @@ const AuthorHeader = styled.div`
   background-color: ${theme.palette.white};
 `;
 
-const socket = io(SOCKET_URL);
+const socket = io(BACKEND_URL);
 
 const Messenger: FC = () => {
   const [chats, setChats] = useState<IChat[]>([]);

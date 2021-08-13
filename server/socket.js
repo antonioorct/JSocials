@@ -33,9 +33,9 @@ function init(app) {
 
   io = socketIo(httpServer, { cors: { origin: "*" } });
 
-  io.listen(process.env.REACT_APP_SOCKET_PORT);
-
   initSockets(app);
+
+  return httpServer;
 }
 
 function getIo() {

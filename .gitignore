@@ -13,8 +13,9 @@ web/.pnp.js
 # testing
 web/coverage
 
-# production
-web/build
+# build
+*/**/build
+*/**/front-end
 
 # cache
 .eslintcache

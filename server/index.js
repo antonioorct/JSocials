@@ -1,27 +1,36 @@
 const express = require("express");
 const app = express();
-const port = process.env.REACT_APP_SERVER_PORT || 3000;
+const port =
+  process.env.NODE_ENV === "production"
+    ? process.env.PORT
+    : process.env.REACT_APP_SERVER_PORT || 3000;
 const database = require("./database");
 const logger = require("./logger");
 const socket = require("./socket");
 const router = require("./router");
 const cors = require("cors");
+const path = require("path");
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static("front-end"));
 
 database.init();
 router.init(app);
-socket.init(app);
+const httpServer = socket.init(app);
 
 app.get(`/${process.env.ASSETS_SAVE_LOCATION}/*`, (req, res) => {
   res.sendFile(require("path").join(__dirname, req.path));
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "front-end", "index.html"));
 });
 
 app.all("*", (req, res) => {
   res.status(404).send(`${req.originalUrl} not found.`);
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   logger.info(`Example app listening at http://localhost:${port}`);
 });
