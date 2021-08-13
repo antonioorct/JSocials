@@ -84,7 +84,7 @@ export interface IDefaultTheme {
 }
 
 const colors: IPalette = {
-  primary: "#307FE2",
+  primary: "#307fe2",
   secondary: "black",
 
   success: "#28a745",
