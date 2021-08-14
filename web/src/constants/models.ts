@@ -9,6 +9,7 @@ export interface IPost {
   numLikes: number;
   numComments: number;
   createdAt: string;
+  private: boolean;
 }
 
 export interface IUser {

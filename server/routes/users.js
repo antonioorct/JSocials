@@ -11,7 +11,7 @@ const BCRYPT_SALT_ROUNDS = 10;
 
 const router = Router();
 
-const PROFILE_OPTIONS = {
+const PROFILE_OPTIONS = (userId) => ({
   order: [
     [sequelize.models.post, "createdAt", "DESC"],
     [
@@ -32,12 +32,16 @@ const PROFILE_OPTIONS = {
       ...POST_OPTIONS,
       required: false,
       where: {
-        postId: { [Op.eq]: null },
+        postId: null,
+        [Op.or]: {
+          userId,
+          private: false,
+        },
       },
     },
     { model: sequelize.models.user, as: "friends" },
   ],
-};
+});
 
 router.get("/profile/:userId", authenticate, async (req, res) => {
   try {
@@ -45,7 +49,7 @@ router.get("/profile/:userId", authenticate, async (req, res) => {
 
     const userProfile = await sequelize.models.user.findByPk(
       +userId,
-      PROFILE_OPTIONS
+      PROFILE_OPTIONS(req.userId)
     );
 
     return res.send(userProfile);
