@@ -4,11 +4,18 @@ export interface ILoginForm {
 }
 
 export interface IRegisterForm {
-  username: string;
-  password: string;
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
+  password: string;
+  repeatPassword: string;
+}
+
+export interface ICredentialsForm {
+  username: string;
+  email: string;
+  password: string;
   repeatPassword: string;
 }
 

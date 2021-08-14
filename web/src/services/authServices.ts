@@ -11,16 +11,20 @@ export const sendLoginInfo = async (form: ILoginForm) => {
   return data;
 };
 
-export const getUserId = (): IUserJWT | undefined => {
+export const getUserId = (): number => {
   const token = LocalStorage.getUserToken();
 
-  if (token) return jwtDecode<IUserJWT>(token);
+  if (token) {
+    const decodedToken = jwtDecode<IUserJWT>(token);
 
-  return undefined;
+    return decodedToken.sub;
+  }
+
+  return -1;
 };
 
 export const isUserOwnerOfObject = (user: IUser) => {
-  const t = getUserId();
+  const userId = getUserId();
 
-  return t?.sub === user.id;
+  return userId === user.id;
 };

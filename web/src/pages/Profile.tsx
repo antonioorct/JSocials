@@ -41,6 +41,7 @@ import {
   updateUserProfile,
 } from "../services/userServices";
 import { theme } from "../theme/theme.config";
+import Anchor from "../components/shared-components/Anchor";
 
 const Container = styled(ContainerComponent)`
   padding-top: 7rem;
@@ -83,11 +84,8 @@ const Profile: FC = () => {
   useEffect(() => {
     (async () => {
       let user;
-      const userId = getUserId();
 
-      if (id !== undefined) user = await getUserProfile(+id);
-      if (id === undefined && userId !== undefined)
-        user = await getUserProfile(userId.sub);
+      user = await getUserProfile(id ? +id : getUserId());
 
       setUserProfile(user);
     })();
@@ -226,7 +224,9 @@ const Profile: FC = () => {
             />
 
             {isUserOwnerOfObject(userProfile) ? (
-              <Button label="Settings" color="primary" />
+              <Anchor to={routes.settings.href}>
+                <Button label="Settings" color="primary" />
+              </Anchor>
             ) : (
               <FriendRequest
                 user={userProfile}

@@ -129,7 +129,7 @@ const Post: FC<PostProps> = ({
   const handleChangeReplyInput = (value: string) => setReplyContent(value);
 
   const isLikedByOwner = () =>
-    post.likes.some((user) => user.id === getUserId()?.sub);
+    post.likes.some((user) => user.id === getUserId());
 
   const getLikeTooltip = () =>
     `${post.likes
