@@ -4,8 +4,6 @@ const { sequelize } = require("../database");
 const logger = require("../logger");
 const { attachment } = require("../utils/fileStorage");
 const { authenticate } = require("../utils/jwt");
-const fs = require("fs");
-const path = require("path");
 const { removeFile, getFilePath } = require("../utils/files");
 
 const router = Router();
@@ -52,7 +50,11 @@ router.get("/posts", authenticate, async (req, res) => {
   const posts = await sequelize.models.post.findAll({
     ...router.POST_OPTIONS,
     where: {
-      postId: { [Op.eq]: null },
+      postId: null,
+      [Op.or]: {
+        userId: req.userId,
+        private: false,
+      },
     },
   });
 

@@ -83,6 +83,11 @@ const ActionsContainer = styled.div`
   gap: 1rem;
 `;
 
+const PrivateText = styled.div`
+  font-size: 0.8rem;
+  color: ${theme.palette.darkGray};
+`;
+
 const Post: FC<PostProps> = ({
   post,
   onClickLike,
@@ -155,6 +160,7 @@ const Post: FC<PostProps> = ({
         </Header>
 
         <DateLabel date={post.createdAt} />
+        {post.private && <PrivateText>PRIVATE</PrivateText>}
 
         <Content onClick={handleClickPost} hasModal={onClickPost !== undefined}>
           <p>{post.content}</p>
@@ -163,7 +169,6 @@ const Post: FC<PostProps> = ({
             <Image src={getAssetUrl(post.attachment)} alt={post.attachment} />
           )}
         </Content>
-
         <ActionsContainer>
           <div>
             <Tooltip
