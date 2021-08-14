@@ -43,6 +43,40 @@ const PROFILE_OPTIONS = (userId) => ({
   ],
 });
 
+router.get("/users/credentials", authenticate, async (req, res) => {
+  try {
+    const { userId } = req;
+
+    const user = await sequelize.models.user.findByPk(+userId, {
+      attributes: {
+        include: ["password"],
+      },
+    });
+
+    return res.send(user);
+  } catch (err) {
+    logger.error(err);
+
+    return res.status(500).send(err);
+  }
+});
+
+router.put("/users/credentials", authenticate, async (req, res) => {
+  try {
+    const { userId } = req;
+
+    await sequelize.models.user.update(req.body, { where: { id: userId } });
+
+    return res.send();
+  } catch (err) {
+    logger.error(err);
+
+    const msg = getSequelizeErrorMessage(err);
+
+    return res.status(500).send(msg);
+  }
+});
+
 router.get("/profile/:userId", authenticate, async (req, res) => {
   try {
     const { userId } = req.params;

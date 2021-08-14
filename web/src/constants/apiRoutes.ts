@@ -10,6 +10,7 @@ export const getAssetUrl = (url: string) => `${BACKEND_URL}/${url}`;
 export const USERS_URL = API_URL + "/users";
 export const PROFILE_URL = (userId: number) => `${API_URL}/profile/${userId}`;
 export const USER_PHOTO_URL = USERS_URL + "/photo";
+export const CREDENTIALS_URL = USERS_URL + "/credentials";
 
 export const AUTH_URL = API_URL + "/auth";
 

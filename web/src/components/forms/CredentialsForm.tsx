@@ -2,25 +2,28 @@ import { ChangeEvent, useState } from "react";
 import { FormEvent } from "react";
 import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
-import { ILoginForm } from "../../constants/formTypes";
+import { ICredentialsForm } from "../../constants/formTypes";
 import validation from "../../constants/validation";
 import { theme } from "../../theme/theme.config";
-import Anchor from "../shared-components/Anchor";
 import Button from "../shared-components/Button";
 import Input from "../shared-components/Input";
 
-interface LoginFormProps extends FormHTMLAttributes<HTMLFormElement> {
+interface CredentialsFormProps extends FormHTMLAttributes<HTMLFormElement> {
   handleSubmit(): void;
-  handleChangeInput(
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
-  ): void;
-  state: ILoginForm;
+  handleChangeInput(e: ChangeEvent<HTMLInputElement>): void;
+  state: ICredentialsForm;
 }
 
-const ButtonsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+const Container = styled.form`
+  width: 40%;
+
+  ${theme.mediaQueries.tablet} {
+    width: 60%;
+  }
+
+  ${theme.mediaQueries.mobile} {
+    width: 100%;
+  }
 `;
 
 const ErrorMessage = styled.div`
@@ -33,12 +36,12 @@ const ErrorMessage = styled.div`
   }
 `;
 
-const LoginForm: FC<LoginFormProps> = ({
+const CredentialsForm: FC<CredentialsFormProps> = ({
   handleSubmit,
   handleChangeInput,
   state,
   className,
-}: LoginFormProps) => {
+}: CredentialsFormProps) => {
   const [error, setError] = useState<string | undefined>(undefined);
 
   const onSubmit = (e: FormEvent) => {
@@ -46,7 +49,7 @@ const LoginForm: FC<LoginFormProps> = ({
 
     let error: string | undefined = undefined;
     for (const [key, value] of Object.entries(state)) {
-      error = validation[key as keyof typeof state](value);
+      error = validation[key as keyof typeof state](value, state);
 
       if (error) break;
     }
@@ -55,7 +58,7 @@ const LoginForm: FC<LoginFormProps> = ({
   };
 
   return (
-    <form onSubmit={onSubmit} className={className}>
+    <Container onSubmit={onSubmit} className={className}>
       <Input
         label="Username"
         value={state.username}
@@ -63,6 +66,15 @@ const LoginForm: FC<LoginFormProps> = ({
         name="username"
         onChange={handleChangeInput}
         error={error && validation.username(state.username)}
+      />
+
+      <Input
+        label="E-mail"
+        value={state.email}
+        id="email"
+        name="email"
+        onChange={handleChangeInput}
+        error={error && validation.email(state.email)}
       />
 
       <Input
@@ -75,18 +87,25 @@ const LoginForm: FC<LoginFormProps> = ({
         error={error && validation.password(state.password)}
       />
 
-      <ButtonsContainer>
-        <Button label="Login" type="submit" color="primary" />
-        <Anchor to="/register" label="Register" />
-      </ButtonsContainer>
+      <Input
+        type="password"
+        label="Confirm password"
+        value={state.repeatPassword}
+        id="repeatPassword"
+        name="repeatPassword"
+        onChange={handleChangeInput}
+        error={error && validation.repeatPassword(state.repeatPassword, state)}
+      />
+
+      <Button label="Save" type="submit" color="primary" />
 
       {error && (
         <ErrorMessage>
           <span>{error}</span>
         </ErrorMessage>
       )}
-    </form>
+    </Container>
   );
 };
 
-export default LoginForm;
+export default CredentialsForm;

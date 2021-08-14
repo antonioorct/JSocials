@@ -7,6 +7,7 @@ import Profile from "../pages/Profile";
 import Friends from "../pages/Friends";
 import FriendRequests from "../pages/FriendRequests";
 import Messenger from "../pages/Messenger";
+import Settings from "../pages/Settings";
 
 export interface IRoute {
   name: string;
@@ -25,6 +26,7 @@ interface IRoutes {
   profile: IRoute;
   register: IRoute;
   messenger: IRoute;
+  settings: IRoute;
 }
 
 const routes: IRoutes = {
@@ -74,6 +76,12 @@ const routes: IRoutes = {
     name: "Friend requests",
     href: "/friend-requests",
     component: FriendRequests,
+    protected: true,
+  },
+  settings: {
+    name: "Settings",
+    href: "/settings",
+    component: Settings,
     protected: true,
   },
   notFound: {

@@ -112,7 +112,7 @@ const Messenger: FC = () => {
   const { state } = useLocation<{ user: IUser }>();
 
   useEffect(() => {
-    socket.emit("chat", getUserId()?.sub);
+    socket.emit("chat", getUserId());
 
     (async () => {
       const chats = await getAllChats();

@@ -3,6 +3,7 @@ import { FormEvent } from "react";
 import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
 import { IRegisterForm } from "../../constants/formTypes";
+import validation from "../../constants/validation";
 import { theme } from "../../theme/theme.config";
 import Anchor from "../shared-components/Anchor";
 import Button from "../shared-components/Button";
@@ -32,38 +33,6 @@ const ButtonContainer = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
-
-const validation = {
-  firstName: (firstName: string): string | undefined => {
-    return firstName === "" ? "First name is required" : undefined;
-  },
-  lastName: (lastName: string): string | undefined => {
-    return lastName === "" ? "Last name is required" : undefined;
-  },
-  email: (email: string): string | undefined => {
-    return email === ""
-      ? "E-mail is required"
-      : !email.includes("@")
-      ? "E-mail must be valid"
-      : undefined;
-  },
-  username: (username: string): string | undefined => {
-    return username === "" ? "Username is required" : undefined;
-  },
-  password: (password: string): string | undefined => {
-    return password === "" ? "Password is required" : undefined;
-  },
-  repeatPassword: (
-    repeatPassword: string,
-    state: IRegisterForm
-  ): string | undefined => {
-    return repeatPassword === ""
-      ? "Confirm password is required"
-      : state.password !== repeatPassword
-      ? "Passwords must match"
-      : undefined;
-  },
-};
 
 const RegisterForm: FC<RegisterFormProps> = ({
   handleSubmit,
@@ -120,6 +89,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
         onChange={handleChangeInput}
         error={error && validation.email(state.email)}
       />
+
       <Input
         label="Username"
         value={state.username}
