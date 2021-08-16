@@ -17,7 +17,7 @@ const Container = styled.div<{ alignment: Alignment }>`
     props.alignment === "left" ? "flex-start" : "flex-end"};
 
   display: flex;
-  width: 60%;
+  max-width: 60%;
 `;
 
 const MessageContainer = styled.div<{ alignment: Alignment }>`
@@ -25,6 +25,7 @@ const MessageContainer = styled.div<{ alignment: Alignment }>`
     props.alignment === "left" ? "flex-start" : "flex-end"};
 
   padding: 1rem;
+  box-sizing: border-box;
   border-radius: 0.5rem;
 
   background-color: ${(props) =>

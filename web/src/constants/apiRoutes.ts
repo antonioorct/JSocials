@@ -1,7 +1,7 @@
 export const BACKEND_URL =
   process.env.NODE_ENV === "production"
     ? ""
-    : `http://localhost:${process.env.REACT_APP_SERVER_PORT}`;
+    : `http://${window.location.hostname}:${process.env.REACT_APP_SERVER_PORT}`;
 
 export const API_URL = `${BACKEND_URL}/api`;
 

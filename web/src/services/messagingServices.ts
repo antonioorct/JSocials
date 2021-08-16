@@ -37,7 +37,7 @@ export const sendMessage = async (
 export const addMessage = ([...chats]: IChat[], message: IMessage): IChat[] => {
   const chatIndex = chats.findIndex((chat) => chat.id === message.chatId);
 
-  chats[chatIndex].messages.push(message);
+  chats[chatIndex].messages.unshift(message);
 
   const [chat] = chats.splice(chatIndex, 1);
 

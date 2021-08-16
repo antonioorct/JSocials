@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import styled from "styled-components";
 import { IMessage } from "../constants/models";
 import Message from "./Message";
@@ -8,17 +8,17 @@ import Badge from "./shared-components/Badge";
 interface MessageListProps {
   messages: IMessage[];
 
-  onScrollTop(): void;
+  onScrollTop?(): void;
 }
 
 const Container = styled.div`
   position: relative;
-  flex-direction: column;
-  gap: 0.8rem;
+  flex-direction: column-reverse;
+  gap: 0.6rem;
 
   display: flex;
 
-  overflow: auto;
+  overflow-y: auto;
 
   height: 100%;
   box-sizing: border-box;
@@ -32,7 +32,6 @@ const ScrollButton = styled(Badge)`
   position: absolute;
   right: 7rem;
   bottom: 4.5rem;
-
   cursor: pointer;
 
   & > div {
@@ -60,25 +59,16 @@ const MessageList: FC<MessageListProps> = ({ messages, onScrollTop }) => {
       top: messageContainer.current?.scrollHeight,
     });
 
-  useEffect(() => {
-    // addEventListener is used because without it, the scrollToBottom
-    // function is executed before all the children are rendered so the
-    // element scrolls only part of the way
-    window.addEventListener("load", scrollToBottom);
-  }, []);
-
-  useEffect(scrollToBottom, [messages]);
-
   const handleScroll = () => {
     const el = messageContainer.current;
 
     if (!el) return;
-    const isOnBottom = el.scrollHeight - el.offsetHeight !== el.scrollTop;
-    const isOnTop = el.scrollTop === 0;
+    const isOnTop = el.offsetHeight - el.scrollHeight === el.scrollTop;
+    const isOnBottom = el.scrollTop !== 0;
 
     setShowScrollButton(isOnBottom);
 
-    isOnTop && onScrollTop();
+    isOnTop && onScrollTop && onScrollTop();
   };
 
   return (

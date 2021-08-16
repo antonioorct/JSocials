@@ -18,7 +18,7 @@ const CHAT_OPTIONS = {
       include: sequelize.models.user,
     },
   ],
-  order: [[sequelize.models.message, "createdAt", "ASC"]],
+  order: [[sequelize.models.message, "createdAt", "DESC"]],
 };
 
 const MESSAGE_OPTIONS = {
