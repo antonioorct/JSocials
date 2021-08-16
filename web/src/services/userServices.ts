@@ -17,6 +17,12 @@ export const createUser = async ({
   return data;
 };
 
+export const searchUsers = async (query: string): Promise<IUser[]> => {
+  const { data } = await axios.get(USERS_URL, { params: { query } });
+
+  return data;
+};
+
 export const getUserProfile = async (userId: number): Promise<IUserProfile> => {
   const { data } = await axios.get(PROFILE_URL(userId));
 

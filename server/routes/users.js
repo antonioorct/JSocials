@@ -1,6 +1,10 @@
 const { Router } = require("express");
 const { Op } = require("sequelize");
-const { sequelize, getSequelizeErrorMessage } = require("../database");
+const {
+  sequelize,
+  getSequelizeErrorMessage,
+  caseInsensitiveWhere,
+} = require("../database");
 const { authenticate } = require("../utils/jwt");
 const logger = require("../logger");
 const bcrypt = require("bcrypt");
@@ -41,6 +45,28 @@ const PROFILE_OPTIONS = (userId) => ({
     },
     { model: sequelize.models.user, as: "friends" },
   ],
+});
+
+router.get("/users", authenticate, async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    const user = await sequelize.models.user.findAll({
+      where: {
+        [Op.or]: [
+          caseInsensitiveWhere("firstName", query),
+          caseInsensitiveWhere("lastName", query),
+          caseInsensitiveWhere("username", query),
+        ],
+      },
+    });
+
+    return res.send(user);
+  } catch (err) {
+    logger.error(err);
+
+    return res.status(500).send(err);
+  }
 });
 
 router.get("/users/credentials", authenticate, async (req, res) => {

@@ -1,4 +1,4 @@
-const { Sequelize, ValidationError } = require("sequelize");
+const { Sequelize, ValidationError, Op } = require("sequelize");
 const logger = require("./logger");
 const path = require("path");
 const fs = require("fs");
@@ -303,4 +303,15 @@ function getSequelizeErrorMessage(err) {
   return msg;
 }
 
-module.exports = { sequelize, init, getSequelizeErrorMessage };
+function caseInsensitiveWhere(columnName, searchString) {
+  return sequelize.where(sequelize.fn("LOWER", sequelize.col(columnName)), {
+    [Op.like]: `%${searchString.toLowerCase()}%`,
+  });
+}
+
+module.exports = {
+  sequelize,
+  init,
+  getSequelizeErrorMessage,
+  caseInsensitiveWhere,
+};
