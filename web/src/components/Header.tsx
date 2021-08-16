@@ -5,6 +5,7 @@ import routes from "../constants/routes";
 import { getFriendRequestCount } from "../services/friendRequestServices";
 import { theme } from "../theme/theme.config";
 import LocalStorage from "../utils/LocalStorage";
+import UserSearchForm from "./forms/UserSearchForm";
 import Anchor from "./shared-components/Anchor";
 import Badge from "./shared-components/Badge";
 import Button from "./shared-components/Button";
@@ -278,6 +279,9 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
     history.push(routes.login.href);
   };
 
+  const handleSubmitSearch = (searchValue: string) =>
+    history.push(`/search/${searchValue}`);
+
   return (
     <Container $hide={hide} $topOfPage={topOfPage}>
       <HeaderContainer>
@@ -306,6 +310,7 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
         </MobileBackground>
 
         <LinkBar $topOfPage={topOfPage}>
+          <UserSearchForm handleSubmit={handleSubmitSearch} hideOnMobile />
           <Anchor to="/messenger" label="Messenger" underline />
           <Anchor to="/friends" label="Friends" underline />
           {friendRequestCount ? (
@@ -318,6 +323,8 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
           <Anchor to="/profile" label="Profile" underline />
           <Button label="Log out" color="primary" onClick={handleClickLogout} />
         </LinkBar>
+
+        <UserSearchForm handleSubmit={handleSubmitSearch} hideOnDesktop />
 
         <Burger htmlFor="header-toggle" $topOfPage={topOfPage}>
           <div />
