@@ -4,7 +4,9 @@ import { IUserDetails } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import { toTitleCase } from "../utils/stringUtils";
 import Button from "./shared-components/Button";
-import InputContainer from "./shared-components/Input";
+import InputContainer, {
+  TextArea as TextAreaContainer,
+} from "./shared-components/Input";
 
 interface UserDetailsProps {
   userDetails: IUserDetails;
@@ -22,11 +24,12 @@ const BioContainer = styled.div`
 
   border: 1px solid ${theme.palette.darkGray};
   padding: 1rem;
+  margin-bottom: 3rem;
   box-shadow: 1px 1px 10px #80808055;
 
   background: ${theme.palette.white};
 
-  margin-bottom: 3rem;
+  white-space: pre-line;
 `;
 
 const DetailsContainer = styled.div`
@@ -65,6 +68,14 @@ const Input = styled(InputContainer)`
   background: ${theme.palette.white};
 
   text-align: center;
+`;
+
+const TextArea = styled(TextAreaContainer)`
+  border: 1px solid ${theme.palette.darkGray};
+  padding: 3px;
+  margin-bottom: 0;
+
+  background: ${theme.palette.white};
 `;
 
 const ButtonContainer = styled.div`
@@ -130,7 +141,7 @@ const UserDetails: FC<UserDetailsProps> = ({
       <Title>Bio</Title>
       <BioContainer>
         {editing ? (
-          <Input value={state.bio} name="bio" onChange={handleChangeInput} />
+          <TextArea value={state.bio} name="bio" onChange={handleChangeInput} />
         ) : bio ? (
           bio
         ) : (
