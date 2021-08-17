@@ -157,7 +157,7 @@ router.put("/users/photo", [authenticate, attachment], async (req, res) => {
 
     return res.send(user);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }
@@ -180,7 +180,7 @@ router.delete("/users/photo", authenticate, async (req, res) => {
 
     return res.send();
   } catch (err) {
-    console.log(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }
