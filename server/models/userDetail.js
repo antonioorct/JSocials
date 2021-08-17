@@ -1,9 +1,7 @@
 const { DataTypes } = require("sequelize");
 
-let UserDetails;
-
 function init(sequelize) {
-  UserDetails = sequelize.define("userDetails", {
+  sequelize.define("userDetails", {
     bio: {
       type: DataTypes.STRING,
     },
@@ -25,4 +23,4 @@ function init(sequelize) {
   });
 }
 
-module.exports = { UserDetails, init };
+module.exports = { init };

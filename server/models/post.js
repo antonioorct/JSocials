@@ -1,9 +1,7 @@
 const { DataTypes } = require("sequelize");
 
-let Post;
-
 function init(sequelize) {
-  Post = sequelize.define("post", {
+  sequelize.define("post", {
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -36,4 +34,4 @@ function init(sequelize) {
   });
 }
 
-module.exports = { Post, init };
+module.exports = { init };
