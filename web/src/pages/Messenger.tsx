@@ -230,26 +230,24 @@ const Messenger: FC = () => {
           onClickNew={handleClickOpenModal}
         />
 
-        <ChatContainer>
-          {currentChat && (
-            <>
-              <AuthorHeader>
-                <Author user={currentChat.recepient} />
-              </AuthorHeader>
+        {currentChat && (
+          <ChatContainer>
+            <AuthorHeader>
+              <Author user={currentChat.recepient} />
+            </AuthorHeader>
 
-              <MessageList
-                messages={currentChat.messages}
-                onScrollTop={handleScrollToTop}
-              />
+            <MessageList
+              messages={currentChat.messages}
+              onScrollTop={handleScrollToTop}
+            />
 
-              <ReplyForm
-                handleSubmit={handleSubmitReply}
-                handleChangeInput={handleChangeReplyInput}
-                state={reply}
-              />
-            </>
-          )}
-        </ChatContainer>
+            <ReplyForm
+              handleSubmit={handleSubmitReply}
+              handleChangeInput={handleChangeReplyInput}
+              state={reply}
+            />
+          </ChatContainer>
+        )}
       </Container>
     </>
   );
