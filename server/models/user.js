@@ -1,9 +1,7 @@
 const { DataTypes } = require("sequelize");
 
-let User;
-
 function init(sequelize) {
-  User = sequelize.define(
+  sequelize.define(
     "user",
     {
       firstName: {
@@ -40,4 +38,4 @@ function init(sequelize) {
   );
 }
 
-module.exports = { User, init };
+module.exports = { init };

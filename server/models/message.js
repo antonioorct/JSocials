@@ -1,9 +1,7 @@
 const { DataTypes } = require("sequelize");
 
-let Message;
-
 function init(sequelize) {
-  Message = sequelize.define("message", {
+  sequelize.define("message", {
     chatId: {
       type: DataTypes.INTEGER,
     },
@@ -14,4 +12,4 @@ function init(sequelize) {
   });
 }
 
-module.exports = { Message, init };
+module.exports = { init };
