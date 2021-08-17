@@ -35,8 +35,8 @@ export const getUserCredentials = async (): Promise<ICredentialsForm> => {
   return {
     username: data.username,
     email: data.email,
-    password: data.password,
-    repeatPassword: data.password,
+    password: "",
+    repeatPassword: "",
   };
 };
 

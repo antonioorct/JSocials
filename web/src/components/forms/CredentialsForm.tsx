@@ -49,6 +49,10 @@ const CredentialsForm: FC<CredentialsFormProps> = ({
 
     let error: string | undefined = undefined;
     for (const [key, value] of Object.entries(state)) {
+      // Skip password validation if password field is empty
+      if (key === "password" && value === "") continue;
+      if (key === "repeatPassword" && state.password === "") continue;
+
       error = validation[key as keyof typeof state](value, state);
 
       if (error) break;

@@ -7,11 +7,10 @@ const {
 } = require("../database");
 const { authenticate } = require("../utils/jwt");
 const logger = require("../logger");
-const bcrypt = require("bcrypt");
 const { POST_OPTIONS } = require("./posts");
 const { attachment } = require("../utils/fileStorage");
 const { removeFile, getFilePath } = require("../utils/files");
-const BCRYPT_SALT_ROUNDS = 10;
+const { hashPassword } = require("../utils/hash");
 
 const router = Router();
 
@@ -73,11 +72,7 @@ router.get("/users/credentials", authenticate, async (req, res) => {
   try {
     const { userId } = req;
 
-    const user = await sequelize.models.user.findByPk(+userId, {
-      attributes: {
-        include: ["password"],
-      },
-    });
+    const user = await sequelize.models.user.findByPk(+userId);
 
     return res.send(user);
   } catch (err) {
@@ -90,6 +85,9 @@ router.get("/users/credentials", authenticate, async (req, res) => {
 router.put("/users/credentials", authenticate, async (req, res) => {
   try {
     const { userId } = req;
+
+    if (req.body.password)
+      req.body.password = await hashPassword(req.body.password);
 
     await sequelize.models.user.update(req.body, { where: { id: userId } });
 
@@ -122,10 +120,7 @@ router.get("/profile/:userId", authenticate, async (req, res) => {
 
 router.post("/users", async (req, res) => {
   try {
-    req.body.password = await bcrypt.hash(
-      req.body.password,
-      BCRYPT_SALT_ROUNDS
-    );
+    req.body.password = await hashPassword(req.body.password);
 
     const newUser = await sequelize.models.user.create(req.body);
     await sequelize.models.userDetails.create({
