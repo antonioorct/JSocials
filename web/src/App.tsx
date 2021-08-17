@@ -3,7 +3,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { FC } from "react";
 import GlobalStyle from "./theme/GlobalStyle";
-import Header from "./components/Header";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "./components/Toast";
 import axios, { AxiosRequestConfig } from "axios";
@@ -42,11 +41,10 @@ const App: FC = () => {
   return (
     <>
       <GlobalStyle />
+      <ToastContainer />
       <Router>
-        <Header />
         <Switch>{getRoutes()}</Switch>
       </Router>
-      <ToastContainer />
     </>
   );
 };
