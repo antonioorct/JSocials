@@ -94,11 +94,13 @@ export const TextArea: FC<InputProps> = ({
   error,
   className,
   label,
+  value,
 }: InputProps) => {
   return (
     <Container>
       {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
       <TextAreaField
+        value={value}
         className={className}
         placeholder={placeholder}
         name={name}
