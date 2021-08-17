@@ -119,7 +119,7 @@ router.delete("/posts/:postId", authenticate, async (req, res) => {
 
     return res.send();
   } catch (err) {
-    console.log(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }
@@ -145,7 +145,7 @@ router.post("/posts/:postId/like", authenticate, async (req, res) => {
 
     return res.send(post);
   } catch (err) {
-    console.log(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }
@@ -170,7 +170,7 @@ router.delete("/posts/:postId/like", authenticate, async (req, res) => {
 
     return res.send(post);
   } catch (err) {
-    console.log(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }

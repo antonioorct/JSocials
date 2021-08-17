@@ -1,19 +1,21 @@
-const winston = require("winston");
+const { transports, format, createLogger } = require("winston");
 
-const logger = winston.createLogger({
+const logger = createLogger({
   level: process.env.LOGGER_LEVEL,
-  format: winston.format.json(),
-  transports: [new winston.transports.File({ filename: "winston.log" })],
+  format: format.simple(),
+  transports: [new transports.File({ filename: "winston.log" })],
 });
+
+logger.error = (err) => {
+  if (err instanceof Error)
+    logger.log({ level: "error", message: `${err.stack || err}` });
+  else logger.log({ level: "error", message: err });
+};
 
 if (process.env.NODE_ENV !== "production") {
   logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple(),
-        winston.format.prettyPrint()
-      ),
+    new transports.Console({
+      format: format.combine(format.colorize(), format.simple()),
     })
   );
 }

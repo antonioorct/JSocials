@@ -69,7 +69,7 @@ router.post("/friend-requests/:friendId", authenticate, async (req, res) => {
 
     return res.send();
   } catch (err) {
-    console.error(err);
+    logger.error(err);
 
     return res.status(500).send(err);
   }

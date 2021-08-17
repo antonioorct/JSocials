@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const logger = require("../logger");
 
 function getFilePath(filename) {
   return `${process.env.ASSETS_SAVE_LOCATION}/${filename}`;
@@ -11,7 +12,7 @@ function removeFile(filePath) {
   try {
     fs.unlinkSync(fullFilePath);
   } catch (err) {
-    console.error("Failed in deleting file: " + filePath);
+    logger.error("Failed in deleting file: " + filePath);
   }
 }
 
