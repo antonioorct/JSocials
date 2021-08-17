@@ -64,6 +64,7 @@ const NewPostForm: FC<NewPostFormProps> = ({
         <OptionsContainer>
           <FileInput
             type="file"
+            accept="image/*"
             id="attachment"
             name="attachment"
             onChange={handleChangeInput}
