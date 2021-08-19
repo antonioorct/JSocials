@@ -118,7 +118,7 @@ router.post("/chats/:chatId", authenticate, async (req, res) => {
       .getDataValue("users")
       .find((user) => user.getDataValue("id") !== +req.userId)
       .getDataValue("id");
-    io().to(recepientId).emit("message", newMessage);
+    io().to(recepientId.toString()).emit("message", newMessage);
 
     return res.send(newMessage);
   } catch (err) {

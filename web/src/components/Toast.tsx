@@ -1,9 +1,10 @@
-import { FC, PropsWithChildren } from "react";
+import { FC, PropsWithChildren, ReactText } from "react";
 import {
   toast as toastFunction,
   TypeOptions,
   ToastContainer as DefaultToastContainer,
   ToastContainerProps,
+  Flip,
 } from "react-toastify";
 import styled, { css } from "styled-components";
 import ErrorIcon from "../img/icons/toast/ErrorIcon";
@@ -26,6 +27,11 @@ const Container = styled.div`
   margin-bottom: 0.2rem;
 
   display: flex;
+
+  & h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.3rem;
+  }
 
   & h3 {
     margin: 0 0 0.1rem;
@@ -118,33 +124,63 @@ const toast = (text: string, type: TypeOptions = "default"): void => {
   }
 };
 
+interface INotification {
+  onClick?(): void;
+  title?: string;
+  subTitle?: string;
+  content?: string;
+}
+
+export const notification = ({
+  onClick,
+  title,
+  subTitle,
+  content,
+}: INotification): ReactText =>
+  toastFunction(
+    <>
+      <Background type="darkWhite" />
+      <Container onClick={onClick}>
+        <div>
+          {title && <h2>{title}</h2>}
+          {subTitle && <h3>{subTitle}</h3>}
+          {content && <span>{content}</span>}
+        </div>
+      </Container>
+    </>,
+    {
+      autoClose: 2800,
+      transition: Flip,
+    }
+  );
+
 const StyledToast = styled(DefaultToastContainer)`
   .Toastify__toast {
     border-radius: 0.5rem;
     background: ${theme.palette.white};
     overflow-wrap: anywhere;
   }
-  ${(p) =>
-    Object.keys(COLORS_MAPPING).map(
-      (key: string) =>
-        css`
-          .Toastify__toast--${COLORS_MAPPING[
-              key as keyof typeof COLORS_MAPPING
-            ]} {
-            border: 1px solid ${theme.palette[key as keyof IPalette]};
 
-            color: ${theme.palette[key as keyof IPalette]};
+  ${Object.keys(COLORS_MAPPING).map(
+    (key: string) =>
+      css`
+        .Toastify__toast--${COLORS_MAPPING[
+            key as keyof typeof COLORS_MAPPING
+          ]} {
+          border: 1px solid ${theme.palette[key as keyof IPalette]};
 
-            .Toastify__progress-bar {
-              background: ${theme.palette[key as keyof IPalette]};
-            }
+          color: ${theme.palette[key as keyof IPalette]};
 
-            .Toastify__close-button {
-              color: ${theme.palette[key as keyof IPalette]};
-            }
+          .Toastify__progress-bar {
+            background: ${theme.palette[key as keyof IPalette]};
           }
-        `
-    )}
+
+          .Toastify__close-button {
+            color: ${theme.palette[key as keyof IPalette]};
+          }
+        }
+      `
+  )}
 `;
 
 export const ToastContainer: FC<PropsWithChildren<ToastContainerProps>> = (

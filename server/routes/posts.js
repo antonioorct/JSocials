@@ -5,6 +5,7 @@ const logger = require("../logger");
 const { attachment } = require("../utils/fileStorage");
 const { authenticate } = require("../utils/jwt");
 const { removeFile, getFilePath } = require("../utils/files");
+const { io } = require("../socket");
 
 const router = Router();
 
@@ -73,6 +74,8 @@ router.post("/posts", [authenticate, attachment], async (req, res) => {
       newPost.id,
       router.POST_OPTIONS
     );
+
+    if (!post.getDataValue("private")) io().emit("post", post);
 
     return res.send(post);
   } catch (err) {
