@@ -1,12 +1,15 @@
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import NewPostForm from "../components/forms/NewPostForm";
 import Modal from "../components/Modal";
 import Post from "../components/Post";
 import PostList from "../components/PostList";
+import { StickyButton } from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import { INewPostForm } from "../constants/formTypes";
 import { IPost } from "../constants/models";
+import { SocketContext } from "../contexts/socket";
+import { isUserOwnerOfObject } from "../services/authServices";
 import {
   addComment,
   deletePost,
@@ -49,14 +52,33 @@ const Home: FC = () => {
   const [newPostForm, setNewPostForm] = useState(initialNewPostForm);
   const [posts, setPosts] = useState<IPost[]>([]);
   const [postModal, setPostModal] = useState<IPost | undefined>(undefined);
+  const [showNewPostsButton, setShowNewPostsButton] = useState(false);
+
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
-    (async () => {
-      const posts = await getAllPosts();
-
-      setPosts(posts);
-    })();
+    fetchAndSetPosts();
   }, []);
+
+  useEffect(() => {
+    socket.off("post");
+    socket.on("post", handleNewPost);
+  }, [socket]);
+
+  const fetchAndSetPosts = async () => {
+    const posts = await getAllPosts();
+
+    setPosts(posts);
+  };
+
+  const handleNewPost = (post: IPost) =>
+    !isUserOwnerOfObject(post.user) && setShowNewPostsButton(true);
+
+  const handleLoadNewPosts = async () => {
+    setShowNewPostsButton(false);
+    await fetchAndSetPosts();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleSubmitNewPost = async () => {
     if (newPostForm.content === "") return;
@@ -161,6 +183,13 @@ const Home: FC = () => {
         />
 
         <Divider />
+
+        <StickyButton
+          label="↑ See new posts"
+          color="primary"
+          show={showNewPostsButton}
+          onClick={handleLoadNewPosts}
+        />
 
         <PostList
           posts={posts}

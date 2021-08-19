@@ -21,10 +21,10 @@ function initSockets(app) {
     for (const category in eventHandlers) {
       const handler = eventHandlers[category].handler;
 
-      for (const event in handler) {
-        socket.on(event, handler[event]);
-      }
+      for (const event in handler) socket.on(event, handler[event]);
     }
+
+    socket.join("post");
   });
 }
 

@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { sequelize } = require("../database");
 const { authenticate } = require("../utils/jwt");
 const logger = require("../logger");
+const { io } = require("../socket");
 
 const router = Router();
 
@@ -66,6 +67,10 @@ router.post("/friend-requests/:friendId", authenticate, async (req, res) => {
       incoming_user_id: friendId,
       outgoing_user_id: userId,
     });
+
+    const user = await sequelize.models.user.findByPk(userId);
+
+    io().to(friendId).emit("friend", user);
 
     return res.send();
   } catch (err) {

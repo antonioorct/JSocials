@@ -1,4 +1,10 @@
-import { ButtonHTMLAttributes, FC } from "react";
+import {
+  ButtonHTMLAttributes,
+  FC,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { theme } from "../../theme/theme.config";
 
@@ -49,6 +55,59 @@ const Button: FC<ButtonProps> = ({
       {label}
     </ButtonContainer>
   );
+};
+
+interface StickyButtonProps extends ButtonProps {
+  show: boolean;
+}
+
+const StickyButtonContainer = styled(Button)<{ scroll: boolean }>`
+  align-self: center;
+  position: sticky;
+  top: 2rem;
+
+  transition: top 0.4s ease;
+
+  ${(props) => !props.scroll && "top: 7.1rem"};
+`;
+
+export const StickyButton: FC<StickyButtonProps> = ({
+  label,
+  onClick,
+  color,
+  className,
+  show,
+}: StickyButtonProps) => {
+  const [scroll, setScroll] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    if (lastScrollY < window.scrollY && window.scrollY > 80) setScroll(true);
+    else if (lastScrollY > window.scrollY) setScroll(false);
+
+    setLastScrollY(window.scrollY);
+  }, [lastScrollY]);
+
+  useEffect(() => {
+    setLastScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
+
+  return show ? (
+    <StickyButtonContainer
+      label={label}
+      color={color}
+      onClick={onClick}
+      className={className}
+      scroll={scroll}
+    >
+      {label}
+    </StickyButtonContainer>
+  ) : null;
 };
 
 export default Button;

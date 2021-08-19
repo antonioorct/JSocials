@@ -54,7 +54,7 @@ const FriendRequests: FC = () => {
   };
 
   const removeOutgoingFriendRequest = (user: IUser) => {
-    const newOutgoingFriendRequests = friendRequests.incoming.filter(
+    const newOutgoingFriendRequests = friendRequests.outgoing.filter(
       (friend) => friend.id !== user.id
     );
 

@@ -1,6 +1,5 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { io } from "socket.io-client";
 import styled from "styled-components";
 import Author from "../components/Author";
 import ReplyFormComponent from "../components/forms/ReplyForm";
@@ -8,9 +7,7 @@ import { SearchUserList } from "../components/UserList";
 import MessageList from "../components/MessageList";
 import Modal from "../components/Modal";
 import ContainerComponent from "../components/shared-components/Container";
-import { BACKEND_URL } from "../constants/apiRoutes";
 import { IChat, IMessage, IUser, IUserMessage } from "../constants/models";
-import { getUserId } from "../services/authServices";
 import { getAllFriends } from "../services/friendServices";
 import {
   addMessage,
@@ -20,6 +17,7 @@ import {
 } from "../services/messagingServices";
 import { theme } from "../theme/theme.config";
 import { getUserName } from "../utils/stringUtils";
+import { SocketContext } from "../contexts/socket";
 
 const Container = styled(ContainerComponent)`
   margin-top: 70px;
@@ -99,9 +97,8 @@ const AuthorHeader = styled.div`
   background-color: ${theme.palette.white};
 `;
 
-const socket = io(BACKEND_URL);
-
 const Messenger: FC = () => {
+  const socket = useContext(SocketContext);
   const [chats, setChats] = useState<IChat[]>([]);
   const [currentChat, setCurrentChat] = useState<IChat | undefined>(undefined);
   const [userList, setUserList] = useState<IUserMessage[]>([]);
@@ -112,8 +109,6 @@ const Messenger: FC = () => {
   const { state } = useLocation<{ user: IUser }>();
 
   useEffect(() => {
-    socket.emit("chat", getUserId());
-
     (async () => {
       const chats = await getAllChats();
 
@@ -121,15 +116,15 @@ const Messenger: FC = () => {
 
       if (state !== undefined) openChat(chats, state.user);
     })();
-  }, [state]);
+  }, [state, socket]);
 
   useEffect(() => {
     socket.off("message");
-    socket.on("message", (message: IMessage) => newMessage(message));
+    socket.on("message", newMessage);
 
     populateUserList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chats]);
+  }, [chats, socket]);
 
   const populateUserList = async () => {
     let friends = await getAllFriends();
@@ -209,7 +204,7 @@ const Messenger: FC = () => {
   const getAllChatUsers = (): IUserMessage[] =>
     chats.map((chat) => ({
       ...chat.recepient,
-      message: chat.messages[chat.messages.length - 1],
+      message: chat.messages[0],
     }));
 
   return (

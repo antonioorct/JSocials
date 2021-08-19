@@ -32,15 +32,42 @@ router.get("/friends/suggestions", authenticate, async (req, res) => {
   try {
     const { userId } = req;
 
-    const friends = await sequelize.models.user.findAll({
-      ...FRIEND_OPTIONS(userId),
+    // Find all friends, incoming & outgoing requests and then find all users
+    // which don't include the found users
+    // FIXME: compress all of these multiple queries and maps to a single one
+    const friends = await sequelize.models.user.findAll(FRIEND_OPTIONS(userId));
+
+    const outgoingFriendRequests = await sequelize.models.user.findAll({
+      include: [
+        {
+          model: sequelize.models.user,
+          as: "outgoing_users",
+          where: { id: userId },
+        },
+      ],
+    });
+    const incomingFriendRequests = await sequelize.models.user.findAll({
+      include: [
+        {
+          model: sequelize.models.user,
+          as: "incoming_users",
+          where: { id: userId },
+        },
+      ],
     });
 
     const notFriends = await sequelize.models.user.findAll({
       limit: 5,
       order: Sequelize.literal("rand()"),
       where: {
-        id: { [Op.notIn]: [...friends.map((friend) => friend.id), userId] },
+        id: {
+          [Op.notIn]: [
+            ...friends.map((friend) => friend.id),
+            ...outgoingFriendRequests.map((request) => request.id),
+            ...incomingFriendRequests.map((request) => request.id),
+            userId,
+          ],
+        },
       },
     });
 

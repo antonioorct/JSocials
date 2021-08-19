@@ -8,6 +8,7 @@ import { ToastContainer } from "./components/Toast";
 import axios, { AxiosRequestConfig } from "axios";
 import { API_URL } from "./constants/apiRoutes";
 import LocalStorage from "./utils/LocalStorage";
+import { SocketContext, socket } from "./contexts/socket";
 
 axios.interceptors.request.use(
   (config: AxiosRequestConfig) => {
@@ -40,11 +41,13 @@ const getRoutes = (): React.ReactElement[] =>
 const App: FC = () => {
   return (
     <>
-      <GlobalStyle />
-      <ToastContainer />
-      <Router>
-        <Switch>{getRoutes()}</Switch>
-      </Router>
+      <SocketContext.Provider value={socket}>
+        <GlobalStyle />
+        <ToastContainer />
+        <Router>
+          <Switch>{getRoutes()}</Switch>
+        </Router>
+      </SocketContext.Provider>
     </>
   );
 };
