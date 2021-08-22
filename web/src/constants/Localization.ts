@@ -44,6 +44,8 @@ export type Keys =
   | "friendRequests"
   | "profile"
   | "logout"
+  | "pageNotFound"
+  | "return"
   | "newPost"
   | "newMessage"
   | "newFriendRequest"
@@ -137,6 +139,9 @@ const localization: ILanguages = {
     friendRequests: "Friend requests",
     profile: "Profile",
     logout: "Log out",
+    pageNotFound: "Page not found",
+
+    return: "Return",
 
     newPost: "New post!",
     newMessage: "New message!",
@@ -234,6 +239,9 @@ const localization: ILanguages = {
     friendRequests: "Zahtjevi prijateljstva",
     profile: "Profil",
     logout: "Odjava",
+    pageNotFound: "Stranica nije pronađena",
+
+    return: "Povratak",
 
     newPost: "Nova objava!",
     newMessage: "Nova poruka!",
