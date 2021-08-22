@@ -1,4 +1,4 @@
-import { FC, useRef, MouseEvent, ChangeEvent } from "react";
+import { FC, useRef, ChangeEvent } from "react";
 import styled, { css } from "styled-components";
 import { getAssetUrl } from "../constants/apiRoutes";
 import { IUser } from "../constants/models";

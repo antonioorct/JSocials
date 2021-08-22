@@ -42,6 +42,7 @@ import {
 } from "../services/userServices";
 import { theme } from "../theme/theme.config";
 import Anchor from "../components/shared-components/Anchor";
+import localization from "../constants/Localization";
 
 const Container = styled(ContainerComponent)`
   padding-top: 7rem;
@@ -225,7 +226,7 @@ const Profile: FC = () => {
 
             {isUserOwnerOfObject(userProfile) ? (
               <Anchor to={routes.settings.href}>
-                <Button label="Settings" color="primary" />
+                <Button label={localization.settings} color="primary" />
               </Anchor>
             ) : (
               <FriendRequest
@@ -243,7 +244,7 @@ const Profile: FC = () => {
           <Divider />
 
           <Tabs>
-            <Tab eventkey="About">
+            <Tab eventkey={localization.about}>
               <UserDetails
                 userDetails={userProfile.userDetails}
                 onClickConfirm={
@@ -254,7 +255,7 @@ const Profile: FC = () => {
               />
             </Tab>
 
-            <Tab eventkey="Posts">
+            <Tab eventkey={localization.posts}>
               <PostList
                 posts={userProfile.posts}
                 onClickLike={handleLikePost}
@@ -265,7 +266,7 @@ const Profile: FC = () => {
               />
             </Tab>
 
-            <Tab eventkey="Photos">
+            <Tab eventkey={localization.photos}>
               <ImageList
                 posts={userProfile.posts.filter(
                   (post) => post.attachment !== null
@@ -274,7 +275,7 @@ const Profile: FC = () => {
               />
             </Tab>
 
-            <Tab eventkey="Friends">
+            <Tab eventkey={localization.friends}>
               <UserList
                 users={userProfile.friends}
                 onRemoveFriend={
@@ -288,7 +289,7 @@ const Profile: FC = () => {
         </PageContainer>
       ) : (
         <Container>
-          <h1>User not found</h1>
+          <h1>{localization.userNotFound}</h1>
         </Container>
       )}
     </>

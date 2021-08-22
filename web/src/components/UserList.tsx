@@ -1,5 +1,6 @@
 import { ChangeEvent, FC, HTMLAttributes, useState } from "react";
 import styled from "styled-components";
+import localization from "../constants/Localization";
 import { IUser, IUserMessage } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import Author from "./Author";
@@ -165,13 +166,21 @@ export const SearchUserList: FC<SearchUserListProps> = ({
         <Input
           value={filterUserQuery}
           onChange={handleFilterQueryChange}
-          placeholder="Search users..."
+          placeholder={localization.userSearchPlaceholder}
         />
 
         {onClickCancel ? (
-          <Button label="Cancel" color="link" onClick={onClickCancel} />
+          <Button
+            label={localization.cancel}
+            color="link"
+            onClick={onClickCancel}
+          />
         ) : (
-          <Button label="New" color="primary" onClick={onClickNew} />
+          <Button
+            label={localization.new}
+            color="primary"
+            onClick={onClickNew}
+          />
         )}
       </SearchContainer>
 

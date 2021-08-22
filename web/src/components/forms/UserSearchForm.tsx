@@ -1,5 +1,6 @@
 import { FC, FormEvent, FormHTMLAttributes, useState, MouseEvent } from "react";
 import styled from "styled-components";
+import Localization from "../../constants/Localization";
 import { theme } from "../../theme/theme.config";
 import Anchor from "../shared-components/Anchor";
 import Button from "../shared-components/Button";
@@ -72,14 +73,14 @@ const UserSearchForm: FC<UserSearchFromProps> = ({
         value={searchValue}
         name="searchValue"
         onChange={handleChangeInput}
-        placeholder="Search users"
+        placeholder={Localization.userSearchPlaceholder}
       />
 
       {searchValue === "" ? (
-        <Button label="Search" color="primary" />
+        <Button label={Localization.search} color="primary" />
       ) : (
         <Anchor to={`/search/${searchValue}`}>
-          <Button label="Search" color="primary" />
+          <Button label={Localization.search} color="primary" />
         </Anchor>
       )}
     </Container>

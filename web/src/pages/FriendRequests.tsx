@@ -9,6 +9,7 @@ import {
   declineFriendRequest,
   getAllFriendRequests,
 } from "../services/friendRequestServices";
+import localization from "../constants/Localization";
 
 const Container = styled(ContainerComponent)`
   padding: 6rem 0 3rem;
@@ -84,11 +85,11 @@ const FriendRequests: FC = () => {
 
   return (
     <Container>
-      <Title>Friend Requests</Title>
+      <Title>{localization.friendRequests}</Title>
 
       <FriendRequestsContainer>
         <div>
-          <h2>Incoming</h2>
+          <h2>{localization.incoming}</h2>
 
           <UserList
             users={friendRequests.incoming}
@@ -99,7 +100,7 @@ const FriendRequests: FC = () => {
         </div>
 
         <div>
-          <h2>Outgoing</h2>
+          <h2>{localization.outgoing}</h2>
 
           <UserList
             users={friendRequests.outgoing}

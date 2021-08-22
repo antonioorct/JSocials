@@ -3,6 +3,7 @@ import { FormEvent } from "react";
 import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
 import { IRegisterForm } from "../../constants/formTypes";
+import Localization from "../../constants/Localization";
 import validation from "../../constants/validation";
 import { theme } from "../../theme/theme.config";
 import Anchor from "../shared-components/Anchor";
@@ -63,7 +64,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
     <form onSubmit={onSubmit} className={className}>
       <FormRow>
         <Input
-          label="First name"
+          label={Localization.firstName}
           value={state.firstName}
           id="firstName"
           name="firstName"
@@ -72,7 +73,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
         />
 
         <Input
-          label="Last name"
+          label={Localization.lastName}
           value={state.lastName}
           id="lastName"
           name="lastName"
@@ -82,7 +83,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
       </FormRow>
 
       <Input
-        label="E-mail"
+        label={Localization.email}
         value={state.email}
         id="email"
         name="email"
@@ -91,7 +92,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
       />
 
       <Input
-        label="Username"
+        label={Localization.username}
         value={state.username}
         id="username"
         name="username"
@@ -101,7 +102,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
 
       <Input
         type="password"
-        label="Password"
+        label={Localization.password}
         value={state.password}
         id="password"
         name="password"
@@ -111,7 +112,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
 
       <Input
         type="password"
-        label="Confirm password"
+        label={Localization.repeatPassword}
         value={state.repeatPassword}
         id="repeatPassword"
         name="repeatPassword"
@@ -120,8 +121,8 @@ const RegisterForm: FC<RegisterFormProps> = ({
       />
 
       <ButtonContainer>
-        <Anchor to="/login" label="Back to login" />
-        <Button label="Register" type="submit" color="primary" />
+        <Anchor to="/login" label={Localization.backToLogin} />
+        <Button label={Localization.register} type="submit" color="primary" />
       </ButtonContainer>
 
       {error && (

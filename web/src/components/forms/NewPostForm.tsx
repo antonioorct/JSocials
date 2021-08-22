@@ -3,6 +3,7 @@ import { FormEvent } from "react";
 import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
 import { INewPostForm } from "../../constants/formTypes";
+import Localization from "../../constants/Localization";
 import { theme } from "../../theme/theme.config";
 import Button from "../shared-components/Button";
 import { TextArea } from "../shared-components/Input";
@@ -54,7 +55,7 @@ const NewPostForm: FC<NewPostFormProps> = ({
     <form onSubmit={onSubmit} className={className} encType="multipart/form">
       <TextArea
         value={state.content}
-        placeholder="Start writing..."
+        placeholder={Localization.newPostPlaceholder}
         id="content"
         name="content"
         onChange={handleChangeInput}
@@ -78,11 +79,11 @@ const NewPostForm: FC<NewPostFormProps> = ({
               name="private"
               onChange={handleChangeInput}
             />
-            <label htmlFor="private">Private</label>
+            <label htmlFor="private">{Localization.privatePost}</label>
           </span>
         </OptionsContainer>
 
-        <Button label="Submit" type="submit" color="primary" />
+        <Button label={Localization.submit} type="submit" color="primary" />
       </ButtonContainer>
     </form>
   );

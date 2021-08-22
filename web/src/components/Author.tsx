@@ -1,5 +1,6 @@
 import { FC, HTMLAttributes } from "react";
 import styled from "styled-components";
+import Localization from "../constants/Localization";
 import { IUser, IUserMessage } from "../constants/models";
 import { theme } from "../theme/theme.config";
 import DateLabel from "./DateLabel";
@@ -151,32 +152,36 @@ const Author: FC<AuthorProps> = ({
         onSendRequest) && (
         <ButtonContainer>
           {onSendRequest && (
-            <Button label="Add" color="primary" onClick={handleAddFriend} />
+            <Button
+              label={Localization.add}
+              color="primary"
+              onClick={handleAddFriend}
+            />
           )}
           {onAcceptRequest && (
             <Button
-              label="Accept"
+              label={Localization.accept}
               color="primary"
               onClick={handleAcceptRequest}
             />
           )}
           {onDeclineRequest && (
             <Button
-              label="Decline"
+              label={Localization.decline}
               color="primary"
               onClick={handleDeclineRequest}
             />
           )}
           {onCancelRequest && (
             <Button
-              label="Cancel"
+              label={Localization.cancel}
               color="primary"
               onClick={handleCancelRequest}
             />
           )}
           {onRemoveFriend && (
             <Button
-              label="Remove"
+              label={Localization.remove}
               color="primary"
               onClick={handleRemoveFriend}
             />
