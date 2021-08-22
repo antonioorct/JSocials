@@ -7,6 +7,7 @@ import {
   Flip,
 } from "react-toastify";
 import styled, { css } from "styled-components";
+import localization from "../constants/Localization";
 import ErrorIcon from "../img/icons/toast/ErrorIcon";
 import InfoIcon from "../img/icons/toast/InfoIcon";
 import SuccessIcon from "../img/icons/toast/SuccessIcon";
@@ -87,7 +88,7 @@ const toast = (text: string, type: TypeOptions = "default"): void => {
           <Container>
             <ErrorIcon />
             <div>
-              <h3>Error!</h3>
+              <h3>{localization.error}</h3>
               <span>{text}</span>
             </div>
           </Container>
@@ -101,7 +102,7 @@ const toast = (text: string, type: TypeOptions = "default"): void => {
           <Container>
             <InfoIcon />
             <div>
-              <h3>Info</h3>
+              <h3>{localization.info}</h3>
               <span>{text}</span>
             </div>
           </Container>

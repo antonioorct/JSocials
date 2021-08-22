@@ -44,6 +44,10 @@ const TextAreaField = styled.textarea<InputProps>`
   ${InputStyling}
 `;
 
+const SelectField = styled.select<InputProps>`
+  ${InputStyling}
+`;
+
 const InputLabel = styled.label`
   display: block;
   opacity: 0.75;
@@ -109,6 +113,37 @@ export const TextArea: FC<InputProps> = ({
         onChange={onChange}
         error={error}
       />
+    </Container>
+  );
+};
+
+export const Select: FC<InputProps> = ({
+  placeholder,
+  name,
+  id,
+  onChange,
+  type,
+  error,
+  className,
+  label,
+  value,
+  children,
+}) => {
+  return (
+    <Container>
+      {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
+      <SelectField
+        value={value}
+        className={className}
+        placeholder={placeholder}
+        name={name}
+        id={id}
+        type={type}
+        onChange={onChange}
+        error={error}
+      >
+        {children}
+      </SelectField>
     </Container>
   );
 };

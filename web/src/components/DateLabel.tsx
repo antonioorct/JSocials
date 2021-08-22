@@ -2,6 +2,7 @@ import { FC, HTMLAttributes } from "react";
 import styled from "styled-components";
 import { format } from "timeago.js";
 import { theme } from "../theme/theme.config";
+import LocalStorage from "../utils/LocalStorage";
 
 interface IDateLabel extends HTMLAttributes<HTMLDivElement> {
   date: string;
@@ -15,7 +16,7 @@ const Label = styled.div`
 const DateLabel: FC<IDateLabel> = ({ date, className }) => {
   return (
     <Label title={new Date(date).toLocaleString()} className={className}>
-      {format(date)}
+      {format(date, LocalStorage.getLanguageToken())}
     </Label>
   );
 };

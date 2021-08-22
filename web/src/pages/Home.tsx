@@ -7,6 +7,7 @@ import PostList from "../components/PostList";
 import { StickyButton } from "../components/shared-components/Button";
 import ContainerComponent from "../components/shared-components/Container";
 import { INewPostForm } from "../constants/formTypes";
+import localization from "../constants/Localization";
 import { IPost } from "../constants/models";
 import { SocketContext } from "../contexts/socket";
 import { isUserOwnerOfObject } from "../services/authServices";
@@ -185,7 +186,7 @@ const Home: FC = () => {
         <Divider />
 
         <StickyButton
-          label="↑ See new posts"
+          label={localization.seeNewPosts}
           color="primary"
           show={showNewPostsButton}
           onClick={handleLoadNewPosts}

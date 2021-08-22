@@ -3,6 +3,7 @@ import { FormEvent } from "react";
 import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
 import { ILoginForm } from "../../constants/formTypes";
+import Localization from "../../constants/Localization";
 import validation from "../../constants/validation";
 import { theme } from "../../theme/theme.config";
 import Anchor from "../shared-components/Anchor";
@@ -57,7 +58,7 @@ const LoginForm: FC<LoginFormProps> = ({
   return (
     <form onSubmit={onSubmit} className={className}>
       <Input
-        label="Username"
+        label={Localization.username}
         value={state.username}
         id="username"
         name="username"
@@ -67,7 +68,7 @@ const LoginForm: FC<LoginFormProps> = ({
 
       <Input
         type="password"
-        label="Password"
+        label={Localization.password}
         value={state.password}
         id="password"
         name="password"
@@ -76,8 +77,8 @@ const LoginForm: FC<LoginFormProps> = ({
       />
 
       <ButtonsContainer>
-        <Button label="Login" type="submit" color="primary" />
-        <Anchor to="/register" label="Register" />
+        <Button label={Localization.login} type="submit" color="primary" />
+        <Anchor to="/register" label={Localization.register} />
       </ButtonsContainer>
 
       {error && (

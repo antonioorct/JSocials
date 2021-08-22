@@ -7,6 +7,7 @@ import { theme } from "../theme/theme.config";
 import { createUser } from "../services/userServices";
 import toast from "../components/Toast";
 import handleError from "../utils/errorHandler";
+import Localization from "../constants/Localization";
 
 const Container = styled(ContainerComponent)`
   background: linear-gradient(
@@ -19,19 +20,21 @@ const Container = styled(ContainerComponent)`
 
   & > div {
     position: relative;
-
-    padding-top: 70px;
-    box-sizing: border-box;
-    display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
+
+    display: flex;
 
     height: 100vh;
   }
 
   ${theme.mediaQueries.mobile} {
     background: ${theme.palette.primary}67;
+
+    & > div {
+      height: ${window.innerHeight}px;
+    }
   }
 `;
 
@@ -69,7 +72,7 @@ const Register: FC = () => {
     try {
       await createUser(form);
 
-      toast("Registration successful!", "success");
+      toast(Localization.registrationSuccess, "success");
       setForm(initialRegisterForm);
     } catch (err) {
       handleError(err);
@@ -83,7 +86,7 @@ const Register: FC = () => {
   return (
     <Container>
       <TitleContainer>
-        <h1>Register</h1>
+        <h1>{Localization.register}</h1>
       </TitleContainer>
 
       <RegisterForm

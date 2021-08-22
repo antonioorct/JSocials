@@ -1,8 +1,8 @@
 import { ChangeEvent, FC, useState } from "react";
 import styled from "styled-components";
+import localization, { Keys as LanguageKeys } from "../constants/Localization";
 import { IUserDetails } from "../constants/models";
 import { theme } from "../theme/theme.config";
-import { toTitleCase } from "../utils/stringUtils";
 import Button from "./shared-components/Button";
 import InputContainer, {
   TextArea as TextAreaContainer,
@@ -104,14 +104,14 @@ const UserDetails: FC<UserDetailsProps> = ({
       return editing ? (
         <Input
           key={key}
-          label={toTitleCase(key)}
+          label={localization[key as LanguageKeys]}
           value={state[key as keyof IUserDetails]}
           name={key}
           onChange={handleChangeInput}
         />
       ) : (
         <div key={key}>
-          <strong>{toTitleCase(key)}</strong>
+          <strong>{localization[key as LanguageKeys]}</strong>
           <hr />
           <div>{value}</div>
         </div>
@@ -138,14 +138,12 @@ const UserDetails: FC<UserDetailsProps> = ({
 
   return (
     <>
-      <Title>Bio</Title>
+      <Title>{localization.bio}</Title>
       <BioContainer>
         {editing ? (
           <TextArea value={state.bio} name="bio" onChange={handleChangeInput} />
-        ) : bio ? (
-          bio
         ) : (
-          "There's nothing here..."
+          bio || localization.emptyBio
         )}
       </BioContainer>
 
@@ -156,14 +154,22 @@ const UserDetails: FC<UserDetailsProps> = ({
           {editing ? (
             <>
               <Button
-                label="Confirm"
+                label={localization.accept}
                 color="primary"
                 onClick={handleClickConfirm}
               />
-              <Button label="Cancel" color="link" onClick={handleClickCancel} />
+              <Button
+                label={localization.cancel}
+                color="link"
+                onClick={handleClickCancel}
+              />
             </>
           ) : (
-            <Button label="Edit" color="primary" onClick={handleClickEdit} />
+            <Button
+              label={localization.edit}
+              color="primary"
+              onClick={handleClickEdit}
+            />
           )}
         </ButtonContainer>
       )}

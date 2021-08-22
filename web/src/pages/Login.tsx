@@ -9,6 +9,9 @@ import { sendLoginInfo } from "../services/authServices";
 import { useHistory } from "react-router-dom";
 import handleError from "../utils/errorHandler";
 import routes from "../constants/routes";
+import localization from "../constants/Localization";
+import toast from "../components/Toast";
+import LanguageSelectComponent from "../components/LanguageSelect";
 
 const Container = styled(ContainerComponent)`
   background: linear-gradient(
@@ -21,19 +24,21 @@ const Container = styled(ContainerComponent)`
 
   & > div {
     position: relative;
-
-    padding-top: 70px;
-    box-sizing: border-box;
-    display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: center;
+
+    display: flex;
 
     height: 100vh;
   }
 
   ${theme.mediaQueries.mobile} {
     background: ${theme.palette.primary}67;
+
+    & > div {
+      height: ${window.innerHeight}px;
+    }
   }
 `;
 
@@ -55,6 +60,30 @@ const LoginForm = styled(LoginFormComponent)`
   }
 `;
 
+const LanguageSelect = styled(LanguageSelectComponent)`
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  flex-direction: row;
+  gap: 0;
+
+  z-index: 10;
+
+  width: fit-content;
+  padding: 0;
+
+  & select {
+    height: 100%;
+    margin: 0;
+    padding-bottom: 0.2rem;
+  }
+
+  & > button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+`;
+
 const initialLoginForm: ILoginForm = {
   username: "",
   password: "",
@@ -73,7 +102,9 @@ const Login: FC = () => {
 
       history.push(routes.home.href);
     } catch (err) {
-      handleError(err);
+      if (err.response.status === 400)
+        toast(localization.invalidCredentials, "error");
+      else handleError(err);
     }
   };
 
@@ -82,17 +113,20 @@ const Login: FC = () => {
   }: ChangeEvent<HTMLInputElement>) => setForm({ ...form, [name]: value });
 
   return (
-    <Container>
-      <TitleContainer>
-        <h1>Login</h1>
-      </TitleContainer>
+    <>
+      <LanguageSelect />
+      <Container>
+        <TitleContainer>
+          <h1>{localization.login}</h1>
+        </TitleContainer>
 
-      <LoginForm
-        handleSubmit={onSubmit}
-        state={form}
-        handleChangeInput={onChangeInput}
-      />
-    </Container>
+        <LoginForm
+          handleSubmit={onSubmit}
+          state={form}
+          handleChangeInput={onChangeInput}
+        />
+      </Container>
+    </>
   );
 };
 

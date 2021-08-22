@@ -17,7 +17,7 @@ router.post("/auth", async (req, res) => {
 
     if (!user) return res.status(400).send("Invalid email and/or password.");
 
-    if (!checkPasswords(password, user.password))
+    if (!(await checkPasswords(password, user.password)))
       return res.status(400).send("Invalid email and/or password.");
 
     const token = jwt.generateToken(user.id);

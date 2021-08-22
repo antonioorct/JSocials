@@ -3,6 +3,7 @@ import { FormEvent } from "react";
 import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
 import { ICredentialsForm } from "../../constants/formTypes";
+import Localization from "../../constants/Localization";
 import validation from "../../constants/validation";
 import { theme } from "../../theme/theme.config";
 import Button from "../shared-components/Button";
@@ -15,14 +16,16 @@ interface CredentialsFormProps extends FormHTMLAttributes<HTMLFormElement> {
 }
 
 const Container = styled.form`
-  width: 40%;
+  flex-basis: 40%;
 
   ${theme.mediaQueries.tablet} {
-    width: 60%;
+    flex-basis: 60%;
   }
 
   ${theme.mediaQueries.mobile} {
-    width: 100%;
+    flex-basis: 100%;
+
+    margin-bottom: 4rem;
   }
 `;
 
@@ -64,7 +67,7 @@ const CredentialsForm: FC<CredentialsFormProps> = ({
   return (
     <Container onSubmit={onSubmit} className={className}>
       <Input
-        label="Username"
+        label={Localization.username}
         value={state.username}
         id="username"
         name="username"
@@ -73,7 +76,7 @@ const CredentialsForm: FC<CredentialsFormProps> = ({
       />
 
       <Input
-        label="E-mail"
+        label={Localization.email}
         value={state.email}
         id="email"
         name="email"
@@ -83,7 +86,7 @@ const CredentialsForm: FC<CredentialsFormProps> = ({
 
       <Input
         type="password"
-        label="Password"
+        label={Localization.password}
         value={state.password}
         id="password"
         name="password"
@@ -93,7 +96,7 @@ const CredentialsForm: FC<CredentialsFormProps> = ({
 
       <Input
         type="password"
-        label="Confirm password"
+        label={Localization.repeatPassword}
         value={state.repeatPassword}
         id="repeatPassword"
         name="repeatPassword"
@@ -101,7 +104,7 @@ const CredentialsForm: FC<CredentialsFormProps> = ({
         error={error && validation.repeatPassword(state.repeatPassword, state)}
       />
 
-      <Button label="Save" type="submit" color="primary" />
+      <Button label={Localization.save} type="submit" color="primary" />
 
       {error && (
         <ErrorMessage>

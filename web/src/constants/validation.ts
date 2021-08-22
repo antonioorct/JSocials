@@ -1,33 +1,34 @@
 import { ICredentialsForm, IRegisterForm } from "./formTypes";
+import localization from "./Localization";
 
 const validation = {
   firstName: (firstName: string): string | undefined => {
-    return firstName === "" ? "First name is required" : undefined;
+    return firstName === "" ? localization.firstNameRequired : undefined;
   },
   lastName: (lastName: string): string | undefined => {
-    return lastName === "" ? "Last name is required" : undefined;
+    return lastName === "" ? localization.lastNameRequired : undefined;
   },
   email: (email: string): string | undefined => {
     return email === ""
-      ? "E-mail is required"
+      ? localization.emailRequired
       : !email.includes("@")
-      ? "E-mail must be valid"
+      ? localization.emailValid
       : undefined;
   },
   username: (username: string): string | undefined => {
-    return username === "" ? "Username is required" : undefined;
+    return username === "" ? localization.usernameRequired : undefined;
   },
   password: (password: string): string | undefined => {
-    return password === "" ? "Password is required" : undefined;
+    return password === "" ? localization.passwordRequired : undefined;
   },
   repeatPassword: (
     repeatPassword: string,
     state: IRegisterForm | ICredentialsForm
   ): string | undefined => {
     return repeatPassword === ""
-      ? "Confirm password is required"
+      ? localization.confirmPasswordRequired
       : state.password !== repeatPassword
-      ? "Passwords must match"
+      ? localization.confirmPasswordValid
       : undefined;
   },
 };

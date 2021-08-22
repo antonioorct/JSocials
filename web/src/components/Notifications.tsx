@@ -1,5 +1,6 @@
 import { FC, useContext, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+import localization from "../constants/Localization";
 import { IMessage, IPost, IUser } from "../constants/models";
 import routes from "../constants/routes";
 import { SocketContext } from "../contexts/socket";
@@ -19,21 +20,21 @@ const Notifications: FC = () => {
           onClick: () => {
             history.push(routes.home.href, { post: post });
           },
-          title: "New post!",
-          content: `From: ${getUserName(post.user)}`,
+          title: localization.newPost,
+          content: `${localization.from}: ${getUserName(post.user)}`,
         }),
       message: (message: IMessage) =>
         notification({
           onClick: () =>
             history.push(routes.messenger.href, { user: message.user }),
-          title: "New message!",
-          content: `From: ${getUserName(message.user)}`,
+          title: localization.newMessage,
+          content: `${localization.from} ${getUserName(message.user)}`,
         }),
       friend: (user: IUser) =>
         notification({
           onClick: () => history.push(routes.friendRequests.href),
-          title: "New friend request!",
-          content: `From: ${getUserName(user)}`,
+          title: localization.newFriendRequest,
+          content: `${localization.from}: ${getUserName(user)}`,
         }),
     };
 

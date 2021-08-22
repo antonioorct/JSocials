@@ -1,17 +1,31 @@
 import { ChangeEvent, FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import CredentialsForm from "../components/forms/CredentialsForm";
+import LanguageSelect from "../components/LanguageSelect";
 import ContainerComponent from "../components/shared-components/Container";
 import toast from "../components/Toast";
 import { ICredentialsForm } from "../constants/formTypes";
+import localization from "../constants/Localization";
 import {
   getUserCredentials,
   updateUserCredentials,
 } from "../services/userServices";
+import { theme } from "../theme/theme.config";
 import handleError from "../utils/errorHandler";
 
 const Container = styled(ContainerComponent)`
   margin-top: 8rem;
+
+  & > div {
+    gap: 20%;
+
+    display: flex;
+
+    ${theme.mediaQueries.mobile} {
+      gap: none;
+      flex-direction: column;
+    }
+  }
 `;
 
 const initialCredentialsForm: ICredentialsForm = {
@@ -40,7 +54,7 @@ const Settings: FC = () => {
     try {
       await updateUserCredentials(form);
 
-      toast("Credentials changed successfully!", "success");
+      toast(localization.credentialsSuccess, "success");
     } catch (err) {
       handleError(err);
     }
@@ -48,13 +62,20 @@ const Settings: FC = () => {
 
   return (
     <Container>
-      <h1>User settings</h1>
+      <div>
+        <h1>{localization.userSettings}</h1>
 
-      <CredentialsForm
-        handleSubmit={handleSubmit}
-        handleChangeInput={handleChangeInput}
-        state={form}
-      />
+        <CredentialsForm
+          handleSubmit={handleSubmit}
+          handleChangeInput={handleChangeInput}
+          state={form}
+        />
+      </div>
+
+      <div>
+        <h1>{localization.language}</h1>
+        <LanguageSelect />
+      </div>
     </Container>
   );
 };

@@ -1,6 +1,7 @@
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import localization from "../constants/Localization";
 import routes from "../constants/routes";
 import { getFriendRequestCount } from "../services/friendRequestServices";
 import { theme } from "../theme/theme.config";
@@ -311,17 +312,29 @@ const Header: FC<HeaderProps> = ({ transparent }: HeaderProps) => {
 
         <LinkBar $topOfPage={topOfPage}>
           <UserSearchForm handleSubmit={handleSubmitSearch} hideOnMobile />
-          <Anchor to="/messenger" label="Messenger" underline />
-          <Anchor to="/friends" label="Friends" underline />
+          <Anchor to="/messenger" label={localization.messenger} underline />
+          <Anchor to="/friends" label={localization.friends} underline />
           {friendRequestCount ? (
             <Badge content={friendRequestCount}>
-              <Anchor to="/friend-requests" label="Friend Requests" underline />
+              <Anchor
+                to="/friend-requests"
+                label={localization.friendRequests}
+                underline
+              />
             </Badge>
           ) : (
-            <Anchor to="/friend-requests" label="Friend Requests" underline />
+            <Anchor
+              to="/friend-requests"
+              label={localization.friendRequests}
+              underline
+            />
           )}
-          <Anchor to="/profile" label="Profile" underline />
-          <Button label="Log out" color="primary" onClick={handleClickLogout} />
+          <Anchor to="/profile" label={localization.profile} underline />
+          <Button
+            label={localization.logout}
+            color="primary"
+            onClick={handleClickLogout}
+          />
         </LinkBar>
 
         <UserSearchForm handleSubmit={handleSubmitSearch} hideOnDesktop />

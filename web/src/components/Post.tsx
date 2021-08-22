@@ -10,6 +10,7 @@ import Button from "./shared-components/Button";
 import Tooltip from "rc-tooltip";
 import { getUserId, isUserOwnerOfObject } from "../services/authServices";
 import DateLabel from "./DateLabel";
+import localization from "../constants/Localization";
 
 interface PostProps extends HTMLAttributes<HTMLDivElement> {
   post: IPost;
@@ -135,13 +136,7 @@ const Post: FC<PostProps> = ({
     `${post.likes
       .slice(0, 5)
       .map((user) => `${user.firstName} ${user.lastName}`)
-      .join(", ")} ${
-      post.likes.length === 1
-        ? " has"
-        : post.likes.length <= 5
-        ? " have"
-        : ",... have"
-    } liked this post.`;
+      .join(", ")}${post.likes.length >= 5 ? ",..." : ""}`;
 
   return (
     <Container>
@@ -150,7 +145,11 @@ const Post: FC<PostProps> = ({
           <Author user={post.user} />
           <ButtonsContainer>
             {isUserOwnerOfObject(post.user) && (
-              <Button label="Delete" color="link" onClick={handleClickDelete} />
+              <Button
+                label={localization.delete}
+                color="link"
+                onClick={handleClickDelete}
+              />
             )}
 
             {onClickCancel && (
@@ -160,7 +159,9 @@ const Post: FC<PostProps> = ({
         </Header>
 
         <DateLabel date={post.createdAt} />
-        {post.private && <PrivateText>PRIVATE</PrivateText>}
+        {post.private && (
+          <PrivateText>{localization.privatePost.toUpperCase()}</PrivateText>
+        )}
 
         <Content onClick={handleClickPost} hasModal={onClickPost !== undefined}>
           <p>{post.content}</p>
@@ -177,31 +178,45 @@ const Post: FC<PostProps> = ({
               placement="top"
               destroyTooltipOnHide={{ keepParent: false }}
             >
-              <div>{post.numLikes} likes</div>
+              <div>
+                {post.numLikes}{" "}
+                {post.numLikes === 1
+                  ? localization.likesSingular
+                  : localization.likesPlural}
+              </div>
             </Tooltip>
 
-            {post.numComments !== 0 && (
-              <div>{post.comments?.length} comments</div>
+            {post.comments && post.comments.length !== 0 && (
+              <div>
+                {post.comments.length}{" "}
+                {post.comments.length === 1
+                  ? localization.commentsSingular
+                  : localization.commentsPlural}
+              </div>
             )}
           </div>
 
           <ButtonsContainer>
             {!isLikedByOwner() ? (
               <Button
-                label="Like"
+                label={localization.like}
                 color="link"
                 onClick={handleClickLikeButton}
               />
             ) : (
               <Button
-                label="Unlike"
+                label={localization.unlike}
                 color="link"
                 onClick={handleClickUnlikeButton}
               />
             )}
 
             {onReply && (
-              <Button label="Reply" color="link" onClick={handleClickReply} />
+              <Button
+                label={localization.reply}
+                color="link"
+                onClick={handleClickReply}
+              />
             )}
 
             {onReply && replyContent !== undefined && (

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import ContainerComponent from "../components/shared-components/Container";
 import UserList from "../components/UserList";
+import localization from "../constants/Localization";
 import { IUser } from "../constants/models";
 import { searchUsers } from "../services/userServices";
 
@@ -24,10 +25,10 @@ const Search: FC = () => {
 
   return (
     <Container>
-      <h1>Search Results</h1>
+      <h1>{localization.searchResults}</h1>
 
       {users.length === 0 ? (
-        <h2>No users found</h2>
+        <h2>{localization.noUsersFound}</h2>
       ) : (
         <UserList users={users} />
       )}

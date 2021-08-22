@@ -1,5 +1,6 @@
 import { FC, HTMLAttributes, useEffect, useState } from "react";
 import styled from "styled-components";
+import Localization from "../constants/Localization";
 import { FriendStatus, IUser } from "../constants/models";
 import { getFriendStatus } from "../services/friendServices";
 import { theme } from "../theme/theme.config";
@@ -83,38 +84,38 @@ const FriendRequest: FC<IFriendRequest> = ({
     <ButtonContainer>
       {friendStatus === "none" ? (
         <Button
-          label="Add friend"
+          label={Localization.addFriend}
           color="primary"
           onClick={handleClickSendRequest}
         />
       ) : friendStatus === "incoming" ? (
         <>
           <Button
-            label="Accept"
+            label={Localization.acceptRequest}
             color="primary"
             onClick={handleClickAcceptRequest}
           />
           <Button
-            label="Decline"
+            label={Localization.declineRequest}
             color="primary"
             onClick={handleClickDeclineRequest}
           />
         </>
       ) : friendStatus === "outgoing" ? (
         <Button
-          label="Cancel request"
+          label={Localization.cancelRequest}
           color="primary"
           onClick={handleClickCancelRequest}
         />
       ) : (
         <>
           <Button
-            label="Remove friend"
+            label={Localization.removeFriend}
             color="primary"
             onClick={handleClickRemoveFriend}
           />
           <Button
-            label="Message"
+            label={Localization.message}
             color="primary"
             onClick={() => onClickSendMessage(user)}
           />

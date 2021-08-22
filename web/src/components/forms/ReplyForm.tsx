@@ -2,6 +2,7 @@ import { ChangeEvent } from "react";
 import { FormEvent } from "react";
 import { FC, FormHTMLAttributes } from "react";
 import styled from "styled-components";
+import Localization from "../../constants/Localization";
 import { theme } from "../../theme/theme.config";
 import Button from "../shared-components/Button";
 import InputComponent from "../shared-components/Input";
@@ -46,13 +47,13 @@ const ReplyForm: FC<ReplyFormProps> = ({
     <Container onSubmit={onSubmit} className={className}>
       <Input
         value={state}
-        placeholder="Write a reply"
+        placeholder={Localization.replyPlaceholder}
         id="state"
         name="state"
         onChange={onInputChange}
       />
 
-      <Button label="Submit" type="submit" color="primary" />
+      <Button label={Localization.submit} type="submit" color="primary" />
     </Container>
   );
 };

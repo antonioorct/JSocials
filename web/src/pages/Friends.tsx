@@ -10,6 +10,7 @@ import {
 } from "../services/friendServices";
 import handleError from "../utils/errorHandler";
 import { sendFriendRequest } from "../services/friendRequestServices";
+import localization from "../constants/Localization";
 
 const Container = styled(ContainerComponent)`
   padding: 3rem 0;
@@ -60,13 +61,11 @@ const Friends: FC = () => {
 
   return (
     <Container>
-      <h1>Friends</h1>
+      <h1>{localization.friends}</h1>
 
       <UserList users={friends} onRemoveFriend={handleRemoveFriend} />
 
-      <SubTitle>
-        Looking for people to meet? Here are some friend suggestions...
-      </SubTitle>
+      <SubTitle>{localization.friendSuggestions}</SubTitle>
 
       <UserList users={friendSuggestions} onSendRequest={handleSendRequest} />
     </Container>
