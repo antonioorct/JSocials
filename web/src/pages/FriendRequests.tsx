@@ -10,6 +10,7 @@ import {
   getAllFriendRequests,
 } from "../services/friendRequestServices";
 import localization from "../constants/Localization";
+import { theme } from "../theme/theme.config";
 
 const Container = styled(ContainerComponent)`
   padding: 6rem 0 3rem;
@@ -18,6 +19,10 @@ const Container = styled(ContainerComponent)`
 
 const Title = styled.h1`
   margin: 0;
+
+  ${theme.mediaQueries.mobile} {
+    margin-bottom: 3rem;
+  }
 `;
 
 const FriendRequestsContainer = styled.div`
@@ -26,6 +31,10 @@ const FriendRequestsContainer = styled.div`
 
   & > * {
     flex-grow: 1;
+  }
+
+  ${theme.mediaQueries.mobile} {
+    flex-direction: column;
   }
 `;
 

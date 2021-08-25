@@ -30,8 +30,9 @@ const Container = styled(ContainerComponent)`
     ${theme.mediaQueries.mobile} {
       flex-direction: column;
 
+      box-sizing: border-box;
+      padding-top: 1rem;
       height: calc(${window.innerHeight}px - 70px);
-
       width: 100%;
     }
   }
@@ -69,6 +70,8 @@ const ChatContainer = styled.div`
     flex-basis: unset;
 
     overflow: hidden;
+
+    height: 100%;
   }
 `;
 

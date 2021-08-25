@@ -13,12 +13,15 @@ interface ImageListProps {
 const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+
   gap: 0.5rem;
 
   & > * {
     flex-basis: calc(33.33% - 0.5rem);
 
     max-width: calc(33.33% - 0.5rem);
+    height: fit-content;
 
     cursor: pointer;
   }

@@ -30,10 +30,13 @@ const Container = styled(ContainerComponent)`
   }
 
   ${theme.mediaQueries.mobile} {
+    min-height: 100vh;
+
     background: ${theme.palette.primary}67;
 
     & > div {
-      height: ${window.innerHeight}px;
+      padding-bottom: 3rem;
+      height: 100%;
     }
   }
 `;
@@ -45,6 +48,10 @@ const TitleContainer = styled.div`
     position: absolute;
     bottom: 0;
     left: 0;
+
+    ${theme.mediaQueries.mobile} {
+      position: relative;
+    }
   }
 `;
 

@@ -1,9 +1,9 @@
 import { FC, FormEvent, FormHTMLAttributes, useState, MouseEvent } from "react";
 import styled from "styled-components";
 import Localization from "../../constants/Localization";
+import MagnifyingGlass from "../../img/icons/MagnifyingGlass";
 import { theme } from "../../theme/theme.config";
 import Anchor from "../shared-components/Anchor";
-import Button from "../shared-components/Button";
 import Input from "../shared-components/Input";
 
 interface UserSearchFromProps extends FormHTMLAttributes<HTMLFormElement> {
@@ -19,7 +19,6 @@ const Container = styled.form<{
   display: flex;
 
   ${(props) => props.hideOnDesktop && "display: none;"}
-  margin-left: 2rem;
 
   & input {
     margin: 0;
@@ -27,9 +26,18 @@ const Container = styled.form<{
     height: calc(100% - 3px);
   }
 
-  & button {
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
+  & a {
+    display: contents;
+  }
+
+  & svg {
+    vertical-align: middle;
+    padding: 0.3rem 0.8rem;
+    border-radius: 0 0.3rem 0.3rem 0;
+
+    cursor: pointer;
+
+    background-color: ${theme.palette.primary};
 
     ${theme.mediaQueries.tablet} {
       display: none;
@@ -40,7 +48,9 @@ const Container = styled.form<{
     ${(props) => props.hideOnMobile && "display: none"};
     ${(props) => props.hideOnDesktop && "display: flex"};
 
-    & button {
+    width: 50%;
+
+    & svg {
       display: block;
     }
   }
@@ -77,10 +87,12 @@ const UserSearchForm: FC<UserSearchFromProps> = ({
       />
 
       {searchValue === "" ? (
-        <Button label={Localization.search} color="primary" />
+        <MagnifyingGlass />
       ) : (
+        // <Button label={Localization.search} color="primary" />
         <Anchor to={`/search/${searchValue}`}>
-          <Button label={Localization.search} color="primary" />
+          <MagnifyingGlass />
+          {/* <Button label={Localization.search} color="primary" /> */}
         </Anchor>
       )}
     </Container>

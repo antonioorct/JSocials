@@ -33,6 +33,10 @@ const ButtonContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  ${theme.mediaQueries.mobile} {
+    margin-top: 2rem;
+  }
 `;
 
 const RegisterForm: FC<RegisterFormProps> = ({
