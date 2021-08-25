@@ -57,6 +57,8 @@ const DetailsContainer = styled.div`
     & > * {
       flex-basis: calc(50% - 1rem);
     }
+
+    row-gap: 2rem;
   }
 `;
 

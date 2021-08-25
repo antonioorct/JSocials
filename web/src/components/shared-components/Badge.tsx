@@ -26,6 +26,12 @@ const Circle = styled.div`
     content: "";
     padding-bottom: 100%;
   }
+
+  ${theme.mediaQueries.mobile} {
+    background-color: ${theme.components.button.primary.color};
+
+    color: ${theme.components.button.primary.background};
+  }
 `;
 
 const BadgeContainer = styled.div`

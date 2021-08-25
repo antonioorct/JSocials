@@ -26,6 +26,10 @@ const Container = styled(ContainerComponent)`
       flex-direction: column;
     }
   }
+
+  ${theme.mediaQueries.mobile} {
+    margin: 5rem 0 4rem;
+  }
 `;
 
 const initialCredentialsForm: ICredentialsForm = {

@@ -44,6 +44,17 @@ const Container = styled.div<{ fullWidth: boolean }>`
       max-width: calc(50% - 0.25rem);
     }
   }
+
+  ${theme.mediaQueries.mobile} {
+    flex-direction: column;
+    flex-wrap: nowrap;
+
+    & > * {
+      flex-basis: 100%;
+
+      max-width: 100%;
+    }
+  }
 `;
 
 const AuthorCard = styled(Author)`
